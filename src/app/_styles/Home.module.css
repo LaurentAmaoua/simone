@@ -1,0 +1,91 @@
+.container {
+  padding: var(--p-m);
+  margin: auto;
+  width: 100%;
+}
+
+.inner {
+  background: var(--c-white);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--app-width);
+  height: var(--app-height);
+  gap: var(--g-m);
+  margin: auto;
+  border: 1px solid var(--c-lapis-lazuli);
+  padding: var(--p-m);
+  border-radius: var(--br-m);
+  box-shadow: 10px 10px 10 0px rgba(0, 0, 0, 0.25);
+}
+
+.attrContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-s);
+  flex: 1;
+}
+
+.sectionTitle {
+  font-size: var(--fs-l);
+}
+
+.flex {
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-m);
+  flex: 1;
+  overflow: scroll;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-m);
+  width: 100%;
+
+  padding: 0 16px 0 0;
+}
+
+.leftInner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.right {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
+.activitiesContainer {
+  overflow: scroll;
+}
+
+.footerGradient {
+  background: linear-gradient(180deg, transparent, var(--c-white));
+  bottom: 100%;
+  content: "";
+  height: var(--footer-height);
+  pointer-events: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.idle {
+  margin: auto;
+}
+
+@media (min-width: 688px) {
+  .flex {
+    flex-direction: row;
+  }
+
+  .left {
+    max-width: var(--calendar-min-width);
+    border-right: 1px solid lightgray;
+  }
+}

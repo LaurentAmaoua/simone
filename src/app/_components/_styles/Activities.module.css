@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: var(--g-m);
+  margin: 0 0 var(--footer-height);
+}
+
+.container:has(> *:only-child) {
+  justify-content: center;
+  align-items: center;
+}
+
+.sectionTitle {
+  font-size: var(--fs-l);
+  font-weight: var(--fw-500);
+}
+
+.activity {
+  border: 1px solid var(--c-lapis-lazuli);
+  border-radius: var(--br-m);
+  display: inline-block;
+  padding: var(--p-s);
+}
+
+.activityTitle {
+  font-size: var(--fs-l);
+}

@@ -1,0 +1,85 @@
+.popoverTrigger {
+  width: 100%;
+  border-radius: var(--br-m);
+  border: 2px solid var(--c-lapis-lazuli);
+  font-weight: var(--fw-400);
+}
+
+.popoverTrigger.selected {
+  background: var(--c-orange-wheel);
+}
+
+.button {
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+}
+
+.calendarIcon {
+  width: 16px;
+}
+
+.chevronDown {
+  opacity: 0.5;
+}
+
+.popoverContent {
+  padding: 0;
+  border: none;
+}
+
+.calendar {
+  border: 1px solid var(--c-lapis-lazuli);
+  border-radius: var(--br-m);
+}
+
+.root {
+  background: var(--c-white);
+  width: 100%;
+}
+
+.headCell {
+  width: 100%;
+  font-size: var(--fs-s);
+}
+
+.month {
+  text-transform: capitalize;
+  width: 100%;
+}
+/* Thanks Tailwind :) */
+.month > * + * {
+  margin-top: var(--m-xl);
+}
+
+.daySelected {
+  background: var(--c-orange-wheel);
+}
+
+.cell {
+  width: 100%;
+  height: auto;
+}
+
+.dayToday {
+  border: 2px solid var(--c-orange-wheel);
+}
+
+.dayOutside {
+  opacity: 0.5;
+}
+
+.day {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1/1;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.day:not(.daySelected):hover {
+  background: var(--c-mint-green);
+}

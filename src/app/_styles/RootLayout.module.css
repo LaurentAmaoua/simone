@@ -1,0 +1,10 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+}
+
+.body {
+  background: var(--c-lapis-lazuli);
+  height: 100%;
+  display: flex;
+}
