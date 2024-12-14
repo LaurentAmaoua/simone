@@ -21,7 +21,6 @@ interface CustomDayProps {
 
 const CustomDay = ({ date, displayMonth, className }: CustomDayProps) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
-  // @ts-expect-error - Circular clusterf*ck
   const dayRender = useDayRender(date, displayMonth, buttonRef);
 
   if (dayRender.isHidden) {
