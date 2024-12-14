@@ -32,6 +32,8 @@
     --app-width: 900px;
     --app-height: 700px;
     --calendar-min-width: 288px;
+    --b-s: 10px 10px 10 0px red;
+
     --footer-height: 100px;
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;

@@ -16,7 +16,6 @@
   border: 1px solid var(--c-lapis-lazuli);
   padding: var(--p-m);
   border-radius: var(--br-m);
-  box-shadow: 10px 10px 10 0px rgba(0, 0, 0, 0.25);
 }
 
 .attrContainer {
@@ -43,8 +42,12 @@
   flex-direction: column;
   gap: var(--g-m);
   width: 100%;
-
-  padding: 0 16px 0 0;
+  position: sticky;
+  top: 0;
+  background: var(--c-white);
+  z-index: 1;
+  padding: 0 0 var(--p-xl) 0;
+  box-shadow: var(--b-s);
 }
 
 .leftInner {
@@ -87,5 +90,6 @@
   .left {
     max-width: var(--calendar-min-width);
     border-right: 1px solid lightgray;
+    padding: 0 16px 0 0;
   }
 }
