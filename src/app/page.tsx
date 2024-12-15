@@ -16,20 +16,33 @@ export default function Home() {
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange>();
 
   const {
-    data: activities,
-    error,
-    isLoading,
-  } = api.activity.getActivitiesForSiteAndDateRange.useQuery(
+    data: genericActivities,
+    error: genericActivitiesError,
+    isLoading: genericActivitiesIsLoading,
+  } = api.activity.getGenericActivitiesForSite.useQuery(
     selectedSite
       ? {
           site: selectedSite,
-          dateRange: {
-            from: selectedDateRange?.from,
-            to: selectedDateRange?.to,
-          },
         }
       : skipToken,
     { enabled: !!selectedSite },
+  );
+
+  const {
+    data: specificActivities,
+    error: allActivitiesError,
+    isLoading: allActivitiesIsLoading,
+  } = api.activity.getSpecificActivitiesForSiteAndDateRange.useQuery(
+    selectedSite && selectedDateRange?.from && selectedDateRange?.to
+      ? {
+          site: selectedSite,
+          dateRange: {
+            from: selectedDateRange.from,
+            to: selectedDateRange.to,
+          },
+        }
+      : skipToken,
+    { enabled: !!selectedDateRange },
   );
 
   return (
@@ -59,9 +72,12 @@ export default function Home() {
               <>
                 <div className={styles.activitiesContainer}>
                   <Activities
-                    error={error}
-                    isLoading={isLoading}
-                    activities={activities}
+                    error={genericActivitiesError ?? allActivitiesError}
+                    isLoading={
+                      genericActivitiesIsLoading || allActivitiesIsLoading
+                    }
+                    specificActivities={specificActivities}
+                    genericActivities={genericActivities}
                     dateRange={selectedDateRange}
                   />
                 </div>

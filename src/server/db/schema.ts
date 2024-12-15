@@ -10,7 +10,6 @@ import {
   varchar,
   index,
   text,
-  date,
 } from "drizzle-orm/pg-core";
 
 /**

@@ -1,6 +1,6 @@
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { ACTIVITY_KIND } from "~/app/_components/Activities";
-import { CAMPSITES } from "~/app/_components/Select";
+import { type CAMPSITES } from "~/app/_components/Select";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -35,33 +35,52 @@ export const activityRouter = createTRPCRouter({
         throw err;
       }
     }),
-  getActivitiesForSiteAndDateRange: publicProcedure
+  getGenericActivitiesForSite: publicProcedure
+    .input(z.object({ site: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const activitiesForSite = await ctx.db.query.activities.findMany({
+          where: (activity, { and, or, eq }) =>
+            and(
+              eq(activity.locatedAt, input.site as CAMPSITES),
+              eq(activity.kind, ACTIVITY_KIND.ON_SITE_GENERIC),
+            ),
+        });
+
+        if (!activitiesForSite) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "No activities found for this site",
+          });
+        }
+
+        return activitiesForSite;
+      } catch (err) {
+        console.error(err);
+        throw err;
+      }
+    }),
+  getSpecificActivitiesForSiteAndDateRange: publicProcedure
     .input(
       z.object({
-        site: z.nativeEnum(CAMPSITES),
-        dateRange: z
-          .object({ from: z.date().optional(), to: z.date().optional() })
-          .optional(),
+        site: z.string(),
+        dateRange: z.object({
+          from: z.date(),
+          to: z.date(),
+        }),
       }),
     )
     .query(async ({ ctx, input }) => {
       const { site, dateRange } = input;
-      console.log("site", site);
 
       try {
         const activities = await ctx.db.query.activities.findMany({
-          where: (activity, { eq, and, or, between }) =>
+          where: (activity, { eq, and, between }) =>
             and(
-              eq(activity.locatedAt, site),
-              or(
-                dateRange?.from && dateRange.to
-                  ? between(activity.startDate, dateRange.from, dateRange.to)
-                  : undefined,
-                eq(activity.kind, ACTIVITY_KIND.ON_SITE_GENERIC),
-              ),
+              eq(activity.locatedAt, site as CAMPSITES),
+              between(activity.startDate, dateRange.from, dateRange.to),
             ),
         });
-        console.log("activities", activities);
 
         if (!activities) {
           console.log("error");

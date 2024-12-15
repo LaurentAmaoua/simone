@@ -36,10 +36,10 @@ const CustomDay = ({ date, displayMonth, className }: CustomDayProps) => {
   }
   return (
     <Button
-      className={className}
+      {...dayRender.buttonProps}
+      className={`${dayRender.buttonProps.className} ${className}`}
       name="day"
       ref={buttonRef}
-      {...dayRender.buttonProps}
     />
   );
 };
@@ -103,20 +103,19 @@ function Calendar({
       components={{
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
-        // Day: ({ ...props }) => {
-        //   const blah = props.date.toDateString();
-        //   const hasActivity = daysWithActivities?.some((day) => {
-        //     const blee = day.toDateString();
-        //     return blee === blah;
-        //   });
-        //   return (
-        //     <CustomDay
-        //       date={props.date}
-        //       displayMonth={props.displayMonth}
-        //       className={`${hasActivity ? styles.hasActivity : ""} ${classNames?.day} ${selected === format(props.date, "yyyy-MM-dd") ? classNames?.day_selected : ""} ${isToday === props.date.toDateString() ? classNames?.day_today : ""}`}
-        //     />
-        //   );
-        // },
+        Day: ({ ...props }) => {
+          const date = props.date.toDateString();
+          const hasActivity = daysWithActivities?.some((day) => {
+            return day.toDateString() === date;
+          });
+          return (
+            <CustomDay
+              date={props.date}
+              displayMonth={props.displayMonth}
+              className={`${hasActivity ? styles.hasActivity : ""} ${classNames?.day} ${selected === format(props.date, "yyyy-MM-dd") ? classNames?.day_selected : ""} ${isToday === props.date.toDateString() ? classNames?.day_today : ""}`}
+            />
+          );
+        },
       }}
       {...props}
     />

@@ -13,39 +13,40 @@ export enum ACTIVITY_KIND {
 }
 
 interface ActivitiesProps {
-  activities: Activity[] | undefined;
+  genericActivities: Activity[] | undefined;
+  specificActivities: Activity[] | undefined;
   error: TRPCClientErrorLike<AppRouter> | null;
   isLoading: boolean;
   dateRange: DateRange | undefined;
 }
 
 export const Activities = ({
-  activities,
+  genericActivities,
+  specificActivities,
   dateRange,
   error,
   isLoading,
 }: ActivitiesProps) => {
-  const genericActivities = useMemo(
+  // const genericActivities = useMemo(
+  //   () =>
+  //     genericActivities?.filter(
+  //       (activity) => activity.kind === ACTIVITY_KIND.ON_SITE_GENERIC,
+  //     ),
+  //   [genericActivities],
+  // );
+  const specificOffSiteActivities = useMemo(
     () =>
-      activities?.filter(
-        (activity) => activity.kind === ACTIVITY_KIND.ON_SITE_GENERIC,
-      ),
-    [activities],
-  );
-  console.log("genericActivities", genericActivities);
-  const offSiteActivities = useMemo(
-    () =>
-      activities?.filter(
+      specificActivities?.filter(
         (activity) => activity.kind === ACTIVITY_KIND.OFF_SITE,
       ),
-    [activities],
+    [specificActivities],
   );
-  const specificActivities = useMemo(
+  const specificOnSiteActivities = useMemo(
     () =>
-      activities?.filter(
+      specificActivities?.filter(
         (activity) => activity.kind === ACTIVITY_KIND.ON_SITE_SPECIFIC,
       ),
-    [activities],
+    [specificActivities],
   );
 
   if (isLoading) {
@@ -78,8 +79,8 @@ export const Activities = ({
       )}
 
       <h2 className={styles.sectionTitle}>Activités aux alentours du site</h2>
-      {offSiteActivities?.length
-        ? offSiteActivities.map((activity) => (
+      {specificOffSiteActivities?.length
+        ? specificOffSiteActivities.map((activity) => (
             <Activity key={activity.id} activity={activity} />
           ))
         : dateRange
@@ -87,8 +88,8 @@ export const Activities = ({
           : "Sélectionnez une date pour découvrir les activités aux alentours"}
 
       <h2 className={styles.sectionTitle}>Activités organisées sur le site</h2>
-      {specificActivities?.length
-        ? specificActivities.map((activity) => (
+      {specificOnSiteActivities?.length
+        ? specificOnSiteActivities.map((activity) => (
             <Activity key={activity.id} activity={activity} />
           ))
         : dateRange

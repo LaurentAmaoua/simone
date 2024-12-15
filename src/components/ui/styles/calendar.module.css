@@ -1,18 +1,4 @@
 .hasActivity {
   position: relative;
   border: 1px solid var(--c-mint-green);
-  border-radius: 50%;
 }
-/* 
-.hasActivity::after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background-color: #f00;
-  border-radius: 50%;
-  top: 80%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 2px;
-} */
