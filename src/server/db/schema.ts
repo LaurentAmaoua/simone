@@ -33,14 +33,14 @@ export const activities = createTable(
     name: varchar("name", { length: 256 }).notNull(),
     description: text("description").notNull(),
     kind: varchar("kind", { length: 255 }).$type<ACTIVITY_KIND>().notNull(),
-    located_at: varchar("located_at", { length: 255 })
+    locatedAt: varchar("located_at", { length: 255 })
       .$type<CAMPSITES>()
       .notNull(),
-    start_date: date("start_date", { mode: "date" }).notNull(),
-    end_date: date("end_date", { mode: "date" }).notNull(),
+    startDate: timestamp("start_date").notNull(),
+    endDate: timestamp("end_date").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
+      .notNull()
+      .defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
       () => new Date(),
     ),

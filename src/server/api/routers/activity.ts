@@ -13,7 +13,7 @@ export const activityRouter = createTRPCRouter({
         const activitiesForSite = await ctx.db.query.activities.findMany({
           where: (activity, { and, or, eq }) =>
             and(
-              eq(activity.located_at, input.site as CAMPSITES),
+              eq(activity.locatedAt, input.site as CAMPSITES),
               or(
                 eq(activity.kind, ACTIVITY_KIND.OFF_SITE),
                 eq(activity.kind, ACTIVITY_KIND.ON_SITE_SPECIFIC),
@@ -21,7 +21,7 @@ export const activityRouter = createTRPCRouter({
             ),
         });
 
-        const dates = activitiesForSite.map((activity) => activity.start_date);
+        const dates = activitiesForSite.map((activity) => activity.startDate);
 
         if (!activitiesForSite) {
           throw new TRPCError({
@@ -47,10 +47,10 @@ export const activityRouter = createTRPCRouter({
         const activities = await ctx.db.query.activities.findMany({
           where: (activity, { eq, and, or }) =>
             and(
-              eq(activity.located_at, site as CAMPSITES),
+              eq(activity.locatedAt, site as CAMPSITES),
               or(
                 formattedDate
-                  ? eq(activity.start_date, new Date(formattedDate))
+                  ? eq(activity.startDate, new Date(formattedDate))
                   : undefined,
                 eq(activity.kind, ACTIVITY_KIND.ON_SITE_GENERIC),
               ),
