@@ -4,6 +4,7 @@ import { type CAMPSITES, Select } from "./_components/Select";
 import { Activities } from "./_components/Activities";
 import { Calendar } from "./_components/Calendar";
 import { skipToken } from "@tanstack/react-query";
+import { type DateRange } from "react-day-picker";
 import { Header } from "./_components/Header";
 import { api } from "~/trpc/react";
 import { useState } from "react";
@@ -11,15 +12,20 @@ import { useState } from "react";
 import styles from "./_styles/Home.module.css";
 
 export default function Home() {
-  const [selectedSite, setSelectedSite] = useState<CAMPSITES | undefined>();
-  const [selectedDate, setSelectedDate] = useState<string>();
+  const [selectedSite, setSelectedSite] = useState<CAMPSITES>();
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRange>();
 
   const {
     data: activities,
     error,
     isLoading,
-  } = api.activity.getActivitiesForSiteAndDate.useQuery(
-    selectedSite ? { site: selectedSite, date: selectedDate } : skipToken,
+  } = api.activity.getActivitiesForSiteAndDateRange.useQuery(
+    selectedSite && selectedDateRange?.from && selectedDateRange.to
+      ? {
+          site: selectedSite,
+          dateRange: { from: selectedDateRange.from, to: selectedDateRange.to },
+        }
+      : skipToken,
     { enabled: !!selectedSite },
   );
 
@@ -39,8 +45,8 @@ export default function Home() {
                 <Calendar
                   site={selectedSite}
                   disabled={!selectedSite}
-                  date={selectedDate}
-                  onSelect={setSelectedDate}
+                  date={selectedDateRange}
+                  onSelect={setSelectedDateRange}
                 />
               </div>
             </div>
@@ -53,7 +59,7 @@ export default function Home() {
                     error={error}
                     isLoading={isLoading}
                     activities={activities}
-                    date={selectedDate}
+                    dateRange={selectedDateRange}
                   />
                 </div>
                 <div className={styles.footerGradient}></div>

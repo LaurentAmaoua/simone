@@ -1,15 +1,20 @@
 "use client";
 
-import { Button, DayPicker, useDayRender } from "react-day-picker";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { buttonVariants } from "~/components/ui/button";
-import { type ComponentProps, useRef } from "react";
 import { format } from "date-fns";
 import { cn } from "~/lib/utils";
+import { useRef } from "react";
+import {
+  type DayPickerRangeProps,
+  useDayRender,
+  DayPicker,
+  Button,
+} from "react-day-picker";
 
 import styles from "./styles/calendar.module.css";
 
-export type CalendarProps = ComponentProps<typeof DayPicker> & {
+export type CalendarProps = DayPickerRangeProps & {
   daysWithActivities: Date[] | undefined;
 };
 
@@ -31,10 +36,10 @@ const CustomDay = ({ date, displayMonth, className }: CustomDayProps) => {
   }
   return (
     <Button
-      {...dayRender.buttonProps}
       className={className}
       name="day"
       ref={buttonRef}
+      {...dayRender.buttonProps}
     />
   );
 };
@@ -98,20 +103,20 @@ function Calendar({
       components={{
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
-        Day: ({ ...props }) => {
-          const blah = props.date.toDateString();
-          const hasActivity = daysWithActivities?.some((day) => {
-            const blee = day.toDateString();
-            return blee === blah;
-          });
-          return (
-            <CustomDay
-              date={props.date}
-              displayMonth={props.displayMonth}
-              className={` ${hasActivity ? styles.hasActivity : ""} ${classNames?.day} ${selected === format(props.date, "yyyy-MM-dd") ? classNames?.day_selected : ""} ${isToday === props.date.toDateString() ? classNames?.day_today : ""}`}
-            />
-          );
-        },
+        // Day: ({ ...props }) => {
+        //   const blah = props.date.toDateString();
+        //   const hasActivity = daysWithActivities?.some((day) => {
+        //     const blee = day.toDateString();
+        //     return blee === blah;
+        //   });
+        //   return (
+        //     <CustomDay
+        //       date={props.date}
+        //       displayMonth={props.displayMonth}
+        //       className={`${hasActivity ? styles.hasActivity : ""} ${classNames?.day} ${selected === format(props.date, "yyyy-MM-dd") ? classNames?.day_selected : ""} ${isToday === props.date.toDateString() ? classNames?.day_today : ""}`}
+        //     />
+        //   );
+        // },
       }}
       {...props}
     />

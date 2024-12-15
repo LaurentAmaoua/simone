@@ -3,12 +3,12 @@
 import { Calendar as ShadCNCalendar } from "~/components/ui/calendar";
 import { CalendarIcon, ChevronDown } from "lucide-react";
 import { skipToken } from "@tanstack/react-query";
+import { type DateRange } from "react-day-picker";
 import { Button } from "~/components/ui/button";
 import { useEffect, useState } from "react";
 import { type CAMPSITES } from "./Select";
 import { fr } from "date-fns/locale";
 import { api } from "~/trpc/react";
-import { format } from "date-fns";
 import {
   Popover,
   PopoverContent,
@@ -16,10 +16,11 @@ import {
 } from "~/components/ui/popover";
 
 import styles from "./_styles/Calendar.module.css";
+import { formatToFrenchDate } from "~/lib/date";
 
 export type CalendarProps = {
-  date: string | undefined;
-  onSelect: (date: string | undefined) => void;
+  date: DateRange | undefined;
+  onSelect: (dateRange: DateRange | undefined) => void;
   site: CAMPSITES | undefined;
   disabled: boolean;
 };
@@ -30,8 +31,11 @@ export const Calendar = ({
   disabled,
   site,
 }: CalendarProps) => {
-  const [hasSelected, setHasSelected] = useState(false);
-  const [date, setDate] = useState<string | undefined>(dateFromProps);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(
+    dateFromProps,
+  );
+
+  console.log("dateRange", dateRange);
 
   const { data: daysWithActivities } =
     api.activity.getDaysWithActivitiesForSite.useQuery(
@@ -39,16 +43,15 @@ export const Calendar = ({
       { enabled: !!site },
     );
 
-  const handleSelect = (date: Date) => {
-    setHasSelected(true);
-    onSelect(format(date, "yyyy-MM-dd"));
-    if (date?.getMonth() !== new Date().getMonth()) {
-      setDate(format(date, "yyyy-MM-dd"));
-    }
+  const handleSelect = (dateRange: DateRange | undefined) => {
+    onSelect(dateRange);
+    // if (date?.getMonth() !== new Date().getMonth()) {
+    //   setDate(format(date, "yyyy-MM-dd"));
+    // }
   };
 
   useEffect(() => {
-    setDate(dateFromProps);
+    setDateRange(dateFromProps);
   }, [dateFromProps]);
 
   return (
@@ -56,12 +59,15 @@ export const Calendar = ({
       <PopoverTrigger
         disabled={disabled}
         asChild
-        className={`${styles.popoverTrigger} ${hasSelected ? styles.selected : ""}`}
+        className={`${styles.popoverTrigger}`}
       >
         <Button variant="outline" className={styles.button}>
           <CalendarIcon className={styles.calendarIcon} />
-          {date ? (
-            format(date, "PPP", { locale: fr })
+          {dateRange?.from && dateRange.to ? (
+            <span>
+              {formatToFrenchDate(dateRange.from)} -{" "}
+              {formatToFrenchDate(dateRange.to)}
+            </span>
           ) : (
             <span>Choisir une date</span>
           )}
@@ -75,18 +81,23 @@ export const Calendar = ({
           classNames={{
             root: styles.root,
             head_cell: styles.headCell,
-            day_selected: styles.daySelected,
             cell: styles.cell,
             day: styles.day,
             day_today: styles.dayToday,
             day_outside: styles.dayOutside,
             month: styles.month,
+            day_selected: styles.daySelected,
+            day_range_start: styles.dayRangeStart,
+            day_range_middle: styles.dayRangeMiddle,
+            day_range_end: styles.dayRangeEnd,
           }}
           daysWithActivities={daysWithActivities}
-          mode="single"
-          selected={date ? new Date(date) : undefined}
-          onSelect={(day) => day && handleSelect(day)}
-          today={!date ? new Date() : undefined}
+          mode="range"
+          selected={dateRange ? dateRange : undefined}
+          onSelect={(range) => {
+            handleSelect(range);
+          }}
+          today={new Date()}
           showOutsideDays={false}
         />
       </PopoverContent>

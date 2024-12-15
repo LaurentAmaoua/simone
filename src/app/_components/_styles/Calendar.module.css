@@ -5,10 +5,6 @@
   font-weight: var(--fw-400);
 }
 
-.popoverTrigger.selected {
-  background: var(--c-orange-wheel);
-}
-
 .button {
   justify-content: space-between;
   padding: 0.5rem 0.75rem;
@@ -33,7 +29,6 @@
 }
 
 .root {
-  background: var(--c-white);
   width: 100%;
 }
 
@@ -52,7 +47,23 @@
 }
 
 .daySelected {
+  background: var(--c-mint-green);
+}
+
+.dayRangeStart {
+  background: var(--c-mint-green);
+  border-top-left-radius: 50%;
+  border-bottom-left-radius: 50%;
+}
+
+.dayRangeMiddle {
   background: var(--c-orange-wheel);
+}
+
+.dayRangeEnd {
+  background: var(--c-mint-green);
+  border-top-right-radius: 50%;
+  border-bottom-right-radius: 50%;
 }
 
 .cell {
@@ -60,8 +71,9 @@
   height: auto;
 }
 
-.dayToday {
+.dayToday:not(.dayRangeMiddle) {
   border: 2px solid var(--c-orange-wheel);
+  border-radius: 50%;
 }
 
 .dayOutside {
@@ -72,11 +84,9 @@
   width: 100%;
   height: auto;
   aspect-ratio: 1/1;
-
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 50%;
   cursor: pointer;
   transition: background 0.3s;
 }

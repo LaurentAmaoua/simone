@@ -1,9 +1,10 @@
 import { type TRPCClientErrorLike } from "@trpc/client";
 import { type Activity } from "~/server/db/schema";
 import { type AppRouter } from "~/server/api/root";
+import { type DateRange } from "react-day-picker";
+import { useMemo } from "react";
 
 import styles from "./_styles/Activities.module.css";
-import { useMemo } from "react";
 
 export enum ACTIVITY_KIND {
   OFF_SITE = "OFF_SITE",
@@ -15,13 +16,13 @@ interface ActivitiesProps {
   activities: Activity[] | undefined;
   error: TRPCClientErrorLike<AppRouter> | null;
   isLoading: boolean;
-  date: string | undefined;
+  dateRange: DateRange | undefined;
 }
 
 export const Activities = ({
   activities,
+  dateRange,
   error,
-  date,
   isLoading,
 }: ActivitiesProps) => {
   const genericActivities = useMemo(
@@ -80,7 +81,7 @@ export const Activities = ({
         ? offSiteActivities.map((activity) => (
             <Activity key={activity.id} activity={activity} />
           ))
-        : date
+        : dateRange
           ? "Aucune activité aux alentours du site à cette date"
           : "Sélectionnez une date pour découvrir les activités aux alentours"}
 
@@ -89,7 +90,7 @@ export const Activities = ({
         ? specificActivities.map((activity) => (
             <Activity key={activity.id} activity={activity} />
           ))
-        : date
+        : dateRange
           ? "Aucune activité organisée sur le site à cette date"
           : "Sélectionnez une date pour découvrir les activités organisées sur le site"}
     </div>

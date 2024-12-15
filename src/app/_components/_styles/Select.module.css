@@ -3,14 +3,11 @@
   border: 2px solid var(--c-lapis-lazuli);
   border-radius: var(--br-m);
   width: 100%;
+  padding: var(--p-m);
 }
 
 .trigger:hover {
   background: var(--c-mint-green);
-}
-
-.trigger.selected {
-  background: var(--c-orange-wheel);
 }
 
 .mapIcon {
@@ -23,7 +20,7 @@
 }
 
 .item {
-  color: var(--c-white);
+  padding: var(--p-s) var(--p-m);
   cursor: pointer;
   border-radius: var(--br-m);
 }

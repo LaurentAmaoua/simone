@@ -12,6 +12,7 @@
     --br-m: 10px;
 
     --p-xl: 32px;
+    --p-l: 24px;
     --p-m: 16px;
     --p-s: 8px;
 
@@ -35,7 +36,7 @@
     --b-s: 10px 10px 10 0px red;
 
     --footer-height: 100px;
-    --background: 0 0% 100%;
+    /* --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
@@ -59,13 +60,13 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 0.5rem; */
   }
   /* .dark {
     Not sure if there'll be a dark mode
   } */
   .dark {
-    --background: 240 10% 3.9%;
+    /* --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -88,7 +89,7 @@
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --chart-5: 340 75% 55%; */
   }
 }
 @layer base {

@@ -36,21 +36,26 @@ export const activityRouter = createTRPCRouter({
         throw err;
       }
     }),
-  getActivitiesForSiteAndDate: publicProcedure
-    .input(z.object({ site: z.string(), date: z.string().date().optional() }))
+  getActivitiesForSiteAndDateRange: publicProcedure
+    .input(
+      z.object({
+        site: z.string(),
+        dateRange: z.object({ from: z.date(), to: z.date() }),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      const { site, date } = input;
+      const { site, dateRange } = input;
 
-      const formattedDate = date && format(date, "yyyy-MM-dd");
+      // const formattedDate = date && format(date, "yyyy-MM-dd");
 
       try {
         const activities = await ctx.db.query.activities.findMany({
-          where: (activity, { eq, and, or }) =>
+          where: (activity, { eq, and, or, between }) =>
             and(
               eq(activity.locatedAt, site as CAMPSITES),
               or(
-                formattedDate
-                  ? eq(activity.startDate, new Date(formattedDate))
+                dateRange
+                  ? between(activity.startDate, dateRange.from, dateRange.to)
                   : undefined,
                 eq(activity.kind, ACTIVITY_KIND.ON_SITE_GENERIC),
               ),
