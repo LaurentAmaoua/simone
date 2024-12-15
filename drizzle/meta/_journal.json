@@ -15,6 +15,13 @@
       "when": 1734270143203,
       "tag": "0001_omit-fractional-seconds",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1734282986718,
+      "tag": "0002_all-dates-in-2025",
+      "breakpoints": true
     }
   ]
 }
