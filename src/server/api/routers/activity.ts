@@ -1,9 +1,8 @@
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { type CAMPSITES } from "~/app/_components/Select";
-import { TRPCError } from "@trpc/server";
-import { format } from "date-fns";
-import { z } from "zod";
 import { ACTIVITY_KIND } from "~/app/_components/Activities";
+import { CAMPSITES } from "~/app/_components/Select";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 
 export const activityRouter = createTRPCRouter({
   getDaysWithActivitiesForSite: publicProcedure
@@ -39,30 +38,34 @@ export const activityRouter = createTRPCRouter({
   getActivitiesForSiteAndDateRange: publicProcedure
     .input(
       z.object({
-        site: z.string(),
-        dateRange: z.object({ from: z.date(), to: z.date() }),
+        site: z.nativeEnum(CAMPSITES),
+        dateRange: z
+          .object({ from: z.date().optional(), to: z.date().optional() })
+          .optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const { site, dateRange } = input;
-
-      // const formattedDate = date && format(date, "yyyy-MM-dd");
+      console.log("site", site);
 
       try {
         const activities = await ctx.db.query.activities.findMany({
           where: (activity, { eq, and, or, between }) =>
             and(
-              eq(activity.locatedAt, site as CAMPSITES),
+              eq(activity.locatedAt, site),
               or(
-                dateRange
+                dateRange?.from && dateRange.to
                   ? between(activity.startDate, dateRange.from, dateRange.to)
                   : undefined,
                 eq(activity.kind, ACTIVITY_KIND.ON_SITE_GENERIC),
               ),
             ),
         });
+        console.log("activities", activities);
 
         if (!activities) {
+          console.log("error");
+
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "No activities found",

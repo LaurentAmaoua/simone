@@ -32,6 +32,7 @@ export const Activities = ({
       ),
     [activities],
   );
+  console.log("genericActivities", genericActivities);
   const offSiteActivities = useMemo(
     () =>
       activities?.filter(

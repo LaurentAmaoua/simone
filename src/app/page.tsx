@@ -20,10 +20,13 @@ export default function Home() {
     error,
     isLoading,
   } = api.activity.getActivitiesForSiteAndDateRange.useQuery(
-    selectedSite && selectedDateRange?.from && selectedDateRange.to
+    selectedSite
       ? {
           site: selectedSite,
-          dateRange: { from: selectedDateRange.from, to: selectedDateRange.to },
+          dateRange: {
+            from: selectedDateRange?.from,
+            to: selectedDateRange?.to,
+          },
         }
       : skipToken,
     { enabled: !!selectedSite },

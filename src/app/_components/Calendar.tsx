@@ -35,8 +35,6 @@ export const Calendar = ({
     dateFromProps,
   );
 
-  console.log("dateRange", dateRange);
-
   const { data: daysWithActivities } =
     api.activity.getDaysWithActivitiesForSite.useQuery(
       site ? { site } : skipToken,
