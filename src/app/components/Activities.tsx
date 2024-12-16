@@ -51,7 +51,7 @@ export const Activities = ({ site, dateRange }: ActivitiesProps) => {
 
   return (
     <div className={styles.container}>
-      {daysWithActivities?.map((day) => (
+      {daysWithActivities?.sort(sortByChronologicalOrder).map((day) => (
         <div key={day.toDateString()}>
           <h2 className={styles.day}>{formatToFrenchDate(day)}</h2>
           <div className={styles.dayActivities}>
@@ -201,4 +201,8 @@ const getTime = (date: Date) => {
 
 const getTimes = (startDate: Date, endDate: Date) => {
   return `${getTime(startDate)} - ${getTime(endDate)}`;
+};
+
+const sortByChronologicalOrder = (a: Date, b: Date) => {
+  return a.getTime() - b.getTime();
 };
