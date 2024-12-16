@@ -1,15 +1,15 @@
 "use client";
 
-import { type CAMPSITES, Select } from "./_components/Select";
-import { Activities } from "./_components/Activities";
-import { Calendar } from "./_components/Calendar";
+import { type CAMPSITES, Select } from "./components/Select";
+import { Activities } from "./components/Activities";
+import { Calendar } from "./components/Calendar";
 import { skipToken } from "@tanstack/react-query";
 import { type DateRange } from "react-day-picker";
-import { Header } from "./_components/Header";
+import { Header } from "./components/Header";
 import { api } from "~/trpc/react";
 import { useState } from "react";
 
-import styles from "./_styles/Home.module.css";
+import styles from "./styles/Home.module.css";
 
 export default function Home() {
   const [selectedSite, setSelectedSite] = useState<CAMPSITES>();

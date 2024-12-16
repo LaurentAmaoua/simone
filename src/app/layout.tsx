@@ -8,7 +8,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 
 import localFont from "next/font/local";
 
-import styles from "./_styles/RootLayout.module.css";
+import styles from "./styles/RootLayout.module.css";
 
 const CorporativeAlt = localFont({
   src: "../../public/corporativealt-regular-webfont.woff2",

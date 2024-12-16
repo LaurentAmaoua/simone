@@ -1,6 +1,6 @@
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { ACTIVITY_KIND } from "~/app/_components/Activities";
-import { type CAMPSITES } from "~/app/_components/Select";
+import { ACTIVITY_KIND } from "~/app/components/Activities";
+import { type CAMPSITES } from "~/app/components/Select";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 

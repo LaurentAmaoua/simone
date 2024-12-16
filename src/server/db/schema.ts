@@ -1,5 +1,5 @@
-import { type ACTIVITY_KIND } from "~/app/_components/Activities";
-import { type CAMPSITES } from "~/app/_components/Select";
+import { type ACTIVITY_KIND } from "~/app/components/Activities";
+import { type CAMPSITES } from "~/app/components/Select";
 import { type AdapterAccount } from "next-auth/adapters";
 import { type InferSelectModel, relations, sql } from "drizzle-orm";
 import {
