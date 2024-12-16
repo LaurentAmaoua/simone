@@ -4,11 +4,12 @@ const config = {
   parserOptions: {
     project: true,
   },
-  plugins: ["@typescript-eslint", "drizzle"],
+  plugins: ["@typescript-eslint", "drizzle", "css-modules"],
   extends: [
     "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:@typescript-eslint/stylistic-type-checked",
+    "plugin:css-modules/recommended",
   ],
   rules: {
     "@typescript-eslint/no-unsafe-call": "off",
