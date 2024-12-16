@@ -22,6 +22,13 @@
       "when": 1734282986718,
       "tag": "0002_all-dates-in-2025",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1734392281750,
+      "tag": "0003_delete-url-column",
+      "breakpoints": true
     }
   ]
 }

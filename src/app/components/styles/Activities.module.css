@@ -33,8 +33,6 @@
 
 .activity {
   padding: 0 0 0 var(--p-m);
-  display: inline-block;
-  border: none;
 }
 
 .activityTitle {

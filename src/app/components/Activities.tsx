@@ -67,13 +67,13 @@ export const Activities = ({ site, dateRange }: ActivitiesProps) => {
 
 const Activity = ({ activity }: { activity: Activity }) => {
   return (
-    <a href={activity.url} className={styles.activity}>
+    <div className={styles.activity}>
       <h3 className={styles.activityTitle}>{activity.name}</h3>
       <p className={styles.times}>
         {getTimes(activity.startDate, activity.endDate)}
       </p>
       <p>{activity.description}</p>
-    </a>
+    </div>
   );
 };
 

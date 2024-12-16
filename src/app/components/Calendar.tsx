@@ -57,7 +57,7 @@ export const Calendar = ({
       <PopoverTrigger
         disabled={disabled}
         asChild
-        className={`${styles.popoverTrigger}`}
+        className={styles.popoverTrigger}
       >
         <Button variant="outline" className={styles.button}>
           <CalendarIcon className={styles.calendarIcon} />

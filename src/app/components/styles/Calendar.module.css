@@ -5,6 +5,10 @@
   font-weight: var(--fw-400);
 }
 
+.popoverTrigger:hover {
+  background: var(--c-mint-green);
+}
+
 .button {
   justify-content: space-between;
   padding: 0.5rem 0.75rem;

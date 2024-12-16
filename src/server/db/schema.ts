@@ -26,9 +26,6 @@ export const activities = createTable(
   "activity",
   {
     id: integer("id").primaryKey().generatedByDefaultAsIdentity().notNull(),
-    url: varchar("url", { length: 255 })
-      .notNull()
-      .default("https://eden-villages.fr "),
     name: varchar("name", { length: 256 }).notNull(),
     description: text("description").notNull(),
     kind: varchar("kind", { length: 255 }).$type<ACTIVITY_KIND>().notNull(),
