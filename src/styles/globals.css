@@ -105,11 +105,3 @@
   color: var(--c-lapis-lazuli);
   font-family: var(--ff-Rubik);
 }
-
-a {
-  border-bottom: 1px solid var(--c-lapis-lazuli);
-}
-
-a:hover {
-  border-bottom: 1px solid var(--c-mint-green);
-}

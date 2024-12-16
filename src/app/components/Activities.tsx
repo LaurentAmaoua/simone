@@ -1,14 +1,11 @@
-import { type TRPCClientErrorLike } from "@trpc/client";
 import { type Activity } from "~/server/db/schema";
-import { type AppRouter } from "~/server/api/root";
 import { type DateRange } from "react-day-picker";
-import { useMemo } from "react";
+import { skipToken } from "@tanstack/react-query";
+import { formatToFrenchDate } from "~/lib/date";
+import { type CAMPSITES } from "./Select";
+import { api } from "~/trpc/react";
 
 import styles from "./styles/Activities.module.css";
-import { formatToFrenchDate } from "~/lib/date";
-import { api } from "~/trpc/react";
-import { skipToken } from "@tanstack/react-query";
-import { CAMPSITES } from "./Select";
 
 export enum ACTIVITY_KIND {
   OFF_SITE = "OFF_SITE",
@@ -17,44 +14,24 @@ export enum ACTIVITY_KIND {
 }
 
 interface ActivitiesProps {
-  activities: Activity[] | undefined;
-  error: TRPCClientErrorLike<AppRouter> | null;
   site: CAMPSITES | undefined;
-  isLoading: boolean;
   dateRange: DateRange | undefined;
 }
 
-export const Activities = ({
-  activities,
-  site,
-  dateRange,
-  error,
-  isLoading,
-}: ActivitiesProps) => {
-  const { data: daysWithActivities } =
-    api.activity.getDaysWithActivitiesForSiteAndDateRange.useQuery(
-      site && dateRange?.from && dateRange?.to
-        ? {
-            site,
-            range: { from: dateRange.from, to: dateRange.to },
-          }
-        : skipToken,
-      { enabled: !!dateRange },
-    );
-  // const specificOffSiteActivities = useMemo(
-  //   () =>
-  //     specificActivities?.filter(
-  //       (activity) => activity.kind === ACTIVITY_KIND.OFF_SITE,
-  //     ),
-  //   [specificActivities],
-  // );
-  // const specificOnSiteActivities = useMemo(
-  //   () =>
-  //     specificActivities?.filter(
-  //       (activity) => activity.kind === ACTIVITY_KIND.ON_SITE_SPECIFIC,
-  //     ),
-  //   [specificActivities],
-  // );
+export const Activities = ({ site, dateRange }: ActivitiesProps) => {
+  const {
+    data: daysWithActivities,
+    isLoading,
+    error,
+  } = api.activity.getDaysWithActivitiesForSiteAndDateRange.useQuery(
+    site && dateRange?.from && dateRange?.to
+      ? {
+          site,
+          range: { from: dateRange.from, to: dateRange.to },
+        }
+      : skipToken,
+    { enabled: !!dateRange },
+  );
 
   if (isLoading) {
     return (
@@ -75,23 +52,12 @@ export const Activities = ({
   return (
     <div className={styles.container}>
       {daysWithActivities?.map((day) => (
-        <div key={day.toDateString()} className={styles.day}>
-          <h2>{formatToFrenchDate(day)}</h2>
-          <div className={styles.blah}>
-            {activities
-              ?.filter(
-                (activity) =>
-                  activity.kind !== ACTIVITY_KIND.ON_SITE_GENERIC &&
-                  activity.startDate.toDateString() === day.toDateString(),
-              )
-              .sort((a, b) =>
-                a.startDate
-                  .toISOString()
-                  .localeCompare(b.startDate.toISOString()),
-              )
-              .map((activity) => (
-                <Activity key={activity.id} activity={activity} />
-              ))}
+        <div key={day.toDateString()}>
+          <h2 className={styles.day}>{formatToFrenchDate(day)}</h2>
+          <div className={styles.dayActivities}>
+            {site && <MorningActivity site={site} day={day} />}
+            {site && <AfternoonActivity site={site} day={day} />}
+            {site && <EveningActivity site={site} day={day} />}
           </div>
         </div>
       ))}
@@ -102,13 +68,112 @@ export const Activities = ({
 const Activity = ({ activity }: { activity: Activity }) => {
   return (
     <a href={activity.url} className={styles.activity}>
-      <h3 className={styles.activityTitle}></h3>
-      <p>{activity.kind}</p>
-      <p>{activity.name}</p>
+      <h3 className={styles.activityTitle}>{activity.name}</h3>
       <p>{getTimes(activity.startDate, activity.endDate)}</p>
-      <p>{activity.locatedAt}</p>
       <p>{activity.description}</p>
     </a>
+  );
+};
+
+const MorningActivity = ({ site, day }: { site: CAMPSITES; day: Date }) => {
+  const {
+    data: activities,
+    isLoading,
+    error,
+  } = api.activity.getActivitiesForSiteAndDay.useQuery({
+    site,
+    day,
+  });
+  const morningActivities = activities?.filter(filterMorningActivities);
+
+  if (isLoading) {
+    return <p>Chargement des activités en cours...</p>;
+  }
+
+  if (error) {
+    return <p>Une erreur est survenue lors du chargement des activités</p>;
+  }
+  return (
+    <>
+      <h3 className={styles.period}>Matin</h3>
+      {morningActivities?.length ? (
+        morningActivities.map((activity) => (
+          <Activity key={activity.id} activity={activity} />
+        ))
+      ) : (
+        <p className={styles.activity}>
+          Aucune activité trouvée pour ce site à cette date
+        </p>
+      )}
+    </>
+  );
+};
+
+const AfternoonActivity = ({ site, day }: { site: CAMPSITES; day: Date }) => {
+  const {
+    data: activities,
+    isLoading,
+    error,
+  } = api.activity.getActivitiesForSiteAndDay.useQuery({
+    site,
+    day,
+  });
+  const afternoonActivities = activities?.filter(filterAfternoonActivities);
+
+  if (isLoading) {
+    return <p>Chargement des activités en cours...</p>;
+  }
+
+  if (error) {
+    return <p>Une erreur est survenue lors du chargement des activités</p>;
+  }
+  return (
+    <>
+      <h3 className={styles.period}>Après-midi</h3>
+      {afternoonActivities?.length ? (
+        afternoonActivities.map((activity) => (
+          <Activity key={activity.id} activity={activity} />
+        ))
+      ) : (
+        <p className={styles.activity}>
+          Aucune activité trouvée pour ce site à cette date
+        </p>
+      )}
+    </>
+  );
+};
+
+const EveningActivity = ({ site, day }: { site: CAMPSITES; day: Date }) => {
+  const {
+    data: activities,
+    isLoading,
+    error,
+  } = api.activity.getActivitiesForSiteAndDay.useQuery({
+    site,
+    day,
+  });
+  const eveningActivities = activities?.filter(filterEveningActivities);
+
+  if (isLoading) {
+    return <p>Chargement des activités en cours...</p>;
+  }
+
+  if (error) {
+    return <p>Une erreur est survenue lors du chargement des activités</p>;
+  }
+  return (
+    <>
+      <h3 className={styles.period}>Soir</h3>
+      {eveningActivities?.length ? (
+        eveningActivities.map((activity) => (
+          <Activity key={activity.id} activity={activity} />
+        ))
+      ) : (
+        <p className={styles.activity}>
+          Aucune activité trouvée pour ce site à cette date
+        </p>
+      )}
+    </>
   );
 };
 
@@ -122,7 +187,7 @@ const filterAfternoonActivities = (activity: Activity) => {
   return startDate.getHours() >= 12 && startDate.getHours() < 18;
 };
 
-const eveningActivities = (activity: Activity) => {
+const filterEveningActivities = (activity: Activity) => {
   const startDate = new Date(activity.startDate);
   return startDate.getHours() >= 18;
 };
@@ -136,10 +201,4 @@ const getTime = (date: Date) => {
 
 const getTimes = (startDate: Date, endDate: Date) => {
   return `${getTime(startDate)} - ${getTime(endDate)}`;
-};
-
-const getDuration = (startDate: Date, endDate: Date) => {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  return `${getTime(start)} - ${getTime(end)}`;
 };

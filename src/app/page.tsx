@@ -2,11 +2,9 @@
 
 import { type CAMPSITES, Select } from "./components/Select";
 import { Activities } from "./components/Activities";
-import { Calendar } from "./components/Calendar";
-import { skipToken } from "@tanstack/react-query";
 import { type DateRange } from "react-day-picker";
+import { Calendar } from "./components/Calendar";
 import { Header } from "./components/Header";
-import { api } from "~/trpc/react";
 import { useState } from "react";
 
 import styles from "./styles/Home.module.css";
@@ -14,36 +12,6 @@ import styles from "./styles/Home.module.css";
 export default function Home() {
   const [selectedSite, setSelectedSite] = useState<CAMPSITES>();
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange>();
-
-  const {
-    data: genericActivities,
-    error: genericActivitiesError,
-    isLoading: genericActivitiesIsLoading,
-  } = api.activity.getGenericActivitiesForSite.useQuery(
-    selectedSite
-      ? {
-          site: selectedSite,
-        }
-      : skipToken,
-    { enabled: !!selectedSite },
-  );
-
-  const {
-    data: specificActivities,
-    error: allActivitiesError,
-    isLoading: allActivitiesIsLoading,
-  } = api.activity.getSpecificActivitiesForSiteAndDateRange.useQuery(
-    selectedSite && selectedDateRange?.from && selectedDateRange?.to
-      ? {
-          site: selectedSite,
-          dateRange: {
-            from: selectedDateRange.from,
-            to: selectedDateRange.to,
-          },
-        }
-      : skipToken,
-    { enabled: !!selectedDateRange },
-  );
 
   return (
     <main className={styles.container}>
@@ -72,12 +40,7 @@ export default function Home() {
               <>
                 <div className={styles.activitiesContainer}>
                   <Activities
-                    error={genericActivitiesError ?? allActivitiesError}
-                    isLoading={
-                      genericActivitiesIsLoading || allActivitiesIsLoading
-                    }
-                    specificActivities={specificActivities}
-                    genericActivities={genericActivities}
+                    site={selectedSite}
                     dateRange={selectedDateRange}
                   />
                 </div>

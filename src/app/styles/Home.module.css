@@ -46,7 +46,7 @@
   top: 0;
   background: var(--c-white);
   z-index: 1;
-  padding: 0 0 var(--p-xl) 0;
+  padding: 0 0 var(--p-s) 0;
   box-shadow: var(--b-s);
 }
 

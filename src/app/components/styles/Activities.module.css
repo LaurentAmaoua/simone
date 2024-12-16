@@ -11,18 +11,36 @@
   align-items: center;
 }
 
+.day {
+  font-weight: var(--fw-500);
+}
+
+.dayActivities {
+  border: 1px solid var(--c-lapis-lazuli);
+  border-radius: var(--br-m);
+  margin: var(--m-xl) 0 0;
+  padding: var(--p-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-s);
+}
+
 .sectionTitle {
   font-size: var(--fs-l);
   font-weight: var(--fw-500);
 }
 
 .activity {
-  border: 1px solid var(--c-lapis-lazuli);
-  border-radius: var(--br-m);
+  padding: 0 0 0 var(--p-m);
   display: inline-block;
-  padding: var(--p-s);
+  border: none;
 }
 
 .activityTitle {
   font-size: var(--fs-l);
+}
+
+.period {
+  font-size: var(--fs-s);
+  font-weight: var(--fw-700);
 }

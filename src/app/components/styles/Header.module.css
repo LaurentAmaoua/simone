@@ -15,4 +15,9 @@
 
 .link {
   font-family: var(--ff-CorporativeAlt);
+  border-bottom: 1px solid var(--c-lapis-lazuli);
+}
+
+.link:hover {
+  border-bottom: 1px solid var(--c-orange-wheel);
 }

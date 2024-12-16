@@ -21,6 +21,7 @@
 .popoverContent {
   padding: 0;
   border: none;
+  background: var(--c-white);
 }
 
 .calendar {
