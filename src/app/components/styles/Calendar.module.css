@@ -8,10 +8,15 @@
 .button {
   justify-content: space-between;
   padding: 0.5rem 0.75rem;
+  height: var(--button-height);
 }
 
 .calendarIcon {
   width: 16px;
+}
+
+.range {
+  white-space: wrap;
 }
 
 .chevronDown {
@@ -22,6 +27,7 @@
   padding: 0;
   border: none;
   background: var(--c-white);
+  border-radius: var(--br-m);
 }
 
 .calendar {

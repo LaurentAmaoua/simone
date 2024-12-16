@@ -62,7 +62,7 @@ export const Calendar = ({
         <Button variant="outline" className={styles.button}>
           <CalendarIcon className={styles.calendarIcon} />
           {dateRange?.from && dateRange.to ? (
-            <span>
+            <span className={styles.range}>
               {formatToFrenchDate(dateRange.from)} -{" "}
               {formatToFrenchDate(dateRange.to)}
             </span>
