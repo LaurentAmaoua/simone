@@ -65,6 +65,7 @@
 
 .activitiesContainer {
   overflow: scroll;
+  width: 100%;
 }
 
 .footerGradient {

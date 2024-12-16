@@ -69,7 +69,9 @@ const Activity = ({ activity }: { activity: Activity }) => {
   return (
     <a href={activity.url} className={styles.activity}>
       <h3 className={styles.activityTitle}>{activity.name}</h3>
-      <p>{getTimes(activity.startDate, activity.endDate)}</p>
+      <p className={styles.times}>
+        {getTimes(activity.startDate, activity.endDate)}
+      </p>
       <p>{activity.description}</p>
     </a>
   );

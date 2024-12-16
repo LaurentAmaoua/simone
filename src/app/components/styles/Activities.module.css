@@ -13,6 +13,7 @@
 
 .day {
   font-weight: var(--fw-500);
+  color: var(--c-orange-wheel);
 }
 
 .dayActivities {
@@ -38,6 +39,11 @@
 
 .activityTitle {
   font-size: var(--fs-l);
+  color: var(--c-mint-green);
+}
+
+.times {
+  color: var(--c-orange-wheel);
 }
 
 .period {
