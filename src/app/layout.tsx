@@ -15,7 +15,7 @@ const CorporativeAlt = localFont({
   variable: "--ff-CorporativeAlt",
 });
 
-export const Rubik = localFont({
+const Rubik = localFont({
   src: "../../public/Rubik-VariableFont_wght.ttf",
   variable: "--ff-Rubik",
 });
