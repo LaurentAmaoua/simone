@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 
-import styles from "./_styles/Calendar.module.css";
+import styles from "./styles/Calendar.module.css";
 import { formatToFrenchDate } from "~/lib/date";
 
 export type CalendarProps = {

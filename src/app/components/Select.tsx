@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-import styles from "./_styles/Select.module.css";
+import styles from "./styles/Select.module.css";
 
 enum Region {
   CHARENTE_MARITIME = "Charente-Maritime",
