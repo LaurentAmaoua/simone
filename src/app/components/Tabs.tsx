@@ -36,7 +36,7 @@ export const Tabs = ({ site, dateRange }: TabsProps) => {
         <div className={styles.borderBottom}></div>
       </div>
       {!dateRange && selectedTab === TABS.SPECIFIC ? (
-        <p>Veuillez sélectionner une date</p>
+        <p className={styles.idle}>Veuillez sélectionner une date</p>
       ) : (
         <Activities
           site={site}
