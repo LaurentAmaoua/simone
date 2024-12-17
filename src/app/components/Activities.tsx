@@ -24,13 +24,13 @@ export const Activities = ({ site, dateRange }: ActivitiesProps) => {
     isLoading,
     error,
   } = api.activity.getDaysWithActivitiesForSiteAndDateRange.useQuery(
-    site && dateRange?.from && dateRange?.to
+    site
       ? {
           site,
-          range: { from: dateRange.from, to: dateRange.to },
+          range: { from: dateRange?.from, to: dateRange?.to },
         }
       : skipToken,
-    { enabled: !!dateRange },
+    { enabled: !!site },
   );
 
   if (isLoading) {
@@ -72,7 +72,7 @@ const Activity = ({ activity }: { activity: Activity }) => {
       <p className={styles.times}>
         {getTimes(activity.startDate, activity.endDate)}
       </p>
-      <p>{activity.description}</p>
+      <p className={styles.description}>{activity.description}</p>
     </div>
   );
 };

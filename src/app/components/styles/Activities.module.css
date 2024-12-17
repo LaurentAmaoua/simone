@@ -3,7 +3,7 @@
   flex-direction: column;
   width: 100%;
   gap: var(--g-m);
-  margin: 0 0 var(--footer-height);
+  margin: var(--m-xl) 0 var(--footer-height);
 }
 
 .container:has(> *:only-child) {
@@ -42,6 +42,10 @@
 
 .times {
   color: var(--c-orange-wheel);
+}
+
+.description {
+  font-family: var(--ff-CorporativeAlt);
 }
 
 .period {

@@ -1,10 +1,10 @@
 "use client";
 
 import { type CAMPSITES, Select } from "./components/Select";
-import { Activities } from "./components/Activities";
 import { type DateRange } from "react-day-picker";
 import { Calendar } from "./components/Calendar";
 import { Header } from "./components/Header";
+import { Tabs } from "./components/Tabs";
 import { useState } from "react";
 
 import styles from "./styles/Home.module.css";
@@ -37,15 +37,7 @@ export default function Home() {
           </div>
           <div className={styles.right}>
             {selectedSite ? (
-              <>
-                <div className={styles.activitiesContainer}>
-                  <Activities
-                    site={selectedSite}
-                    dateRange={selectedDateRange}
-                  />
-                </div>
-                <div className={styles.footerGradient}></div>
-              </>
+              <Tabs site={selectedSite} dateRange={selectedDateRange} />
             ) : (
               <span className={styles.idle}>
                 Veuillez sélectionner un site et une date

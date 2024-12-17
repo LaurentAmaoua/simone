@@ -1,0 +1,47 @@
+.activitiesContainer {
+  overflow: scroll;
+  width: 100%;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  background: var(--c-white);
+  display: flex;
+  gap: var(--g-s);
+}
+
+.tab {
+  border: 2px solid var(--c-lapis-lazuli);
+  background: var(--c-white);
+  border-radius: var(--br-m) var(--br-m) 0 0;
+  padding: var(--p-s);
+  border-color: var(--c-lapis-lazuli) var(--c-lapis-lazuli) transparent
+    var(--c-lapis-lazuli);
+}
+
+.tab.active {
+  background: var(--c-mint-green);
+  z-index: 1;
+}
+
+.borderBottom {
+  border-bottom: 2px solid var(--c-lapis-lazuli);
+  height: 1px;
+  width: 100%;
+  position: absolute;
+  bottom: 0px;
+  box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.footerGradient {
+  background: linear-gradient(180deg, transparent, var(--c-white));
+  bottom: 100%;
+  content: "";
+  height: var(--footer-height);
+  pointer-events: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}

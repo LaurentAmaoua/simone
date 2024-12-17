@@ -46,8 +46,6 @@
   top: 0;
   background: var(--c-white);
   z-index: 1;
-  padding: 0 0 var(--p-s) 0;
-  box-shadow: var(--b-s);
 }
 
 .leftInner {
@@ -61,23 +59,6 @@
   flex: 1;
   position: relative;
   overflow: hidden;
-}
-
-.activitiesContainer {
-  overflow: scroll;
-  width: 100%;
-}
-
-.footerGradient {
-  background: linear-gradient(180deg, transparent, var(--c-white));
-  bottom: 100%;
-  content: "";
-  height: var(--footer-height);
-  pointer-events: none;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
 }
 
 .idle {

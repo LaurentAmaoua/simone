@@ -63,8 +63,7 @@
 
 .dayRangeStart {
   background: var(--c-mint-green);
-  border-top-left-radius: 50%;
-  border-bottom-left-radius: 50%;
+  border-radius: 50% 0 0 50%;
 }
 
 .dayRangeMiddle {
@@ -73,8 +72,11 @@
 
 .dayRangeEnd {
   background: var(--c-mint-green);
-  border-top-right-radius: 50%;
-  border-bottom-right-radius: 50%;
+  border-radius: 0 50% 50% 0;
+}
+
+.dayRangeStart.dayRangeEnd {
+  border-radius: 50%;
 }
 
 .cell {

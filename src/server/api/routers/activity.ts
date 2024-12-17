@@ -113,7 +113,7 @@ export const activityRouter = createTRPCRouter({
     .input(
       z.object({
         site: z.string(),
-        range: z.object({ from: z.date(), to: z.date() }),
+        range: z.object({ from: z.date().optional(), to: z.date().optional() }),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -122,15 +122,21 @@ export const activityRouter = createTRPCRouter({
       try {
         const activities = await ctx.db.query.activities.findMany({
           where: (activity, { or, and, eq, between }) =>
-            and(
-              eq(activity.locatedAt, input.site as CAMPSITES),
-              // I wish there was a simpler way to include the last day in the range
-              between(activity.startDate, range.from, addOneDay(range.to)),
-              or(
-                eq(activity.kind, ACTIVITY_KIND.OFF_SITE),
-                eq(activity.kind, ACTIVITY_KIND.ON_SITE_SPECIFIC),
-              ),
-            ),
+            range.from && range.to
+              ? and(
+                  eq(activity.locatedAt, input.site as CAMPSITES),
+                  // I wish there was a simpler way to include the last day in the range
+                  between(activity.startDate, range.from, addOneDay(range.to)),
+                  or(
+                    eq(activity.kind, ACTIVITY_KIND.OFF_SITE),
+                    eq(activity.kind, ACTIVITY_KIND.ON_SITE_SPECIFIC),
+                  ),
+                )
+              : and(
+                  eq(activity.locatedAt, input.site as CAMPSITES),
+
+                  eq(activity.kind, ACTIVITY_KIND.ON_SITE_GENERIC),
+                ),
         });
 
         const dates = activities.map((activity) => activity.startDate);
