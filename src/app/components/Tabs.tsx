@@ -1,7 +1,7 @@
 import { type DateRange } from "react-day-picker";
 import { Activities } from "./Activities";
 import { type CAMPSITES } from "./Select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import styles from "./styles/Tabs.module.css";
 
@@ -17,6 +17,12 @@ enum TABS {
 
 export const Tabs = ({ site, dateRange }: TabsProps) => {
   const [selectedTab, setSelectedTab] = useState(TABS.GENERIC);
+
+  useEffect(() => {
+    if (dateRange) {
+      setSelectedTab(TABS.SPECIFIC);
+    }
+  }, [dateRange]);
 
   return (
     <div className={styles.activitiesContainer}>

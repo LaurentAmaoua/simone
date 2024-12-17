@@ -9,6 +9,7 @@
 .container:has(> *:only-child) {
   justify-content: center;
   align-items: center;
+  margin: auto;
 }
 
 .day {
