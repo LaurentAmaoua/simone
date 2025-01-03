@@ -1,7 +1,7 @@
 "use client";
 
 import { MapPinnedIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect } from "react";
 import {
   Select as SelectContainer,
   SelectContent,
@@ -49,14 +49,25 @@ const RegionToCampsiteMapping: Record<Region, CAMPSITES[]> = {
 
 type SelectProps = {
   onSelect: (site: CAMPSITES) => void;
+  defaultSelection: CAMPSITES | null;
 };
 
-export const Select = ({ onSelect }: SelectProps) => {
+export const Select = ({ onSelect, defaultSelection }: SelectProps) => {
   const handleValueChange = (value: string) => {
     onSelect(value as CAMPSITES);
   };
+
+  useEffect(() => {
+    if (defaultSelection) {
+      onSelect(defaultSelection);
+    }
+  }, [defaultSelection, onSelect]);
+
   return (
-    <SelectContainer onValueChange={handleValueChange}>
+    <SelectContainer
+      defaultValue={defaultSelection ?? undefined}
+      onValueChange={handleValueChange}
+    >
       <SelectTrigger className={styles.trigger}>
         <MapPinnedIcon className={styles.mapIcon} />
         <SelectValue placeholder="Choisir un site" />
