@@ -40,6 +40,7 @@ export const activities = createTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
       () => new Date(),
     ),
+    url: varchar("url", { length: 255 }),
   },
   (example) => ({
     nameIndex: index("name_idx").on(example.name),

@@ -4,6 +4,7 @@ import { skipToken } from "@tanstack/react-query";
 import { formatToFrenchDate } from "~/lib/date";
 import { type CAMPSITES } from "./Select";
 import { api } from "~/trpc/react";
+import { Button } from "./Button";
 
 import styles from "./styles/Activities.module.css";
 
@@ -73,6 +74,15 @@ const Activity = ({ activity }: { activity: Activity }) => {
         {getTimes(activity.startDate, activity.endDate)}
       </p>
       <p className={styles.description}>{activity.description}</p>
+      {activity.url && (
+        <div className={styles.button}>
+          <Button>
+            <a href={activity.url} className={styles.link} target="_blank">
+              En savoir plus
+            </a>
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

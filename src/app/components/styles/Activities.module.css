@@ -49,6 +49,17 @@
   font-family: var(--ff-CorporativeAlt);
 }
 
+.button {
+  display: flex;
+  margin: var(--m-l) 0 0;
+  justify-content: flex-end;
+}
+
+.link {
+  padding: var(--p-s);
+  display: inline-block;
+}
+
 .period {
   font-size: var(--fs-s);
   font-weight: var(--fw-700);

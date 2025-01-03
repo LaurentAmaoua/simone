@@ -1,0 +1,10 @@
+.container {
+  border: 1px solid var(--c-lapis-lazuli);
+  border-radius: var(--br-m);
+  display: inline-block;
+}
+
+.container:hover {
+  background-color: var(--c-lapis-lazuli);
+  color: var(--c-white);
+}
