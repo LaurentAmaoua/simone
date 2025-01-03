@@ -57,7 +57,7 @@ export const Activities = ({ site, dateRange }: ActivitiesProps) => {
   return (
     <div className={styles.container}>
       {daysWithActivities?.sort(sortByChronologicalOrder).map((day) => (
-        <div key={day.toDateString()}>
+        <div key={formatToFrenchDate(day)}>
           <h2 className={styles.day}>{formatToFrenchDate(day)}</h2>
           <div className={styles.dayActivities}>
             {site && <MorningActivity site={site} day={day} />}
