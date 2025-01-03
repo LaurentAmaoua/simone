@@ -134,7 +134,6 @@ export const activityRouter = createTRPCRouter({
                 )
               : and(
                   eq(activity.locatedAt, input.site as CAMPSITES),
-
                   eq(activity.kind, ACTIVITY_KIND.ON_SITE_GENERIC),
                 ),
         });
@@ -147,14 +146,12 @@ export const activityRouter = createTRPCRouter({
             message: "No activities found",
           });
         }
-
         return dates;
       } catch (err) {
         console.error(err);
         throw err;
       }
     }),
-
   getGenericActivitiesForSite: publicProcedure
     .input(z.object({ site: z.string() }))
     .query(async ({ ctx, input }) => {
