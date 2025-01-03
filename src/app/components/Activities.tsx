@@ -1,10 +1,14 @@
 import { type Activity } from "~/server/db/schema";
 import { type DateRange } from "react-day-picker";
 import { skipToken } from "@tanstack/react-query";
-import { formatToFrenchDate } from "~/lib/date";
 import { type CAMPSITES } from "./Select";
 import { api } from "~/trpc/react";
 import { Button } from "./Button";
+import {
+  sortByChronologicalOrder,
+  formatToFrenchDate,
+  getTimes,
+} from "~/lib/datetime";
 
 import styles from "./styles/Activities.module.css";
 
@@ -202,19 +206,4 @@ const filterAfternoonActivities = (activity: Activity) => {
 const filterEveningActivities = (activity: Activity) => {
   const startDate = new Date(activity.startDate);
   return startDate.getHours() >= 18;
-};
-
-const getTime = (date: Date) => {
-  return date.toLocaleTimeString("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-const getTimes = (startDate: Date, endDate: Date) => {
-  return `${getTime(startDate)} - ${getTime(endDate)}`;
-};
-
-const sortByChronologicalOrder = (a: Date, b: Date) => {
-  return a.getTime() - b.getTime();
 };

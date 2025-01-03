@@ -16,7 +16,7 @@ import {
 } from "~/components/ui/popover";
 
 import styles from "./styles/Calendar.module.css";
-import { formatToFrenchDate } from "~/lib/date";
+import { formatToFrenchDate } from "~/lib/datetime";
 
 export type CalendarProps = {
   date: DateRange | undefined;
