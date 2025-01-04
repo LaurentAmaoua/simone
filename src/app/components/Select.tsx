@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { MapPinnedIcon } from "lucide-react";
 import { useEffect } from "react";
 import {
@@ -49,10 +50,12 @@ const RegionToCampsiteMapping: Record<Region, CAMPSITES[]> = {
 
 type SelectProps = {
   onSelect: (site: CAMPSITES) => void;
-  defaultSelection: CAMPSITES | null;
 };
 
-export const Select = ({ onSelect, defaultSelection }: SelectProps) => {
+export const Select = ({ onSelect }: SelectProps) => {
+  const searchParams = useSearchParams();
+  const defaultSelection = searchParams.get("site") as CAMPSITES | null;
+
   const handleValueChange = (value: string) => {
     onSelect(value as CAMPSITES);
   };

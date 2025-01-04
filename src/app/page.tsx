@@ -2,17 +2,14 @@
 
 import { type CAMPSITES, Select } from "./components/Select";
 import { type DateRange } from "react-day-picker";
-import { useSearchParams } from "next/navigation";
 import { Calendar } from "./components/Calendar";
 import { Header } from "./components/Header";
+import { Suspense, useState } from "react";
 import { Tabs } from "./components/Tabs";
-import { useState } from "react";
 
 import styles from "./styles/Home.module.css";
 
 export default function Home() {
-  const searchParams = useSearchParams();
-  const site = searchParams.get("site") as CAMPSITES | null;
   const [selectedSite, setSelectedSite] = useState<CAMPSITES>();
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange>();
 
@@ -25,7 +22,9 @@ export default function Home() {
             <div className={styles.leftInner}>
               <div className={styles.attrContainer}>
                 <h2 className={styles.sectionTitle}>Camping</h2>
-                <Select onSelect={setSelectedSite} defaultSelection={site} />
+                <Suspense fallback={<span>Chargement...</span>}>
+                  <Select onSelect={setSelectedSite} />
+                </Suspense>
               </div>
               <div className={styles.attrContainer}>
                 <h2 className={styles.sectionTitle}>Date</h2>
