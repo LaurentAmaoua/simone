@@ -1,7 +1,8 @@
 .container {
-  padding: var(--p-m);
+  padding: 0 var(--p-m);
   margin: auto;
   width: 100%;
+  height: 100vh;
 }
 
 .inner {
@@ -10,11 +11,9 @@
   flex-direction: column;
   width: 100%;
   max-width: var(--app-width);
-  height: var(--app-height);
-  gap: var(--g-m);
+  height: 100%;
   margin: auto;
   border: 1px solid var(--c-lapis-lazuli);
-  padding: var(--p-m);
   border-radius: var(--br-m);
 }
 
@@ -35,6 +34,8 @@
   gap: var(--g-m);
   flex: 1;
   overflow: scroll;
+  padding: var(--p-m);
+  margin: 85px 0 0;
 }
 
 .left {

@@ -33,7 +33,10 @@
 }
 
 .activity {
-  padding: 0 0 0 var(--p-m);
+  border: 1px solid var(--c-mint-green);
+  border-radius: var(--br-m);
+  padding: var(--p-s);
+}
 
 .header {
   display: flex;
@@ -59,10 +62,11 @@
   font-family: var(--ff-CorporativeAlt);
 }
 
-.button {
+.footer {
   display: flex;
   margin: var(--m-l) 0 0;
   justify-content: flex-end;
+  align-items: flex-end;
 }
 
 .link {

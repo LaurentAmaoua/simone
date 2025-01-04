@@ -1,9 +1,16 @@
 .container {
   background: var(--c-mint-green);
   padding: var(--p-m);
-  border-radius: var(--br-m);
   width: 100%;
-  z-index: 1;
+  z-index: 2;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.inner {
+  max-width: var(--app-width);
+  margin: auto;
 }
 
 .title {

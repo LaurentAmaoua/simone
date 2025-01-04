@@ -13,6 +13,7 @@
   justify-content: space-between;
   padding: 0.5rem 0.75rem;
   height: var(--button-height);
+  font-size: var(--fs-m);
 }
 
 .calendarIcon {

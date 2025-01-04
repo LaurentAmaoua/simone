@@ -81,15 +81,15 @@ const Activity = ({ activity }: { activity: Activity }) => {
         {getTimes(activity.startDate, activity.endDate)}
       </p>
       <p className={styles.description}>{activity.description}</p>
-      {activity.url && (
-        <div className={styles.button}>
+      <div className={styles.footer}>
+        {activity.url && (
           <Button>
             <a href={activity.url} className={styles.link} target="_blank">
               En savoir plus
             </a>
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
