@@ -73,7 +73,10 @@ export const Activities = ({ site, dateRange }: ActivitiesProps) => {
 const Activity = ({ activity }: { activity: Activity }) => {
   return (
     <div className={styles.activity}>
-      <h3 className={styles.activityTitle}>{activity.name}</h3>
+      <div className={styles.header}>
+        <h3 className={styles.activityTitle}>{activity.name}</h3>
+        <p className={styles.paid}>{activity.paid ? "PAYANT" : "GRATUIT"}</p>
+      </div>
       <p className={styles.times}>
         {getTimes(activity.startDate, activity.endDate)}
       </p>

@@ -41,6 +41,7 @@ export const activities = createTable(
       () => new Date(),
     ),
     url: varchar("url", { length: 255 }),
+    paid: integer("paid").notNull().$type<boolean>(),
   },
   (example) => ({
     nameIndex: index("name_idx").on(example.name),

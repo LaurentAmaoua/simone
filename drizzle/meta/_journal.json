@@ -36,6 +36,13 @@
       "when": 1735913270360,
       "tag": "0004_populate_url_column",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1735951927871,
+      "tag": "0005_add-paid-column",
+      "breakpoints": true
     }
   ]
 }

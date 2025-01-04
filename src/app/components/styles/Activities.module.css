@@ -34,11 +34,21 @@
 
 .activity {
   padding: 0 0 0 var(--p-m);
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .activityTitle {
   font-size: var(--fs-l);
   color: var(--c-mint-green);
+}
+
+.paid {
+  font-size: var(--fs-s);
+  text-transform: uppercase;
 }
 
 .times {
