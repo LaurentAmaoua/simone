@@ -38,13 +38,7 @@ export default function Home() {
             </div>
           </div>
           <div className={styles.right}>
-            {selectedSite ? (
-              <Tabs site={selectedSite} dateRange={selectedDateRange} />
-            ) : (
-              <span className={styles.idle}>
-                Veuillez sélectionner un site et une date
-              </span>
-            )}
+            <Tabs site={selectedSite} dateRange={selectedDateRange} />
           </div>
         </div>
       </div>

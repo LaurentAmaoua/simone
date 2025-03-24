@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { MapPinnedIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Select as SelectContainer,
   SelectContent,
@@ -12,9 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { api } from "~/trpc/react";
 
 import styles from "./styles/Select.module.css";
 
+// Define regions for grouping
 enum Region {
   CHARENTE_MARITIME = "Charente-Maritime",
   COTES_D_ARMOR = "Côtes-d'Armor",
@@ -48,27 +50,83 @@ const RegionToCampsiteMapping: Record<Region, CAMPSITES[]> = {
   "Pyrénées-Atlantiques": [CAMPSITES.ANGLET],
 } as const;
 
+// Helper function to convert string to CAMPSITES enum
+const stringToCampsite = (campsite: string): CAMPSITES => {
+  // Find matching enum value by comparing strings
+  const entry = Object.entries(CAMPSITES).find(
+    ([_, value]) => String(value) === campsite,
+  );
+
+  if (!entry) {
+    // Fallback to first enum value if no match found
+    return CAMPSITES.PLOUEZEC;
+  }
+
+  return entry[1] as CAMPSITES;
+};
+
 type SelectProps = {
   onSelect: (site: CAMPSITES) => void;
 };
 
 export const Select = ({ onSelect }: SelectProps) => {
   const searchParams = useSearchParams();
-  const defaultSelection = searchParams.get("site") as CAMPSITES | null;
+  const defaultSelection = searchParams.get("site") ?? undefined;
 
-  const handleValueChange = (value: string) => {
-    onSelect(value as CAMPSITES);
-  };
+  // Fetch campsites from database
+  const { data: campsites, isLoading } = api.activity.getCampsites.useQuery();
+
+  // Group campsites by region
+  const [campsitesByRegion, setCampsitesByRegion] = useState<
+    Record<Region, string[]>
+  >({} as Record<Region, string[]>);
 
   useEffect(() => {
-    if (defaultSelection) {
-      onSelect(defaultSelection);
+    if (campsites && campsites.length > 0) {
+      const groupedCampsites: Record<Region, string[]> = {} as Record<
+        Region,
+        string[]
+      >;
+
+      // Initialize regions
+      Object.values(Region).forEach((region) => {
+        groupedCampsites[region] = [];
+      });
+
+      // Group campsites by region
+      campsites.forEach((campsite) => {
+        // Find matching region for this campsite
+        const region =
+          (Object.entries(RegionToCampsiteMapping).find(([_, campsiteList]) =>
+            campsiteList.some((c) => String(c) === campsite),
+          )?.[0] as Region) || Region.CHARENTE_MARITIME;
+
+        groupedCampsites[region].push(campsite);
+      });
+
+      setCampsitesByRegion(groupedCampsites);
+
+      // Only select from URL if explicitly provided
+      if (defaultSelection && campsites.includes(defaultSelection)) {
+        // Convert string to CAMPSITES enum value safely
+        onSelect(stringToCampsite(defaultSelection));
+      }
+      // Remove the automatic selection of first campsite
     }
-  }, [defaultSelection, onSelect]);
+  }, [campsites, defaultSelection, onSelect]);
+
+  const handleValueChange = (value: string) => {
+    // Convert string to CAMPSITES enum value safely
+    onSelect(stringToCampsite(value));
+  };
+
+  if (isLoading) {
+    return <div className={styles.loading}>Chargement des sites...</div>;
+  }
 
   return (
     <SelectContainer
-      defaultValue={defaultSelection ?? undefined}
+      defaultValue={defaultSelection ?? ""}
       onValueChange={handleValueChange}
     >
       <SelectTrigger className={styles.trigger}>
@@ -76,18 +134,19 @@ export const Select = ({ onSelect }: SelectProps) => {
         <SelectValue placeholder="Choisir un site" />
       </SelectTrigger>
       <SelectContent className={styles.contentContainer}>
-        {Object.keys(RegionToCampsiteMapping).map((region) => (
-          <SelectGroup key={region}>
-            <SelectLabel>{region}</SelectLabel>
-            {Object.values(RegionToCampsiteMapping[region as Region]).map(
-              (site) => (
-                <SelectItem key={site} value={site} className={styles.item}>
-                  {site}
-                </SelectItem>
-              ),
-            )}
-          </SelectGroup>
-        ))}
+        {Object.keys(campsitesByRegion).map(
+          (region) =>
+            campsitesByRegion[region as Region].length > 0 && (
+              <SelectGroup key={region}>
+                <SelectLabel>{region}</SelectLabel>
+                {campsitesByRegion[region as Region].map((site) => (
+                  <SelectItem key={site} value={site} className={styles.item}>
+                    {site}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            ),
+        )}
       </SelectContent>
     </SelectContainer>
   );

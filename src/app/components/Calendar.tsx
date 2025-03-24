@@ -6,7 +6,6 @@ import { skipToken } from "@tanstack/react-query";
 import { type DateRange } from "react-day-picker";
 import { Button } from "~/components/ui/button";
 import { useEffect, useState } from "react";
-import { type CAMPSITES } from "./Select";
 import { fr } from "date-fns/locale";
 import { api } from "~/trpc/react";
 import {
@@ -21,7 +20,7 @@ import { formatToFrenchDate } from "~/lib/datetime";
 export type CalendarProps = {
   date: DateRange | undefined;
   onSelect: (dateRange: DateRange | undefined) => void;
-  site: CAMPSITES | undefined;
+  site: string | undefined;
   disabled: boolean;
 };
 

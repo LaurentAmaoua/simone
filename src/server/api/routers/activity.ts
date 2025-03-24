@@ -2,6 +2,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { type CAMPSITES } from "~/app/components/Select";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { sql } from "drizzle-orm";
 
 const addOneDay = (date: Date) => {
   const result = new Date(date);
@@ -10,6 +11,46 @@ const addOneDay = (date: Date) => {
 };
 
 export const activityRouter = createTRPCRouter({
+  getCampsites: publicProcedure.query(async ({ ctx }) => {
+    try {
+      // Get distinct campsite names from all activity tables
+      const result = await ctx.db.execute(
+        sql`
+        SELECT "Campings" FROM (
+          SELECT DISTINCT "Campings" FROM "planicamping_campsite_activity"
+          UNION
+          SELECT DISTINCT "Campings" FROM "planicamping_must_see_activity"
+          UNION
+          SELECT DISTINCT "Campings" FROM "planicamping_local_activity"
+        ) AS all_campings
+        ORDER BY "Campings" ASC
+        `,
+      );
+
+      // Safely access the result data
+      const campsites: string[] = [];
+      if (result && Array.isArray(result)) {
+        for (const row of result) {
+          if (
+            row &&
+            typeof row === "object" &&
+            "Campings" in row &&
+            typeof row.Campings === "string"
+          ) {
+            campsites.push(row.Campings);
+          }
+        }
+      }
+
+      return campsites;
+    } catch (err) {
+      console.error("Failed to fetch campsites:", err);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to fetch campsites",
+      });
+    }
+  }),
   getActivitiesForSiteAndDay: publicProcedure
     .input(z.object({ site: z.string(), day: z.date() }))
     .query(async ({ ctx, input }) => {
@@ -182,6 +223,87 @@ export const activityRouter = createTRPCRouter({
       } catch (err) {
         console.error(err);
         throw err;
+      }
+    }),
+  getMustSeeActivities: publicProcedure
+    .input(z.object({ site: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const activities = await ctx.db.query.mustSeeActivities.findMany({
+          where: (activity, { eq }) => eq(activity.Campings, input.site),
+        });
+
+        return activities;
+      } catch (err) {
+        console.error("Error fetching must-see activities:", err);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch must-see activities",
+        });
+      }
+    }),
+  getLocalActivities: publicProcedure
+    .input(
+      z.object({
+        site: z.string(),
+        category: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const { site, category } = input;
+
+        const activities = await ctx.db.query.localActivities.findMany({
+          where: (activity, { and, eq }) =>
+            category
+              ? and(
+                  eq(activity.Campings, site),
+                  eq(activity.Category, category),
+                )
+              : eq(activity.Campings, site),
+        });
+
+        return activities;
+      } catch (err) {
+        console.error("Error fetching local activities:", err);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch local activities",
+        });
+      }
+    }),
+  getLocalActivityCategories: publicProcedure
+    .input(z.object({ site: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const result = await ctx.db.execute(
+          sql`SELECT DISTINCT "Category" FROM "planicamping_local_activity" 
+              WHERE "Campings" = ${input.site} AND "Category" IS NOT NULL
+              ORDER BY "Category" ASC`,
+        );
+
+        // Safely access the result data
+        const categories: string[] = [];
+        if (result && Array.isArray(result)) {
+          for (const row of result) {
+            if (
+              row &&
+              typeof row === "object" &&
+              "Category" in row &&
+              typeof row.Category === "string"
+            ) {
+              categories.push(row.Category);
+            }
+          }
+        }
+
+        return categories;
+      } catch (err) {
+        console.error("Error fetching activity categories:", err);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch activity categories",
+        });
       }
     }),
 });

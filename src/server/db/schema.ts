@@ -1,4 +1,3 @@
-import { type ACTIVITY_KIND } from "~/app/components/Activities";
 import { type CAMPSITES } from "~/app/components/Select";
 import { type AdapterAccount } from "next-auth/adapters";
 import { type InferSelectModel, relations, sql } from "drizzle-orm";
@@ -41,6 +40,64 @@ export const campsiteActivities = createTable(
   },
   (example) => ({
     titleIndex: index("title_idx").on(example.Title),
+  }),
+);
+
+// Table for "Incontournables de la région"
+export type MustSeeActivity = InferSelectModel<typeof mustSeeActivities>;
+
+export const mustSeeActivities = createTable(
+  "must_see_activity",
+  {
+    ID: integer("ID").primaryKey().generatedByDefaultAsIdentity().notNull(),
+    Title: varchar("Title", { length: 256 }).notNull(),
+    Description: text("Description"),
+    Location: varchar("Location", { length: 255 }).notNull(),
+    Image: varchar("Image", { length: 512 }),
+    Distance: varchar("Distance", { length: 50 }),
+    Duration: varchar("Duration", { length: 50 }),
+    ExternalUrl: varchar("ExternalUrl", { length: 512 }),
+    Campings: varchar("Campings", { length: 255 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      () => new Date(),
+    ),
+  },
+  (example) => ({
+    titleIndex: index("must_see_title_idx").on(example.Title),
+    campingIndex: index("must_see_camping_idx").on(example.Campings),
+  }),
+);
+
+// Table for "À faire dans le coin"
+export type LocalActivity = InferSelectModel<typeof localActivities>;
+
+export const localActivities = createTable(
+  "local_activity",
+  {
+    ID: integer("ID").primaryKey().generatedByDefaultAsIdentity().notNull(),
+    Title: varchar("Title", { length: 256 }).notNull(),
+    Description: text("Description"),
+    Location: varchar("Location", { length: 255 }).notNull(),
+    Category: varchar("Category", { length: 100 }), // e.g. "Restaurant", "Hiking", etc.
+    Image: varchar("Image", { length: 512 }),
+    Distance: varchar("Distance", { length: 50 }),
+    Duration: varchar("Duration", { length: 50 }),
+    ExternalUrl: varchar("ExternalUrl", { length: 512 }),
+    Campings: varchar("Campings", { length: 255 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      () => new Date(),
+    ),
+  },
+  (example) => ({
+    titleIndex: index("local_title_idx").on(example.Title),
+    campingIndex: index("local_camping_idx").on(example.Campings),
+    categoryIndex: index("local_category_idx").on(example.Category),
   }),
 );
 

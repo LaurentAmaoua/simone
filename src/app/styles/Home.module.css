@@ -62,10 +62,6 @@
   overflow: hidden;
 }
 
-.idle {
-  margin: auto;
-}
-
 @media (min-width: 688px) {
   .flex {
     flex-direction: row;

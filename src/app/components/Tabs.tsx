@@ -1,26 +1,22 @@
 import { type DateRange } from "react-day-picker";
+import { useEffect, useState } from "react";
 import { Activities } from "./Activities";
 import { type CAMPSITES } from "./Select";
-import { useEffect, useState } from "react";
+import { TABS } from "./TabTypes";
 
 import styles from "./styles/Tabs.module.css";
 
 interface TabsProps {
-  site: CAMPSITES;
+  site: CAMPSITES | undefined;
   dateRange: DateRange | undefined;
 }
 
-enum TABS {
-  GENERIC,
-  SPECIFIC,
-}
-
 export const Tabs = ({ site, dateRange }: TabsProps) => {
-  const [selectedTab, setSelectedTab] = useState(TABS.GENERIC);
+  const [selectedTab, setSelectedTab] = useState(TABS.MUST_SEE);
 
   useEffect(() => {
     if (dateRange) {
-      setSelectedTab(TABS.SPECIFIC);
+      setSelectedTab(TABS.CAMPSITE);
     }
   }, [dateRange]);
 
@@ -28,27 +24,30 @@ export const Tabs = ({ site, dateRange }: TabsProps) => {
     <div className={styles.activitiesContainer}>
       <div className={styles.header}>
         <button
-          className={`${styles.tab} ${selectedTab === TABS.SPECIFIC ? styles.active : ""}`}
-          onClick={() => setSelectedTab(TABS.SPECIFIC)}
+          className={`${styles.tab} ${selectedTab === TABS.MUST_SEE ? styles.active : ""}`}
+          onClick={() => setSelectedTab(TABS.MUST_SEE)}
         >
-          Activités organisées
+          Incontournables de la région
         </button>
         <button
-          className={`${styles.tab} ${selectedTab === TABS.GENERIC ? styles.active : ""}`}
-          onClick={() => setSelectedTab(TABS.GENERIC)}
+          className={`${styles.tab} ${selectedTab === TABS.LOCAL ? styles.active : ""}`}
+          onClick={() => setSelectedTab(TABS.LOCAL)}
         >
-          Activités disponibles
+          À faire dans le coin
+        </button>
+        <button
+          className={`${styles.tab} ${selectedTab === TABS.CAMPSITE ? styles.active : ""}`}
+          onClick={() => setSelectedTab(TABS.CAMPSITE)}
+        >
+          Animations de camping
         </button>
         <div className={styles.borderBottom}></div>
       </div>
-      {!dateRange && selectedTab === TABS.SPECIFIC ? (
-        <p className={styles.idle}>Veuillez sélectionner une date</p>
-      ) : (
-        <Activities
-          site={site}
-          dateRange={selectedTab === TABS.GENERIC ? undefined : dateRange}
-        />
-      )}
+      <Activities
+        site={site}
+        activeTab={selectedTab}
+        dateRange={selectedTab === TABS.CAMPSITE ? undefined : dateRange}
+      />
       <div className={styles.footerGradient}></div>
     </div>
   );
