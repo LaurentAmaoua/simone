@@ -20,31 +20,27 @@ import {
  */
 export const createTable = pgTableCreator((name) => `planicamping_${name}`);
 
-export type Activity = InferSelectModel<typeof activities>;
+export type Activity = InferSelectModel<typeof campsiteActivities>;
 
-export const activities = createTable(
-  "activity",
+export const campsiteActivities = createTable(
+  "campsite_activity",
   {
-    id: integer("id").primaryKey().generatedByDefaultAsIdentity().notNull(),
-    name: varchar("name", { length: 256 }).notNull(),
-    description: text("description").notNull(),
-    kind: varchar("kind", { length: 255 }).$type<ACTIVITY_KIND>().notNull(),
-    locatedAt: varchar("located_at", { length: 255 })
-      .$type<CAMPSITES>()
-      .notNull(),
-    startDate: timestamp("start_date").notNull(),
-    endDate: timestamp("end_date").notNull(),
+    ID: integer("ID").primaryKey().generatedByDefaultAsIdentity().notNull(),
+    Title: varchar("Title", { length: 256 }).notNull(),
+    infos_description: text("infos_description"),
+    Campings: varchar("Campings", { length: 255 }).notNull(),
+    Contenu_date: timestamp("Contenu_date").notNull(),
+    Contenu_time: varchar("Contenu_time", { length: 10 }),
+    useful_duration: varchar("useful_duration", { length: 50 }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
       () => new Date(),
     ),
-    url: varchar("url", { length: 255 }),
-    paid: integer("paid").notNull().$type<boolean>(),
   },
   (example) => ({
-    nameIndex: index("name_idx").on(example.name),
+    titleIndex: index("title_idx").on(example.Title),
   }),
 );
 

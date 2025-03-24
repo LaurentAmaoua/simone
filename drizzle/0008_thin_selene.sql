@@ -1,0 +1,1 @@
+ALTER TABLE "planicamping_campsite_activity" ALTER COLUMN "infos_description" DROP NOT NULL;
