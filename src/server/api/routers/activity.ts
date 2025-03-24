@@ -1,5 +1,4 @@
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { ACTIVITY_KIND } from "~/app/components/Activities";
 import { type CAMPSITES } from "~/app/components/Select";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -17,12 +16,9 @@ export const activityRouter = createTRPCRouter({
       const { site, day } = input;
 
       try {
-        const activities = await ctx.db.query.activities.findMany({
+        const activities = await ctx.db.query.campsiteActivities.findMany({
           where: (activity, { and, eq }) =>
-            and(
-              eq(activity.locatedAt, site as CAMPSITES),
-              eq(activity.startDate, day),
-            ),
+            and(eq(activity.Campings, site), eq(activity.Contenu_date, day)),
         });
 
         if (!activities) {
@@ -52,12 +48,12 @@ export const activityRouter = createTRPCRouter({
       const { site, dateRange } = input;
 
       try {
-        const activities = await ctx.db.query.activities.findMany({
+        const activities = await ctx.db.query.campsiteActivities.findMany({
           where: (activity, { eq, and, between }) =>
             and(
-              eq(activity.locatedAt, site as CAMPSITES),
+              eq(activity.Campings, site),
               between(
-                activity.startDate,
+                activity.Contenu_date,
                 dateRange.from,
                 addOneDay(dateRange.to),
               ),
@@ -83,18 +79,14 @@ export const activityRouter = createTRPCRouter({
     .input(z.object({ site: z.string() }))
     .query(async ({ ctx, input }) => {
       try {
-        const activitiesForSite = await ctx.db.query.activities.findMany({
-          where: (activity, { and, or, eq }) =>
-            and(
-              eq(activity.locatedAt, input.site as CAMPSITES),
-              or(
-                eq(activity.kind, ACTIVITY_KIND.OFF_SITE),
-                eq(activity.kind, ACTIVITY_KIND.ON_SITE_SPECIFIC),
-              ),
-            ),
-        });
+        const activitiesForSite =
+          await ctx.db.query.campsiteActivities.findMany({
+            where: (activity, { eq }) => eq(activity.Campings, input.site),
+          });
 
-        const dates = activitiesForSite.map((activity) => activity.startDate);
+        const dates = activitiesForSite.map(
+          (activity) => activity.Contenu_date,
+        );
 
         if (!activitiesForSite) {
           throw new TRPCError({
@@ -120,25 +112,28 @@ export const activityRouter = createTRPCRouter({
       const { range } = input;
 
       try {
-        const activities = await ctx.db.query.activities.findMany({
-          where: (activity, { or, and, eq, between }) =>
+        const activities = await ctx.db.query.campsiteActivities.findMany({
+          where: (activity, { and, eq, between }) =>
             range.from && range.to
               ? and(
-                  eq(activity.locatedAt, input.site as CAMPSITES),
-                  // I wish there was a simpler way to include the last day in the range
-                  between(activity.startDate, range.from, addOneDay(range.to)),
-                  or(
-                    eq(activity.kind, ACTIVITY_KIND.OFF_SITE),
-                    eq(activity.kind, ACTIVITY_KIND.ON_SITE_SPECIFIC),
+                  eq(activity.Campings, input.site),
+                  between(
+                    activity.Contenu_date,
+                    range.from,
+                    addOneDay(range.to),
                   ),
                 )
-              : and(
-                  eq(activity.locatedAt, input.site as CAMPSITES),
-                  eq(activity.kind, ACTIVITY_KIND.ON_SITE_GENERIC),
-                ),
+              : eq(activity.Campings, input.site),
         });
 
-        const dates = activities.map((activity) => activity.startDate);
+        // Extract dates from activities
+        const dates = activities.map((activity) => activity.Contenu_date);
+
+        // Deduplicate dates by comparing timestamps
+        const uniqueDates = dates.filter(
+          (date, index, self) =>
+            index === self.findIndex((d) => d.getTime() === date.getTime()),
+        );
 
         if (!activities) {
           throw new TRPCError({
@@ -146,32 +141,7 @@ export const activityRouter = createTRPCRouter({
             message: "No activities found",
           });
         }
-        return dates;
-      } catch (err) {
-        console.error(err);
-        throw err;
-      }
-    }),
-  getGenericActivitiesForSite: publicProcedure
-    .input(z.object({ site: z.string() }))
-    .query(async ({ ctx, input }) => {
-      try {
-        const activitiesForSite = await ctx.db.query.activities.findMany({
-          where: (activity, { and, or, eq }) =>
-            and(
-              eq(activity.locatedAt, input.site as CAMPSITES),
-              eq(activity.kind, ACTIVITY_KIND.ON_SITE_GENERIC),
-            ),
-        });
-
-        if (!activitiesForSite) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "No activities found for this site",
-          });
-        }
-
-        return activitiesForSite;
+        return uniqueDates;
       } catch (err) {
         console.error(err);
         throw err;
@@ -191,11 +161,11 @@ export const activityRouter = createTRPCRouter({
       const { site, dateRange } = input;
 
       try {
-        const activities = await ctx.db.query.activities.findMany({
+        const activities = await ctx.db.query.campsiteActivities.findMany({
           where: (activity, { eq, and, between }) =>
             and(
-              eq(activity.locatedAt, site as CAMPSITES),
-              between(activity.startDate, dateRange.from, dateRange.to),
+              eq(activity.Campings, site),
+              between(activity.Contenu_date, dateRange.from, dateRange.to),
             ),
         });
 

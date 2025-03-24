@@ -4,11 +4,7 @@ import { skipToken } from "@tanstack/react-query";
 import { type CAMPSITES } from "./Select";
 import { api } from "~/trpc/react";
 import { Button } from "./Button";
-import {
-  sortByChronologicalOrder,
-  formatToFrenchDate,
-  getTimes,
-} from "~/lib/datetime";
+import { sortByChronologicalOrder, formatToFrenchDate } from "~/lib/datetime";
 
 import styles from "./styles/Activities.module.css";
 
@@ -56,16 +52,23 @@ export const Activities = ({ site, dateRange }: ActivitiesProps) => {
 
   return (
     <div className={styles.container}>
-      {daysWithActivities?.sort(sortByChronologicalOrder).map((day) => (
-        <div key={formatToFrenchDate(day)}>
-          <h2 className={styles.day}>{formatToFrenchDate(day)}</h2>
-          <div className={styles.dayActivities}>
-            {site && <MorningActivity site={site} day={day} />}
-            {site && <AfternoonActivity site={site} day={day} />}
-            {site && <EveningActivity site={site} day={day} />}
+      {daysWithActivities
+        ?.sort(sortByChronologicalOrder)
+        // Deduplicate dates by timestamp
+        .filter(
+          (date, index, self) =>
+            index === self.findIndex((d) => d.getTime() === date.getTime()),
+        )
+        .map((day, index) => (
+          <div key={`${formatToFrenchDate(day)}-${day.getTime()}-${index}`}>
+            <h2 className={styles.day}>{formatToFrenchDate(day)}</h2>
+            <div className={styles.dayActivities}>
+              {site && <MorningActivity site={site} day={day} />}
+              {site && <AfternoonActivity site={site} day={day} />}
+              {site && <EveningActivity site={site} day={day} />}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
     </div>
   );
 };
@@ -74,24 +77,26 @@ const Activity = ({ activity }: { activity: Activity }) => {
   return (
     <div className={styles.activity}>
       <div className={styles.header}>
-        <h3 className={styles.activityTitle}>{activity.name}</h3>
-        <p className={styles.paid}>{activity.paid ? "PAYANT" : "GRATUIT"}</p>
+        <h3 className={styles.activityTitle}>{activity.Title}</h3>
       </div>
       <p className={styles.times}>
-        {getTimes(activity.startDate, activity.endDate)}
+        {activity.Contenu_time ?? formatActivityTime(activity.Contenu_date)}
+        {activity.useful_duration && ` - Durée: ${activity.useful_duration}`}
       </p>
-      <p className={styles.description}>{activity.description}</p>
-      <div className={styles.footer}>
-        {activity.url && (
-          <Button>
-            <a href={activity.url} className={styles.link} target="_blank">
-              En savoir plus
-            </a>
-          </Button>
-        )}
-      </div>
+      {activity.infos_description && (
+        <p className={styles.description}>{activity.infos_description}</p>
+      )}
     </div>
   );
+};
+
+// Helper function to format time from the Contenu_date
+const formatActivityTime = (date: Date) => {
+  return date.toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "UTC",
+  });
 };
 
 const MorningActivity = ({ site, day }: { site: CAMPSITES; day: Date }) => {
@@ -117,7 +122,7 @@ const MorningActivity = ({ site, day }: { site: CAMPSITES; day: Date }) => {
       <h3 className={styles.period}>Matin</h3>
       {morningActivities?.length ? (
         morningActivities.map((activity) => (
-          <Activity key={activity.id} activity={activity} />
+          <Activity key={activity.ID} activity={activity} />
         ))
       ) : (
         <p className={styles.activity}>
@@ -151,7 +156,7 @@ const AfternoonActivity = ({ site, day }: { site: CAMPSITES; day: Date }) => {
       <h3 className={styles.period}>Après-midi</h3>
       {afternoonActivities?.length ? (
         afternoonActivities.map((activity) => (
-          <Activity key={activity.id} activity={activity} />
+          <Activity key={activity.ID} activity={activity} />
         ))
       ) : (
         <p className={styles.activity}>
@@ -185,7 +190,7 @@ const EveningActivity = ({ site, day }: { site: CAMPSITES; day: Date }) => {
       <h3 className={styles.period}>Soir</h3>
       {eveningActivities?.length ? (
         eveningActivities.map((activity) => (
-          <Activity key={activity.id} activity={activity} />
+          <Activity key={activity.ID} activity={activity} />
         ))
       ) : (
         <p className={styles.activity}>
@@ -197,16 +202,46 @@ const EveningActivity = ({ site, day }: { site: CAMPSITES; day: Date }) => {
 };
 
 const filterMorningActivities = (activity: Activity) => {
-  const startDate = new Date(activity.startDate);
-  return startDate.getHours() < 12;
+  // Check if Contenu_time is available
+  if (activity.Contenu_time) {
+    const timeParts = activity.Contenu_time.split(":");
+    if (timeParts.length > 0) {
+      const hours = Number(timeParts[0]);
+      return hours < 12;
+    }
+  }
+
+  // Fallback to Contenu_date
+  const date = new Date(activity.Contenu_date);
+  return date.getHours() < 12;
 };
 
 const filterAfternoonActivities = (activity: Activity) => {
-  const startDate = new Date(activity.startDate);
-  return startDate.getHours() >= 12 && startDate.getHours() < 18;
+  // Check if Contenu_time is available
+  if (activity.Contenu_time) {
+    const timeParts = activity.Contenu_time.split(":");
+    if (timeParts.length > 0) {
+      const hours = Number(timeParts[0]);
+      return hours >= 12 && hours < 18;
+    }
+  }
+
+  // Fallback to Contenu_date
+  const date = new Date(activity.Contenu_date);
+  return date.getHours() >= 12 && date.getHours() < 18;
 };
 
 const filterEveningActivities = (activity: Activity) => {
-  const startDate = new Date(activity.startDate);
-  return startDate.getHours() >= 18;
+  // Check if Contenu_time is available
+  if (activity.Contenu_time) {
+    const timeParts = activity.Contenu_time.split(":");
+    if (timeParts.length > 0) {
+      const hours = Number(timeParts[0]);
+      return hours >= 18;
+    }
+  }
+
+  // Fallback to Contenu_date
+  const date = new Date(activity.Contenu_date);
+  return date.getHours() >= 18;
 };

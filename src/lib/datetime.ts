@@ -9,16 +9,22 @@ export const formatToFrenchDate = (date: Date) => {
 
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 };
-const getTime = (date: Date) => {
+
+export const formatTime = (date: Date) => {
   return date.toLocaleTimeString("fr-FR", {
     hour: "2-digit",
     minute: "2-digit",
     timeZone: "UTC",
   });
 };
-export const getTimes = (startDate: Date, endDate: Date) => {
-  return `${getTime(startDate)} - ${getTime(endDate)}`;
+
+export const formatActivityDuration = (duration: string | null | undefined) => {
+  if (!duration) return "";
+
+  // Format already looks good for display
+  return duration;
 };
+
 export const sortByChronologicalOrder = (a: Date, b: Date) => {
   return a.getTime() - b.getTime();
 };
