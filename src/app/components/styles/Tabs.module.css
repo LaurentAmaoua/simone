@@ -3,8 +3,6 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  /* Accomodate scrollbar */
-  padding: 0 8px 0 0;
 }
 
 .header {
@@ -12,8 +10,26 @@
   top: 0;
   background: var(--c-white);
   display: flex;
-  gap: var(--g-s);
   z-index: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.scrollGradient {
+  background: linear-gradient(to right, transparent, var(--c-white));
+  pointer-events: none;
+  width: 40px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+}
+
+.tabsContainer {
+  position: relative;
+  display: flex;
+  gap: var(--g-s);
+  overflow-x: auto;
 }
 
 .tab {
@@ -27,6 +43,7 @@
 }
 
 .tab.active {
+  position: relative;
   background: var(--c-mint-green);
   z-index: 1;
 }

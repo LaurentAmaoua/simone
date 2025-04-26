@@ -34,7 +34,6 @@ export const Activities = ({ site, dateRange, activeTab }: ActivitiesProps) => {
       },
     );
 
-  // UI check for site selection
   if (!site) {
     return (
       <div className={styles.container}>
@@ -170,19 +169,43 @@ const CampsiteActivitiesTab = ({
   site: string;
   dateRange: DateRange | undefined;
 }) => {
+  // If only the "from" date is selected, use it for both from and to
+  const effectiveDateRange = dateRange?.from
+    ? {
+        from: dateRange.from,
+        to: dateRange.to ?? dateRange.from,
+      }
+    : undefined;
+
+  // Check if we have a valid date range to query with
+  const isValidDateRange = !!effectiveDateRange?.from;
+
   const {
     data: daysWithActivities,
     isLoading,
     error,
   } = api.activity.getDaysWithActivitiesForSiteAndDateRange.useQuery(
-    site && dateRange
+    site && isValidDateRange
       ? {
           site,
-          range: { from: dateRange.from, to: dateRange.to },
+          range: {
+            from: effectiveDateRange.from,
+            to: effectiveDateRange.to,
+          },
         }
       : skipToken,
-    { enabled: !!site },
+    { enabled: !!site && isValidDateRange },
   );
+
+  // Return early if site is not selected
+  if (!site) {
+    return <p>Veuillez sélectionner un camping</p>;
+  }
+
+  // Return early if no date is selected
+  if (!isValidDateRange) {
+    return <p>Veuillez sélectionner une date</p>;
+  }
 
   if (isLoading) {
     return <p>Chargement des animations en cours...</p>;
@@ -192,25 +215,50 @@ const CampsiteActivitiesTab = ({
     return <p>Une erreur est survenue lors du chargement des animations</p>;
   }
 
+  // Show message if no activities found for the selected date range
+  if (!daysWithActivities || daysWithActivities.length === 0) {
+    const singleDay =
+      effectiveDateRange.from.getTime() === effectiveDateRange.to.getTime();
+    return singleDay ? (
+      <p>
+        Aucune animation n&apos;est prévue pour le{" "}
+        {formatToFrenchDate(effectiveDateRange.from)}
+      </p>
+    ) : (
+      <p>Aucune animation n&apos;est prévue pour la période sélectionnée</p>
+    );
+  }
+
+  const groupedDays = new Map<string, Date>();
+
+  daysWithActivities.forEach((date) => {
+    if (date) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const day = date.getDate();
+      const dateKey = `${year}-${month}-${day}`;
+
+      if (!groupedDays.has(dateKey)) {
+        groupedDays.set(dateKey, date);
+      }
+    }
+  });
+
+  const uniqueDays = Array.from(groupedDays.values());
+
   return (
     <div>
-      {daysWithActivities
-        ?.sort(sortByChronologicalOrder)
-        .filter(
-          (date, index, self) =>
-            index === self.findIndex((d) => d.getTime() === date.getTime()),
-        )
-        .map((day, index) => (
-          <div
-            key={`${formatToFrenchDate(day)}-${day.getTime()}-${index}`}
-            className={styles.dayGroup}
-          >
-            <h2 className={styles.day}>{formatToFrenchDate(day)}</h2>
-            <div className={styles.dayActivities}>
-              <CampsiteDayActivities site={site} day={day} />
-            </div>
+      {uniqueDays.sort(sortByChronologicalOrder).map((day, index) => (
+        <div
+          key={`day-${day.getFullYear()}-${day.getMonth()}-${day.getDate()}-${index}`}
+          className={styles.dayGroup}
+        >
+          <h2 className={styles.day}>{formatToFrenchDate(day)}</h2>
+          <div className={styles.dayActivities}>
+            <CampsiteDayActivities site={site} day={day} />
           </div>
-        ))}
+        </div>
+      ))}
     </div>
   );
 };
@@ -219,14 +267,30 @@ const CampsiteDayActivities = ({ site, day }: { site: string; day: Date }) => {
   const isDayValid = !!day && day instanceof Date && !isNaN(day.getTime());
   const areInputsValid = !!site && isDayValid;
 
+  // Normalize the day to start-of-day for the range query
+  const normalizedFrom = new Date(
+    day.getFullYear(),
+    day.getMonth(),
+    day.getDate(),
+  );
+  const normalizedTo = new Date(
+    day.getFullYear(),
+    day.getMonth(),
+    day.getDate(),
+  );
+
   const {
     data: activities,
     isLoading,
     error,
-  } = api.activity.getActivitiesForSiteAndDay.useQuery(
-    areInputsValid ? { site, day } : skipToken, // Use skipToken to completely skip the query
+  } = api.activity.getActivitiesForSiteAndDateRange.useQuery(
+    areInputsValid
+      ? { site, dateRange: { from: normalizedFrom, to: normalizedTo } }
+      : skipToken,
     { enabled: areInputsValid },
   );
+
+  console.log("activities", activities);
 
   // Early return for invalid inputs - UI check
   if (!areInputsValid) {

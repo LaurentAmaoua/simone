@@ -16,7 +16,7 @@
     --b-m: 2px solid var(--c-lapis-lazuli);
     /* Radius */
     --br-m: 10px;
-
+    --br-s: 5px;
     /** Spacing */
 
     /* Padding */
@@ -41,7 +41,7 @@
     --fs-l: 24px;
     --fs-m: 16px;
     --fs-s: 14px;
-
+    --fs-xs: 12px;
     /* Font weight */
     --fw-700: 700;
     --fw-500: 500;
@@ -53,6 +53,7 @@
     --calendar-min-width: 288px;
     --footer-height: 100px;
     --button-height: 64px;
+    --categories-height: 40px;
   }
   /* .dark {
     Not sure if there'll be a dark mode

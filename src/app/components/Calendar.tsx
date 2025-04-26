@@ -42,9 +42,6 @@ export const Calendar = ({
 
   const handleSelect = (dateRange: DateRange | undefined) => {
     onSelect(dateRange);
-    // if (date?.getMonth() !== new Date().getMonth()) {
-    //   setDate(format(date, "yyyy-MM-dd"));
-    // }
   };
 
   useEffect(() => {
@@ -92,6 +89,7 @@ export const Calendar = ({
           mode="range"
           selected={dateRange ? dateRange : undefined}
           onSelect={(range) => {
+            console.log("range", range);
             handleSelect(range);
           }}
           today={new Date()}
