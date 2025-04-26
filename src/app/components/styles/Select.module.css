@@ -1,5 +1,5 @@
 .trigger {
-  border: 2px solid var(--c-lapis-lazuli);
+  border: var(--b-m);
   border-radius: var(--br-m);
   width: 100%;
   padding: var(--p-m);

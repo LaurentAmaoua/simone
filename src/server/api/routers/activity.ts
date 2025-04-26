@@ -1,5 +1,4 @@
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { type CAMPSITES } from "~/app/components/Select";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { sql } from "drizzle-orm";

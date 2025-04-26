@@ -3,6 +3,8 @@
   width: 100%;
   display: flex;
   flex-direction: column;
+  /* Accomodate scrollbar */
+  padding: 0 8px 0 0;
 }
 
 .header {
@@ -11,10 +13,11 @@
   background: var(--c-white);
   display: flex;
   gap: var(--g-s);
+  z-index: 1;
 }
 
 .tab {
-  border: 2px solid var(--c-lapis-lazuli);
+  border: var(--b-m);
   background: var(--c-white);
   border-radius: var(--br-m) var(--br-m) 0 0;
   padding: var(--p-s);

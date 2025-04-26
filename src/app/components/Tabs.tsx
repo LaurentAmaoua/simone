@@ -13,6 +13,7 @@ interface TabsProps {
 
 export const Tabs = ({ site, dateRange }: TabsProps) => {
   const [selectedTab, setSelectedTab] = useState(TABS.MUST_SEE);
+  console.log("selectedTab", selectedTab);
 
   useEffect(() => {
     if (dateRange) {
@@ -43,11 +44,7 @@ export const Tabs = ({ site, dateRange }: TabsProps) => {
         </button>
         <div className={styles.borderBottom}></div>
       </div>
-      <Activities
-        site={site}
-        activeTab={selectedTab}
-        dateRange={selectedTab === TABS.CAMPSITE ? undefined : dateRange}
-      />
+      <Activities site={site} activeTab={selectedTab} dateRange={dateRange} />
       <div className={styles.footerGradient}></div>
     </div>
   );

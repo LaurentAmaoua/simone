@@ -1,7 +1,7 @@
 .popoverTrigger {
   width: 100%;
   border-radius: var(--br-m);
-  border: 2px solid var(--c-lapis-lazuli);
+  border: var(--b-m);
   font-weight: var(--fw-400);
 }
 
@@ -36,7 +36,7 @@
 }
 
 .calendar {
-  border: 1px solid var(--c-lapis-lazuli);
+  border: var(--b-s);
   border-radius: var(--br-m);
 }
 
@@ -86,7 +86,7 @@
 }
 
 .dayToday:not(.dayRangeMiddle) {
-  border: 2px solid var(--c-orange-wheel);
+  border: var(--b-m);
   border-radius: 50%;
 }
 

@@ -1,5 +1,5 @@
 .container {
-  border: 1px solid var(--c-lapis-lazuli);
+  border: var(--b-s);
   border-radius: var(--br-m);
   display: inline-block;
 }

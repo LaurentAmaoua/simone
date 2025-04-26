@@ -4,38 +4,53 @@
 
 @layer base {
   :root {
+    /** Colors */
     --c-mint-green: #27c6a0;
     --c-lapis-lazuli: #005587;
     --c-white: #ffffff;
     --c-orange-wheel: #ff8100;
 
+    /** Borders */
+
+    --b-s: 1px solid var(--c-lapis-lazuli);
+    --b-m: 2px solid var(--c-lapis-lazuli);
+    /* Radius */
     --br-m: 10px;
 
+    /** Spacing */
+
+    /* Padding */
     --p-xl: 32px;
     --p-l: 24px;
     --p-m: 16px;
     --p-s: 8px;
+    --p-xs: 4px;
 
+    /* Margin */
     --m-xl: 16px;
     --m-l: 12px;
 
+    /* Gap */
     --g-m: 16px;
     --g-s: 8px;
 
+    /** Fonts  */
+
+    /* Font size */
     --fs-xxl: 40px;
     --fs-l: 24px;
     --fs-m: 16px;
     --fs-s: 14px;
 
+    /* Font weight */
     --fw-700: 700;
     --fw-500: 500;
     --fw-400: 400;
 
+    /* Constants */
     --app-width: 900px;
     --app-height: 700px;
     --calendar-min-width: 288px;
-    --b-s: 10px 5px 5px red;
-
     --footer-height: 100px;
     --button-height: 64px;
   }

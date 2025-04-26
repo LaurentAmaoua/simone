@@ -21,7 +21,7 @@ const Rubik = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Planicamping",
+  title: "Simone - Votre guide de vacances",
   description: "Découvrez les activités proposées aux campings d'Eden Villages",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };

@@ -58,8 +58,7 @@ const stringToCampsite = (campsite: string): CAMPSITES => {
   );
 
   if (!entry) {
-    // Fallback to first enum value if no match found
-    return CAMPSITES.PLOUEZEC;
+    throw new Error(`Invalid campsite value: ${campsite}`);
   }
 
   return entry[1] as CAMPSITES;
@@ -73,56 +72,49 @@ export const Select = ({ onSelect }: SelectProps) => {
   const searchParams = useSearchParams();
   const defaultSelection = searchParams.get("site") ?? undefined;
 
-  // Fetch campsites from database
-  const { data: campsites, isLoading } = api.activity.getCampsites.useQuery();
-
   // Group campsites by region
   const [campsitesByRegion, setCampsitesByRegion] = useState<
     Record<Region, string[]>
   >({} as Record<Region, string[]>);
 
   useEffect(() => {
-    if (campsites && campsites.length > 0) {
-      const groupedCampsites: Record<Region, string[]> = {} as Record<
-        Region,
-        string[]
-      >;
+    const groupedCampsites: Record<Region, string[]> = {} as Record<
+      Region,
+      string[]
+    >;
 
-      // Initialize regions
-      Object.values(Region).forEach((region) => {
-        groupedCampsites[region] = [];
-      });
+    // Initialize regions
+    Object.values(Region).forEach((region) => {
+      groupedCampsites[region] = [];
+    });
 
-      // Group campsites by region
-      campsites.forEach((campsite) => {
-        // Find matching region for this campsite
-        const region =
-          (Object.entries(RegionToCampsiteMapping).find(([_, campsiteList]) =>
-            campsiteList.some((c) => String(c) === campsite),
-          )?.[0] as Region) || Region.CHARENTE_MARITIME;
+    // Group campsites by region
+    Object.values(CAMPSITES).forEach((campsite) => {
+      // Find matching region for this campsite
+      const region =
+        (Object.entries(RegionToCampsiteMapping).find(([_, campsiteList]) =>
+          campsiteList.some((c) => c === campsite),
+        )?.[0] as Region) || Region.CHARENTE_MARITIME;
 
-        groupedCampsites[region].push(campsite);
-      });
+      groupedCampsites[region].push(campsite);
+    });
 
-      setCampsitesByRegion(groupedCampsites);
+    setCampsitesByRegion(groupedCampsites);
 
-      // Only select from URL if explicitly provided
-      if (defaultSelection && campsites.includes(defaultSelection)) {
-        // Convert string to CAMPSITES enum value safely
-        onSelect(stringToCampsite(defaultSelection));
-      }
-      // Remove the automatic selection of first campsite
+    // Only select from URL if explicitly provided
+    if (
+      defaultSelection &&
+      Object.values(CAMPSITES).includes(defaultSelection as CAMPSITES)
+    ) {
+      // Convert string to CAMPSITES enum value safely
+      onSelect(stringToCampsite(defaultSelection));
     }
-  }, [campsites, defaultSelection, onSelect]);
+  }, [defaultSelection, onSelect]);
 
   const handleValueChange = (value: string) => {
     // Convert string to CAMPSITES enum value safely
     onSelect(stringToCampsite(value));
   };
-
-  if (isLoading) {
-    return <div className={styles.loading}>Chargement des sites...</div>;
-  }
 
   return (
     <SelectContainer

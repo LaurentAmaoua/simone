@@ -1,4 +1,4 @@
 .hasActivity {
   position: relative;
-  border: 1px solid var(--c-mint-green);
+  border: var(--b-s);
 }

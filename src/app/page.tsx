@@ -12,6 +12,12 @@ import styles from "./styles/Home.module.css";
 export default function Home() {
   const [selectedSite, setSelectedSite] = useState<CAMPSITES>();
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange>();
+  console.log(
+    "selectedSite",
+    selectedSite,
+    "selectedDateRange",
+    selectedDateRange,
+  );
 
   return (
     <main className={styles.container}>

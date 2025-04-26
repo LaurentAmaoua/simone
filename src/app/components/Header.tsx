@@ -4,7 +4,7 @@ export const Header = () => {
   return (
     <header className={styles.container}>
       <div className={styles.inner}>
-        <h1 className={styles.title}>PLANICAMPING</h1>
+        <h1 className={styles.title}>Simone</h1>
         <h2>
           par{" "}
           <a

@@ -1,16 +1,16 @@
-import {
-  type Activity,
-  type MustSeeActivity,
-  type LocalActivity,
-} from "~/server/db/schema";
+import { sortByChronologicalOrder, formatToFrenchDate } from "~/lib/datetime";
 import { type DateRange } from "react-day-picker";
 import { skipToken } from "@tanstack/react-query";
 import type { CAMPSITES } from "./Select";
 import { api } from "~/trpc/react";
 import { Button } from "./Button";
-import { sortByChronologicalOrder, formatToFrenchDate } from "~/lib/datetime";
-import { useState } from "react";
 import { TABS } from "./TabTypes";
+import { useState } from "react";
+import {
+  type MustSeeActivity,
+  type LocalActivity,
+  type Activity,
+} from "~/server/db/schema";
 
 import styles from "./styles/Activities.module.css";
 
@@ -24,23 +24,18 @@ export const Activities = ({ site, dateRange, activeTab }: ActivitiesProps) => {
   const [localCategory, setLocalCategory] = useState<string | undefined>(
     undefined,
   );
-
-  // Check for valid site - very strict validation
-  const isSiteValid =
-    !!site && typeof site === "string" && site.trim().length > 0;
-
   // Get all activity categories for local activities - only if we have a valid site
   const { data: localCategories } =
     api.activity.getLocalActivityCategories.useQuery(
-      isSiteValid ? { site } : skipToken, // Use skipToken to completely skip the query
+      site ? { site } : skipToken, // Use skipToken to completely skip the query
       {
         // Only enable when we have a valid site AND we're on the local tab
-        enabled: isSiteValid && activeTab === TABS.LOCAL,
+        enabled: site && activeTab === TABS.LOCAL,
       },
     );
 
   // UI check for site selection
-  if (!isSiteValid) {
+  if (!site) {
     return (
       <div className={styles.container}>
         <p>Veuillez sélectionner un camping</p>
@@ -66,25 +61,15 @@ export const Activities = ({ site, dateRange, activeTab }: ActivitiesProps) => {
   );
 };
 
-// Component for "Incontournables de la région" tab
 const MustSeeActivitiesTab = ({ site }: { site: string }) => {
-  // Strict validation
-  const isSiteValid =
-    !!site && typeof site === "string" && site.trim().length > 0;
-
   const {
     data: activities,
     isLoading,
     error,
   } = api.activity.getMustSeeActivities.useQuery(
-    isSiteValid ? { site } : skipToken, // Use skipToken to completely skip the query
-    { enabled: isSiteValid },
+    site ? { site } : skipToken, // Use skipToken to completely skip the query
+    { enabled: !!site },
   );
-
-  // Early return for invalid site - UI check
-  if (!isSiteValid) {
-    return <p>Veuillez sélectionner un camping</p>;
-  }
 
   if (isLoading) {
     return <p>Chargement des activités incontournables en cours...</p>;
@@ -111,7 +96,6 @@ const MustSeeActivitiesTab = ({ site }: { site: string }) => {
   );
 };
 
-// Component for "À faire dans le coin" tab
 const LocalActivitiesTab = ({
   site,
   categories,
@@ -123,28 +107,19 @@ const LocalActivitiesTab = ({
   activeCategory?: string;
   onCategoryChange: (category: string | undefined) => void;
 }) => {
-  // Strict validation
-  const isSiteValid =
-    !!site && typeof site === "string" && site.trim().length > 0;
-
   const {
     data: activities,
     isLoading,
     error,
   } = api.activity.getLocalActivities.useQuery(
-    isSiteValid
+    site
       ? {
           site,
           category: activeCategory,
         }
       : skipToken, // Use skipToken to completely skip the query
-    { enabled: isSiteValid },
+    { enabled: !!site },
   );
-
-  // Early return for invalid site - UI check
-  if (!isSiteValid) {
-    return <p>Veuillez sélectionner un camping</p>;
-  }
 
   if (isLoading) {
     return <p>Chargement des activités locales en cours...</p>;
@@ -188,7 +163,6 @@ const LocalActivitiesTab = ({
   );
 };
 
-// Component for "Activités organisées" tab
 const CampsiteActivitiesTab = ({
   site,
   dateRange,
@@ -201,13 +175,13 @@ const CampsiteActivitiesTab = ({
     isLoading,
     error,
   } = api.activity.getDaysWithActivitiesForSiteAndDateRange.useQuery(
-    !!site && !!dateRange?.from
+    site && dateRange
       ? {
           site,
-          range: { from: dateRange?.from, to: dateRange?.to },
+          range: { from: dateRange.from, to: dateRange.to },
         }
       : skipToken,
-    { enabled: !!site && !!dateRange?.from },
+    { enabled: !!site },
   );
 
   if (isLoading) {
@@ -218,14 +192,10 @@ const CampsiteActivitiesTab = ({
     return <p>Une erreur est survenue lors du chargement des animations</p>;
   }
 
-  if (!daysWithActivities || daysWithActivities.length === 0) {
-    return <p>Aucune animation trouvée pour ce site à cette date</p>;
-  }
-
   return (
     <div>
       {daysWithActivities
-        .sort(sortByChronologicalOrder)
+        ?.sort(sortByChronologicalOrder)
         .filter(
           (date, index, self) =>
             index === self.findIndex((d) => d.getTime() === date.getTime()),
@@ -245,13 +215,9 @@ const CampsiteActivitiesTab = ({
   );
 };
 
-// Component for activities in a single day (for the campsite activities tab)
 const CampsiteDayActivities = ({ site, day }: { site: string; day: Date }) => {
-  // Strict validation
-  const isSiteValid =
-    !!site && typeof site === "string" && site.trim().length > 0;
   const isDayValid = !!day && day instanceof Date && !isNaN(day.getTime());
-  const areInputsValid = isSiteValid && isDayValid;
+  const areInputsValid = !!site && isDayValid;
 
   const {
     data: activities,
@@ -299,8 +265,6 @@ const CampsiteDayActivities = ({ site, day }: { site: string; day: Date }) => {
   );
 };
 
-// Card components for different types of activities
-
 const CampsiteActivityCard = ({ activity }: { activity: Activity }) => {
   return (
     <div className={styles.activityCard}>
@@ -320,7 +284,7 @@ const CampsiteActivityCard = ({ activity }: { activity: Activity }) => {
 
 const MustSeeActivityCard = ({ activity }: { activity: MustSeeActivity }) => {
   return (
-    <div className={styles.mustSeeCard}>
+    <div className={styles.card}>
       {activity.Image && (
         <div className={styles.activityImage}>
           <img src={activity.Image} alt={activity.Title} />
@@ -359,7 +323,7 @@ const MustSeeActivityCard = ({ activity }: { activity: MustSeeActivity }) => {
 
 const LocalActivityCard = ({ activity }: { activity: LocalActivity }) => {
   return (
-    <div className={styles.localActivityCard}>
+    <div className={styles.card}>
       {activity.Image && (
         <div className={styles.activityImage}>
           <img src={activity.Image} alt={activity.Title} />
@@ -397,7 +361,6 @@ const LocalActivityCard = ({ activity }: { activity: LocalActivity }) => {
   );
 };
 
-// Helper function to format time from the Contenu_date
 const formatActivityTime = (date: Date) => {
   return date.toLocaleTimeString("fr-FR", {
     hour: "2-digit",
