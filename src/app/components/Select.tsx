@@ -123,7 +123,7 @@ export const Select = ({ onSelect }: SelectProps) => {
     >
       <SelectTrigger className={styles.trigger}>
         <MapPinnedIcon className={styles.mapIcon} />
-        <SelectValue placeholder="Choisir un site" />
+        <SelectValue placeholder="Votre site" />
       </SelectTrigger>
       <SelectContent className={styles.contentContainer}>
         {Object.keys(campsitesByRegion).map(

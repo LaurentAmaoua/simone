@@ -12,8 +12,6 @@
 .button {
   justify-content: space-between;
   padding: 0.5rem 0.75rem;
-  height: var(--button-height);
-  font-size: var(--fs-m);
 }
 
 .calendarIcon {
@@ -22,6 +20,7 @@
 
 .range {
   white-space: wrap;
+  line-height: 1;
 }
 
 .chevronDown {
@@ -106,4 +105,11 @@
 }
 .day:not(.daySelected):hover {
   background: var(--c-mint-green);
+}
+
+@media (min-width: 688px) {
+  .button {
+    height: var(--button-height);
+    font-size: var(--fs-m);
+  }
 }

@@ -13,6 +13,7 @@
   z-index: 1;
   white-space: nowrap;
   flex-shrink: 0;
+  container-type: inline-size;
 }
 
 .scrollGradient {
@@ -27,9 +28,8 @@
 
 .tabsContainer {
   position: relative;
-  display: flex;
-  gap: var(--g-s);
   overflow-x: auto;
+  display: flex;
 }
 
 .tab {
@@ -39,7 +39,13 @@
   padding: var(--p-s);
   border-color: var(--c-lapis-lazuli) var(--c-lapis-lazuli) transparent
     var(--c-lapis-lazuli);
-  flex: 1;
+  height: 68px;
+  white-space: break-spaces;
+  min-width: 140px;
+}
+
+.tab:not(:first-child) {
+  margin-left: var(--g-s);
 }
 
 .tab.active {
@@ -67,4 +73,10 @@
   bottom: 0;
   left: 0;
   width: 100%;
+}
+
+@container (min-width: 436px) {
+  .scrollGradient {
+    display: none;
+  }
 }

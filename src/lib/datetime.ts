@@ -1,9 +1,8 @@
 export const formatToFrenchDate = (date: Date) => {
   const formattedDate = Intl.DateTimeFormat("fr-FR", {
-    weekday: "long",
     day: "numeric",
     month: "short",
-    year: "numeric",
+    year: "2-digit",
     timeZone: "UTC",
   }).format(date);
 

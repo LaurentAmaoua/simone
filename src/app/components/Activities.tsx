@@ -37,7 +37,7 @@ export const Activities = ({ site, dateRange, activeTab }: ActivitiesProps) => {
   if (!site) {
     return (
       <div className={styles.container}>
-        <p>Veuillez sélectionner un camping</p>
+        <p className={styles.center}>Veuillez sélectionner un camping</p>
       </div>
     );
   }
@@ -71,19 +71,27 @@ const MustSeeActivitiesTab = ({ site }: { site: string }) => {
   );
 
   if (isLoading) {
-    return <p>Chargement des activités incontournables en cours...</p>;
+    return (
+      <p className={styles.center}>
+        Chargement des activités incontournables en cours...
+      </p>
+    );
   }
 
   if (error) {
     return (
-      <p>
+      <p className={styles.center}>
         Une erreur est survenue lors du chargement des activités incontournables
       </p>
     );
   }
 
   if (!activities || activities.length === 0) {
-    return <p>Aucune activité incontournable trouvée pour ce site</p>;
+    return (
+      <p className={styles.center}>
+        Aucune activité incontournable trouvée pour ce site
+      </p>
+    );
   }
 
   return (
@@ -121,17 +129,27 @@ const LocalActivitiesTab = ({
   );
 
   if (isLoading) {
-    return <p>Chargement des activités locales en cours...</p>;
+    return (
+      <p className={styles.center}>
+        Chargement des activités locales en cours...
+      </p>
+    );
   }
 
   if (error) {
     return (
-      <p>Une erreur est survenue lors du chargement des activités locales</p>
+      <p className={styles.center}>
+        Une erreur est survenue lors du chargement des activités locales
+      </p>
     );
   }
 
   if (!activities || activities.length === 0) {
-    return <p>Aucune activité locale trouvée pour ce site</p>;
+    return (
+      <p className={styles.center}>
+        Aucune activité locale trouvée pour ce site
+      </p>
+    );
   }
 
   return (
@@ -199,20 +217,26 @@ const CampsiteActivitiesTab = ({
 
   // Return early if site is not selected
   if (!site) {
-    return <p>Veuillez sélectionner un camping</p>;
+    return <p className={styles.center}>Veuillez sélectionner un camping</p>;
   }
 
   // Return early if no date is selected
   if (!isValidDateRange) {
-    return <p>Veuillez sélectionner une date</p>;
+    return <p className={styles.center}>Veuillez sélectionner une date</p>;
   }
 
   if (isLoading) {
-    return <p>Chargement des animations en cours...</p>;
+    return (
+      <p className={styles.center}>Chargement des animations en cours...</p>
+    );
   }
 
   if (error) {
-    return <p>Une erreur est survenue lors du chargement des animations</p>;
+    return (
+      <p className={styles.center}>
+        Une erreur est survenue lors du chargement des animations
+      </p>
+    );
   }
 
   // Show message if no activities found for the selected date range
@@ -220,12 +244,14 @@ const CampsiteActivitiesTab = ({
     const singleDay =
       effectiveDateRange.from.getTime() === effectiveDateRange.to.getTime();
     return singleDay ? (
-      <p>
+      <p className={styles.center}>
         Aucune animation n&apos;est prévue pour le{" "}
         {formatToFrenchDate(effectiveDateRange.from)}
       </p>
     ) : (
-      <p>Aucune animation n&apos;est prévue pour la période sélectionnée</p>
+      <p className={styles.center}>
+        Aucune animation n&apos;est prévue pour la période sélectionnée
+      </p>
     );
   }
 
@@ -292,21 +318,32 @@ const CampsiteDayActivities = ({ site, day }: { site: string; day: Date }) => {
 
   console.log("activities", activities);
 
-  // Early return for invalid inputs - UI check
   if (!areInputsValid) {
-    return <p>Données invalides pour charger les activités</p>;
+    return (
+      <p className={styles.center}>
+        Données invalides pour charger les activités
+      </p>
+    );
   }
 
   if (isLoading) {
-    return <p>Chargement des activités en cours...</p>;
+    return (
+      <p className={styles.center}>Chargement des activités en cours...</p>
+    );
   }
 
   if (error) {
-    return <p>Une erreur est survenue lors du chargement des activités</p>;
+    return (
+      <p className={styles.center}>
+        Une erreur est survenue lors du chargement des activités
+      </p>
+    );
   }
 
   if (!activities || activities.length === 0) {
-    return <p>Aucune activité trouvée pour ce jour</p>;
+    return (
+      <p className={styles.center}>Aucune activité trouvée pour ce jour</p>
+    );
   }
 
   // Sort activities by time

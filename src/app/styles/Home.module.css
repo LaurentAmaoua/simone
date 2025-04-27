@@ -24,10 +24,6 @@
   flex: 1;
 }
 
-.sectionTitle {
-  font-size: var(--fs-l);
-}
-
 .flex {
   display: flex;
   flex-direction: column;
@@ -51,7 +47,6 @@
 
 .leftInner {
   display: flex;
-  flex-direction: column;
   gap: 8px;
 }
 
@@ -71,5 +66,13 @@
     max-width: var(--calendar-min-width);
     border-right: 1px solid lightgray;
     padding: 0 16px 0 0;
+  }
+
+  .leftInner {
+    flex-direction: column;
+  }
+
+  .sectionTitle {
+    font-size: var(--fs-l);
   }
 }

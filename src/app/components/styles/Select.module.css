@@ -2,9 +2,7 @@
   border: var(--b-m);
   border-radius: var(--br-m);
   width: 100%;
-  padding: var(--p-m);
-  height: var(--button-height);
-  font-size: var(--fs-m);
+  padding: var(--p-s);
 }
 
 .trigger:hover {
@@ -29,4 +27,11 @@
 .item:hover {
   background: var(--c-mint-green);
   color: var(--c-lapis-lazuli);
+}
+
+@media (min-width: 688px) {
+  .trigger {
+    height: var(--button-height);
+    font-size: var(--fs-m);
+  }
 }

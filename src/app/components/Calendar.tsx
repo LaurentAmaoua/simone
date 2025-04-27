@@ -63,7 +63,7 @@ export const Calendar = ({
               {formatToFrenchDate(dateRange.to)}
             </span>
           ) : (
-            <span>Choisir une date</span>
+            <span>Vos dates</span>
           )}
           <ChevronDown className={styles.chevronDown} />
         </Button>
