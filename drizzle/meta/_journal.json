@@ -52,13 +52,6 @@
       "breakpoints": true
     },
     {
-      "idx": 7,
-      "version": "7",
-      "when": 1742823667533,
-      "tag": "0007_medical_scourge",
-      "breakpoints": true
-    },
-    {
       "idx": 8,
       "version": "7",
       "when": 1742824665592,
@@ -70,6 +63,13 @@
       "version": "7",
       "when": 1742825732355,
       "tag": "0009_married_odin",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1745945026574,
+      "tag": "0010_seed-campsite-activities",
       "breakpoints": true
     }
   ]
