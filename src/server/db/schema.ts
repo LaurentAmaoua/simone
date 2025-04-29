@@ -27,7 +27,7 @@ export const campsiteActivities = createTable(
     ID: integer("ID").primaryKey().generatedByDefaultAsIdentity().notNull(),
     Title: varchar("Title", { length: 256 }).notNull(),
     infos_description: text("infos_description"),
-    Campings: varchar("Campings", { length: 255 }).notNull(),
+    Campings: varchar("Campings", { length: 255 }).$type<CAMPSITES>().notNull(),
     Contenu_date: timestamp("Contenu_date").notNull(),
     Contenu_time: varchar("Contenu_time", { length: 10 }),
     useful_duration: varchar("useful_duration", { length: 50 }),
@@ -57,7 +57,7 @@ export const mustSeeActivities = createTable(
     Distance: varchar("Distance", { length: 50 }),
     Duration: varchar("Duration", { length: 50 }),
     ExternalUrl: varchar("ExternalUrl", { length: 512 }),
-    Campings: varchar("Campings", { length: 255 }).notNull(),
+    Campings: varchar("Campings", { length: 255 }).$type<CAMPSITES>().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -86,7 +86,7 @@ export const localActivities = createTable(
     Distance: varchar("Distance", { length: 50 }),
     Duration: varchar("Duration", { length: 50 }),
     ExternalUrl: varchar("ExternalUrl", { length: 512 }),
-    Campings: varchar("Campings", { length: 255 }).notNull(),
+    Campings: varchar("Campings", { length: 255 }).$type<CAMPSITES>().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

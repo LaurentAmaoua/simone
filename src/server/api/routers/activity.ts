@@ -2,6 +2,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { sql } from "drizzle-orm";
+import { type CAMPSITES } from "~/app/components/Select";
 
 const addOneDay = (date: Date) => {
   const result = new Date(date);
@@ -58,7 +59,10 @@ export const activityRouter = createTRPCRouter({
       try {
         const activities = await ctx.db.query.campsiteActivities.findMany({
           where: (activity, { and, eq }) =>
-            and(eq(activity.Campings, site), eq(activity.Contenu_date, day)),
+            and(
+              eq(activity.Campings, site as CAMPSITES),
+              eq(activity.Contenu_date, day),
+            ),
         });
 
         if (!activities) {
@@ -91,7 +95,7 @@ export const activityRouter = createTRPCRouter({
         const activities = await ctx.db.query.campsiteActivities.findMany({
           where: (activity, { eq, and, between }) =>
             and(
-              eq(activity.Campings, site),
+              eq(activity.Campings, site as CAMPSITES),
               between(
                 activity.Contenu_date,
                 dateRange.from,
@@ -121,7 +125,8 @@ export const activityRouter = createTRPCRouter({
       try {
         const activitiesForSite =
           await ctx.db.query.campsiteActivities.findMany({
-            where: (activity, { eq }) => eq(activity.Campings, input.site),
+            where: (activity, { eq }) =>
+              eq(activity.Campings, input.site as CAMPSITES),
           });
 
         const dates = activitiesForSite.map(
@@ -156,14 +161,14 @@ export const activityRouter = createTRPCRouter({
           where: (activity, { and, eq, between }) =>
             range.from && range.to
               ? and(
-                  eq(activity.Campings, input.site),
+                  eq(activity.Campings, input.site as CAMPSITES),
                   between(
                     activity.Contenu_date,
                     range.from,
                     addOneDay(range.to),
                   ),
                 )
-              : eq(activity.Campings, input.site),
+              : eq(activity.Campings, input.site as CAMPSITES),
         });
 
         // Extract dates from activities
@@ -204,7 +209,7 @@ export const activityRouter = createTRPCRouter({
         const activities = await ctx.db.query.campsiteActivities.findMany({
           where: (activity, { eq, and, between }) =>
             and(
-              eq(activity.Campings, site),
+              eq(activity.Campings, site as CAMPSITES),
               between(activity.Contenu_date, dateRange.from, dateRange.to),
             ),
         });
@@ -229,7 +234,8 @@ export const activityRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       try {
         const activities = await ctx.db.query.mustSeeActivities.findMany({
-          where: (activity, { eq }) => eq(activity.Campings, input.site),
+          where: (activity, { eq }) =>
+            eq(activity.Campings, input.site as CAMPSITES),
         });
 
         return activities;
@@ -256,10 +262,10 @@ export const activityRouter = createTRPCRouter({
           where: (activity, { and, eq }) =>
             category
               ? and(
-                  eq(activity.Campings, site),
+                  eq(activity.Campings, site as CAMPSITES),
                   eq(activity.Category, category),
                 )
-              : eq(activity.Campings, site),
+              : eq(activity.Campings, site as CAMPSITES),
         });
 
         return activities;
