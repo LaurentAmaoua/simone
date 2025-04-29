@@ -57,10 +57,13 @@ export const Calendar = ({
       >
         <Button variant="outline" className={styles.button}>
           <CalendarIcon className={styles.calendarIcon} />
-          {dateRange?.from && dateRange.to ? (
+          {dateRange?.from ? (
             <span className={styles.range}>
-              {formatToFrenchDate(dateRange.from)} -{" "}
-              {formatToFrenchDate(dateRange.to)}
+              {formatToFrenchDate(dateRange.from)}
+              {dateRange.to &&
+              dateRange.from.getTime() !== dateRange.to.getTime()
+                ? ` - ${formatToFrenchDate(dateRange.to)}`
+                : ""}
             </span>
           ) : (
             <span>Vos dates</span>

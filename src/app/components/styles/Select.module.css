@@ -3,14 +3,25 @@
   border-radius: var(--br-m);
   width: 100%;
   padding: var(--p-s);
+  display: flex;
+  align-items: center;
+  gap: var(--g-s);
 }
 
 .trigger:hover {
   background: var(--c-mint-green);
 }
 
+.trigger > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
 .mapIcon {
   width: 16px;
+  flex-shrink: 0;
 }
 
 .contentContainer {

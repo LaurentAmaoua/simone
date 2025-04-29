@@ -3,7 +3,6 @@ export const formatToFrenchDate = (date: Date) => {
     day: "numeric",
     month: "short",
     year: "2-digit",
-    timeZone: "UTC",
   }).format(date);
 
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);

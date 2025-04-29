@@ -3,6 +3,7 @@
   border-radius: var(--br-m);
   border: var(--b-m);
   font-weight: var(--fw-400);
+  overflow: hidden;
 }
 
 .popoverTrigger:hover {
@@ -12,19 +13,28 @@
 .button {
   justify-content: space-between;
   padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--g-s);
 }
 
 .calendarIcon {
   width: 16px;
+  flex-shrink: 0;
 }
 
 .range {
-  white-space: wrap;
+  white-space: nowrap;
   line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .chevronDown {
   opacity: 0.5;
+  flex-shrink: 0;
 }
 
 .popoverContent {

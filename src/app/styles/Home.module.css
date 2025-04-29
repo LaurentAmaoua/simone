@@ -22,6 +22,14 @@
   flex-direction: column;
   gap: var(--g-s);
   flex: 1;
+  width: 50%;
+  min-width: 0;
+}
+
+.attrContainer h2 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .flex {
@@ -48,6 +56,7 @@
 .leftInner {
   display: flex;
   gap: 8px;
+  width: 100%;
 }
 
 .right {
@@ -70,6 +79,10 @@
 
   .leftInner {
     flex-direction: column;
+  }
+
+  .attrContainer {
+    width: 100%;
   }
 
   .sectionTitle {
