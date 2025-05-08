@@ -30,15 +30,18 @@ export const SwipeableViews = ({
   }, [initialIndex]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    startXRef.current = e.touches[0].clientX;
-    isDraggingRef.current = true;
+    if (e.touches[0]) {
+      startXRef.current = e.touches[0].clientX;
+      isDraggingRef.current = true;
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (
       !isDraggingRef.current ||
       startXRef.current === null ||
-      !containerRef.current
+      !containerRef.current ||
+      !e.touches[0]
     )
       return;
 
@@ -56,7 +59,8 @@ export const SwipeableViews = ({
     if (
       !isDraggingRef.current ||
       startXRef.current === null ||
-      !containerRef.current
+      !containerRef.current ||
+      !e.changedTouches[0]
     )
       return;
 
