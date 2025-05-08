@@ -61,7 +61,9 @@
 .footer {
   position: fixed;
   bottom: 0;
-  left: 0;
+  left: 50%;
+  max-width: var(--app-width);
+  transform: translateX(-50%);
   width: 100%;
   height: var(--footer-height);
   display: flex;

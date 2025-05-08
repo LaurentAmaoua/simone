@@ -115,36 +115,36 @@ export default function Home() {
       <div className={styles.inner}>
         <Header />
         <div className={styles.flex}>
-          <div className={styles.left}>
-            <div className={styles.leftInner}>
-              <div className={styles.attrContainer}>
-                <h2 className={styles.sectionTitle}>Camping</h2>
-                <Suspense fallback={<span>Chargement...</span>}>
-                  <Select onSelect={setSelectedSite} />
-                </Suspense>
-              </div>
-              <div className={styles.attrContainer}>
-                <h2 className={styles.sectionTitle}>Date</h2>
-                <Calendar
-                  site={selectedSite}
-                  disabled={!selectedSite}
-                  date={selectedDateRange}
-                  onSelect={setSelectedDateRange}
-                />
-              </div>
-            </div>
-          </div>
           <div className={styles.right}>
             <SwipeableViews
               initialIndex={viewIndex}
               onChangeIndex={setViewIndex}
             >
-              <Tabs
-                site={selectedSite}
-                dateRange={selectedDateRange}
-                onPickActivity={handlePickActivity}
-                pickedActivities={pickedActivities}
-              />
+              <div className={styles.tabContainer}>
+                <div className={styles.selectionControls}>
+                  <div className={styles.attrContainer}>
+                    <h2 className={styles.sectionTitle}>Camping</h2>
+                    <Suspense fallback={<span>Chargement...</span>}>
+                      <Select onSelect={setSelectedSite} />
+                    </Suspense>
+                  </div>
+                  <div className={styles.attrContainer}>
+                    <h2 className={styles.sectionTitle}>Date</h2>
+                    <Calendar
+                      site={selectedSite}
+                      disabled={!selectedSite}
+                      date={selectedDateRange}
+                      onSelect={setSelectedDateRange}
+                    />
+                  </div>
+                </div>
+                <Tabs
+                  site={selectedSite}
+                  dateRange={selectedDateRange}
+                  onPickActivity={handlePickActivity}
+                  pickedActivities={pickedActivities}
+                />
+              </div>
               <PickedActivities
                 pickedActivities={pickedActivities}
                 onRemoveActivity={handleRemoveActivity}
