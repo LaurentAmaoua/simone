@@ -3,7 +3,6 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: var(--p-s) var(--p-s) var(--footer-height);
   overflow-y: auto;
 }
 
@@ -36,19 +35,26 @@
 .sectionTitle {
   font-size: var(--fs-l);
   color: var(--c-orange-wheel);
-  margin-bottom: var(--m-s);
+  position: sticky;
+  top: 0;
+  background: var(--c-white);
+  z-index: 1;
 }
 
 .dayTitle {
   font-size: var(--fs-m);
   color: var(--c-orange-wheel);
-  margin: var(--m-s) 0 var(--m-xs);
   padding: 0 0 0 var(--p-s);
   border-left: 3px solid var(--c-orange-wheel);
+  position: sticky;
+  top: 36px;
+  background: var(--c-white);
+  z-index: 1;
 }
 
 .activities {
   display: flex;
   flex-direction: column;
   gap: var(--g-s);
+  margin: var(--m-m) 0 0;
 }
