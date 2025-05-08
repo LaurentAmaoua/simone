@@ -192,6 +192,11 @@
   color: var(--c-slate-gray);
 }
 
+/* Because we inject html in the description, we need to be more specific */
+.description > * {
+  color: var(--c-slate-gray);
+}
+
 .descriptionContainer {
   display: flex;
   flex-direction: column;

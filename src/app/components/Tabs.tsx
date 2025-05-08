@@ -61,7 +61,6 @@ export const Tabs = ({
         onPickActivity={onPickActivity}
         pickedActivities={pickedActivities}
       />
-      <div className={styles.footerGradient}></div>
     </div>
   );
 };

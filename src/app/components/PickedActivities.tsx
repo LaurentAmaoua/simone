@@ -6,6 +6,11 @@ import {
 import { useEffect, useState } from "react";
 import { sortByChronologicalOrder, formatToFrenchDate } from "~/lib/datetime";
 import styles from "./styles/PickedActivities.module.css";
+import {
+  CampsiteActivityCard,
+  MustSeeActivityCard,
+  LocalActivityCard,
+} from "./Activities";
 
 export type PickedActivity = (MustSeeActivity | LocalActivity | Activity) & {
   type: "must-see" | "local" | "campsite";
@@ -102,6 +107,11 @@ export const PickedActivities = ({
     })
     .sort(sortByChronologicalOrder);
 
+  // Handler for when an activity card's button is clicked (will remove the activity)
+  const handlePickActivity = (activity: PickedActivity) => {
+    onRemoveActivity(activity.ID, activity.type);
+  };
+
   return (
     <div className={styles.container}>
       {groupedActivities.mustSee.length > 0 && (
@@ -109,10 +119,11 @@ export const PickedActivities = ({
           <h2 className={styles.sectionTitle}>Incontournables de la région</h2>
           <div className={styles.activities}>
             {groupedActivities.mustSee.map((activity) => (
-              <PickedActivityCard
+              <MustSeeActivityCard
                 key={`must-see-${activity.ID}`}
-                activity={activity}
-                onRemove={onRemoveActivity}
+                activity={activity as MustSeeActivity}
+                onPickActivity={handlePickActivity}
+                isPicked={true}
               />
             ))}
           </div>
@@ -124,10 +135,11 @@ export const PickedActivities = ({
           <h2 className={styles.sectionTitle}>À faire dans le coin</h2>
           <div className={styles.activities}>
             {groupedActivities.local.map((activity) => (
-              <PickedActivityCard
+              <LocalActivityCard
                 key={`local-${activity.ID}`}
-                activity={activity}
-                onRemove={onRemoveActivity}
+                activity={activity as LocalActivity}
+                onPickActivity={handlePickActivity}
+                isPicked={true}
               />
             ))}
           </div>
@@ -150,10 +162,11 @@ export const PickedActivities = ({
                   </h3>
                   <div className={styles.activities}>
                     {activitiesForDay.map((activity) => (
-                      <PickedActivityCard
+                      <CampsiteActivityCard
                         key={`campsite-${activity.ID}`}
-                        activity={activity}
-                        onRemove={onRemoveActivity}
+                        activity={activity as Activity}
+                        onPickActivity={handlePickActivity}
+                        isPicked={true}
                       />
                     ))}
                   </div>
@@ -165,57 +178,4 @@ export const PickedActivities = ({
       )}
     </div>
   );
-};
-
-const PickedActivityCard = ({
-  activity,
-  onRemove,
-}: {
-  activity: PickedActivity;
-  onRemove: (id: number, type: string) => void;
-}) => {
-  return (
-    <div className={styles.activityCard}>
-      <div className={styles.content}>
-        <h3 className={styles.activityTitle}>{activity.Title}</h3>
-        {"Location" in activity && (
-          <p className={styles.location}>{activity.Location}</p>
-        )}
-
-        {"Contenu_time" in activity && (
-          <p className={styles.time}>
-            {activity.Contenu_time ?? formatActivityTime(activity.Contenu_date)}
-            {activity.Contenu_duration &&
-              ` - Durée: ${activity.Contenu_duration}`}
-          </p>
-        )}
-
-        {"Description" in activity && activity.Description && (
-          <p className={styles.description}>{activity.Description}</p>
-        )}
-
-        {"infos_description" in activity && activity.infos_description && (
-          <p
-            className={styles.description}
-            dangerouslySetInnerHTML={{ __html: activity.infos_description }}
-          ></p>
-        )}
-
-        <button
-          className={styles.removeButton}
-          onClick={() => onRemove(activity.ID, activity.type)}
-        >
-          Retirer
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const formatActivityTime = (date: Date) => {
-  return date.toLocaleTimeString("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "UTC",
-  });
 };

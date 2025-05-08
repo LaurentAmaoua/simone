@@ -31,7 +31,7 @@
 
 .dotsContainer {
   position: absolute;
-  bottom: 2px;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -119,4 +119,17 @@
 .swipeableContainer .swipeableSlide[aria-hidden="false"] {
   opacity: 1;
   transform: scale(1);
+}
+
+.footerGradient {
+  background: linear-gradient(180deg, transparent, var(--c-white));
+  bottom: 100%;
+  content: "";
+  height: var(--footer-gradient-height);
+  pointer-events: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  bottom: 18px;
 }

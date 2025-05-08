@@ -237,6 +237,7 @@ export const SwipeableViews = ({
           </div>
         ))}
       </div>
+      <div className={styles.footerGradient}></div>
       <div className={styles.dotsContainer}>
         {children.map((_, index) => (
           <button

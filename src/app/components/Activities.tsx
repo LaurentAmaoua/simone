@@ -482,7 +482,7 @@ const CampsiteDayActivities = ({
   );
 };
 
-const CampsiteActivityCard = ({
+export const CampsiteActivityCard = ({
   activity,
   onPickActivity,
   isPicked,
@@ -547,7 +547,7 @@ const CampsiteActivityCard = ({
   );
 };
 
-const MustSeeActivityCard = ({
+export const MustSeeActivityCard = ({
   activity,
   onPickActivity,
   isPicked,
@@ -612,7 +612,7 @@ const MustSeeActivityCard = ({
   );
 };
 
-const LocalActivityCard = ({
+export const LocalActivityCard = ({
   activity,
   onPickActivity,
   isPicked,
