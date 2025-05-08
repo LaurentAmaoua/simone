@@ -374,7 +374,7 @@ const CampsiteActivityCard = ({ activity }: { activity: Activity }) => {
       </div>
       <p className={styles.times}>
         {activity.Contenu_time ?? formatActivityTime(activity.Contenu_date)}
-        {activity.useful_duration && ` - Durée: ${activity.useful_duration}`}
+        {activity.Contenu_duration && ` - Durée: ${activity.Contenu_duration}`}
       </p>
       {activity.infos_description && (
         <p className={styles.description}>{activity.infos_description}</p>
