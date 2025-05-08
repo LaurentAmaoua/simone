@@ -45,8 +45,8 @@ export const Activities = ({
 
   if (!site) {
     return (
-      <div className={styles.container}>
-        <p className={styles.center}>Veuillez sélectionner un camping</p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>Veuillez sélectionner un camping</p>
       </div>
     );
   }
@@ -102,25 +102,32 @@ const MustSeeActivitiesTab = ({
 
   if (isLoading) {
     return (
-      <p className={styles.center}>
-        Chargement des activités incontournables en cours...
-      </p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Chargement des activités incontournables en cours...
+        </p>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <p className={styles.center}>
-        Une erreur est survenue lors du chargement des activités incontournables
-      </p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Une erreur est survenue lors du chargement des activités
+          incontournables
+        </p>
+      </div>
     );
   }
 
   if (!activities || activities.length === 0) {
     return (
-      <p className={styles.center}>
-        Aucune activité incontournable trouvée pour ce site
-      </p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Aucune activité incontournable trouvée pour ce site
+        </p>
+      </div>
     );
   }
 
@@ -171,25 +178,31 @@ const LocalActivitiesTab = ({
 
   if (isLoading) {
     return (
-      <p className={styles.center}>
-        Chargement des activités locales en cours...
-      </p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Chargement des activités locales en cours...
+        </p>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <p className={styles.center}>
-        Une erreur est survenue lors du chargement des activités locales
-      </p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Une erreur est survenue lors du chargement des activités locales
+        </p>
+      </div>
     );
   }
 
   if (!activities || activities.length === 0) {
     return (
-      <p className={styles.center}>
-        Aucune activité locale trouvée pour ce site
-      </p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Aucune activité locale trouvée pour ce site
+        </p>
+      </div>
     );
   }
 
@@ -269,25 +282,39 @@ const CampsiteActivitiesTab = ({
 
   // Return early if site is not selected
   if (!site) {
-    return <p className={styles.center}>Veuillez sélectionner un camping</p>;
+    return (
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>Veuillez sélectionner un camping</p>
+      </div>
+    );
   }
 
   // Return early if no date is selected
   if (!isValidDateRange) {
-    return <p className={styles.center}>Veuillez sélectionner une date</p>;
+    return (
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>Veuillez sélectionner une date</p>
+      </div>
+    );
   }
 
   if (isLoading) {
     return (
-      <p className={styles.center}>Chargement des animations en cours...</p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Chargement des animations en cours...
+        </p>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <p className={styles.center}>
-        Une erreur est survenue lors du chargement des animations
-      </p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Une erreur est survenue lors du chargement des animations
+        </p>
+      </div>
     );
   }
 
@@ -296,14 +323,18 @@ const CampsiteActivitiesTab = ({
     const singleDay =
       effectiveDateRange.from.getTime() === effectiveDateRange.to.getTime();
     return singleDay ? (
-      <p className={styles.center}>
-        Aucune animation n&apos;est prévue pour le{" "}
-        {formatToFrenchDate(effectiveDateRange.from)}
-      </p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Aucune animation n&apos;est prévue pour le{" "}
+          {formatToFrenchDate(effectiveDateRange.from)}
+        </p>
+      </div>
     ) : (
-      <p className={styles.center}>
-        Aucune animation n&apos;est prévue pour la période sélectionnée
-      </p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Aucune animation n&apos;est prévue pour la période sélectionnée
+        </p>
+      </div>
     );
   }
 
@@ -386,29 +417,41 @@ const CampsiteDayActivities = ({
 
   if (!areInputsValid) {
     return (
-      <p className={styles.center}>
-        Données invalides pour charger les activités
-      </p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Données invalides pour charger les activités
+        </p>
+      </div>
     );
   }
 
   if (isLoading) {
     return (
-      <p className={styles.center}>Chargement des activités en cours...</p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Chargement des activités en cours...
+        </p>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <p className={styles.center}>
-        Une erreur est survenue lors du chargement des activités
-      </p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Une erreur est survenue lors du chargement des activités
+        </p>
+      </div>
     );
   }
 
   if (!activities || activities.length === 0) {
     return (
-      <p className={styles.center}>Aucune activité trouvée pour ce jour</p>
+      <div className={styles.emptyContainer}>
+        <p className={styles.emptyMessage}>
+          Aucune activité trouvée pour ce jour
+        </p>
+      </div>
     );
   }
 

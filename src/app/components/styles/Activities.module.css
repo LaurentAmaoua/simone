@@ -5,8 +5,14 @@
   height: 100%;
 }
 
-.container > .center {
-  margin: auto;
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--p-m);
+  text-align: center;
 }
 
 .categoryFilter {
@@ -236,10 +242,16 @@
   text-decoration: none;
 }
 
-.center {
+.emptyMessage {
+  font-size: var(--fs-m);
+  color: var(--c-lapis-lazuli);
+  margin-bottom: var(--m-l);
   text-align: center;
   padding: var(--p-m);
-  color: var(--c-slate-gray);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .pickButton {

@@ -18,13 +18,13 @@
 }
 
 .emptyMessage {
-  font-size: var(--fs-l);
+  font-size: var(--fs-m);
   color: var(--c-lapis-lazuli);
   margin-bottom: var(--m-l);
 }
 
 .emptyInstructions {
-  font-size: var(--fs-m);
+  font-size: var(--fs-s);
   color: var(--c-slate-gray);
   max-width: 400px;
 }
