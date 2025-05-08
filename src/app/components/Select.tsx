@@ -16,38 +16,47 @@ import { api } from "~/trpc/react";
 
 import styles from "./styles/Select.module.css";
 
-// Define regions for grouping
-enum Region {
-  CHARENTE_MARITIME = "Charente-Maritime",
-  COTES_D_ARMOR = "Côtes-d'Armor",
-  DORDOGNE = "Dordogne",
-  HERAULT = "Hérault",
-  LOIRE_ATLANTIQUE = "Loire-Atlantique",
-  MORBIHAN = "Morbihan",
-  PYRENEES_ATLANTIQUES = "Pyrénées-Atlantiques",
+export enum CAMPSITES {
+  BELA_BASQUE = "Bela Basque",
+  CAP_DE_BRÉHAT = "Cap de Bréhat",
+  DOMAINE_DE_BRÉHADOUR = "Domaine de Bréhadour",
+  L_OCÉAN_ET_SPA = "L’Océan &amp; spa",
+  LES_TRUFFIERES_DE_DORDOGNE = "Les Truffières de Dordogne",
+  LA_POINTE_DE_SAINT_GILDAS = "La Pointe Saint-Gildas",
+  LE_CARAVAN_ÎLE = "Le Caravan'île",
+  LE_SUROIT = "Le Suroit",
+  L_ÉTOILE_DE_MER = "L’Étoile de Mer",
+  MANOIR_DE_KER_AN_POUL = "Manoir de Ker An Poul",
+  PALMYRE_LOISIRS = "Palmyre Loisirs",
 }
 
-// TODO - Missing 2 campsites
-export enum CAMPSITES {
-  PLOUEZEC = "Cap de Bréhat",
-  SARZEAU = "Manoir de Ker an Poul",
-  GUÉRANDE = "Domaine de Bréhadour",
-  PRÉFAILLES = "La Pointe Saint-Gildas",
-  ILE_DE_RÉ = "L'Océan & Spa",
-  LA_PALMYRE = "Palmyre Loisirs",
-  ANGLET = "Bela Basque",
-  ST_GENIÈS = "Les Truffières de Dordogne",
-  SÉRIGNAN_PLAGE = "L'Étoile de Mer",
+export enum Region {
+  NOUVELLE_AQUITAINE = "Nouvelle-Aquitaine",
+  BRETAGNE = "Bretagne",
+  PAYS_DE_LA_LOIRE = "Pays de la Loire",
+  OCCITANIE = "Occitanie",
 }
 
 const RegionToCampsiteMapping: Record<Region, CAMPSITES[]> = {
-  "Charente-Maritime": [CAMPSITES.ILE_DE_RÉ, CAMPSITES.LA_PALMYRE],
-  "Côtes-d'Armor": [CAMPSITES.PLOUEZEC],
-  Dordogne: [CAMPSITES.ST_GENIÈS],
-  Hérault: [CAMPSITES.SÉRIGNAN_PLAGE],
-  "Loire-Atlantique": [CAMPSITES.GUÉRANDE, CAMPSITES.PRÉFAILLES],
-  Morbihan: [CAMPSITES.SARZEAU],
-  "Pyrénées-Atlantiques": [CAMPSITES.ANGLET],
+  [Region.NOUVELLE_AQUITAINE]: [
+    CAMPSITES.BELA_BASQUE, // Anglet, Pyrénées-Atlantiques
+    CAMPSITES.LES_TRUFFIERES_DE_DORDOGNE, // Saint-Geniès, Dordogne
+    CAMPSITES.LE_SUROIT, // Saint-Georges-d'Oléron, Charente-Maritime
+    CAMPSITES.L_OCÉAN_ET_SPA, // Île de Ré, Charente-Maritime
+    CAMPSITES.PALMYRE_LOISIRS, // Les Mathes, Charente-Maritime
+  ],
+  [Region.BRETAGNE]: [
+    CAMPSITES.CAP_DE_BRÉHAT, // Plouézec, Côtes-d'Armor
+    CAMPSITES.MANOIR_DE_KER_AN_POUL, // Sarzeau, Morbihan
+  ],
+  [Region.PAYS_DE_LA_LOIRE]: [
+    CAMPSITES.DOMAINE_DE_BRÉHADOUR, // Guérande, Loire-Atlantique
+    CAMPSITES.LA_POINTE_DE_SAINT_GILDAS, // Préfailles, Loire-Atlantique
+    CAMPSITES.LE_CARAVAN_ÎLE, // La Guérinière, Vendée
+  ],
+  [Region.OCCITANIE]: [
+    CAMPSITES.L_ÉTOILE_DE_MER, // Sérignan, Hérault
+  ],
 } as const;
 
 // Helper function to convert string to CAMPSITES enum
@@ -94,7 +103,7 @@ export const Select = ({ onSelect }: SelectProps) => {
       const region =
         (Object.entries(RegionToCampsiteMapping).find(([_, campsiteList]) =>
           campsiteList.some((c) => c === campsite),
-        )?.[0] as Region) || Region.CHARENTE_MARITIME;
+        )?.[0] as Region) || Region.NOUVELLE_AQUITAINE;
 
       groupedCampsites[region].push(campsite);
     });

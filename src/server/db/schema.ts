@@ -9,6 +9,7 @@ import {
   varchar,
   index,
   text,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -26,11 +27,18 @@ export const campsiteActivities = createTable(
   {
     ID: integer("ID").primaryKey().generatedByDefaultAsIdentity().notNull(),
     Title: varchar("Title", { length: 256 }).notNull(),
+    Categories: varchar("Categories", { length: 255 }),
+    Cibles: varchar("Cibles", { length: 255 }),
+    Contenu: text("Contenu"),
+    Contenu_is_weekly: boolean("Contenu_is_weekly").default(false),
+    Contenu_is_featured: boolean("Contenu_is_featured").default(false),
+    Contenu_place: varchar("Contenu_place", { length: 255 }),
     infos_description: text("infos_description"),
     Campings: varchar("Campings", { length: 255 }).$type<CAMPSITES>().notNull(),
     Contenu_date: timestamp("Contenu_date").notNull(),
     Contenu_time: varchar("Contenu_time", { length: 10 }),
-    useful_duration: varchar("useful_duration", { length: 50 }),
+    Contenu_duration: varchar("Contenu_duration", { length: 50 }),
+    useful_date: timestamp("useful_date"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

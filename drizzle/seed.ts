@@ -21,23 +21,10 @@ async function main() {
   const conn = postgres(DATABASE_URL!);
   const db = drizzle(conn);
 
-  // Valid campings from CAMPSITES enum
-  const campings = [
-    CAMPSITES.PLOUEZEC, // "Cap de Bréhat"
-    CAMPSITES.SARZEAU, // "Manoir de Ker an Poul"
-    CAMPSITES.GUÉRANDE, // "Domaine de Bréhadour"
-    CAMPSITES.PRÉFAILLES, // "La Pointe Saint-Gildas"
-    CAMPSITES.ILE_DE_RÉ, // "L'Océan & Spa"
-    CAMPSITES.LA_PALMYRE, // "Palmyre Loisirs"
-    CAMPSITES.ANGLET, // "Bela Basque"
-    CAMPSITES.ST_GENIÈS, // "Les Truffières de Dordogne"
-    CAMPSITES.SÉRIGNAN_PLAGE, // "L'Étoile de Mer"
-  ];
-
   console.log("Seeding must-see activities...");
 
   // Must-see activities seed data - using proper CAMPSITES enum values
-  for (const camping of campings) {
+  for (const camping of Object.values(CAMPSITES)) {
     await db.insert(mustSeeActivities).values([
       {
         Title: "Zoo de la Palmyre",
@@ -89,7 +76,7 @@ async function main() {
   ];
 
   // Restaurants
-  for (const camping of campings) {
+  for (const camping of Object.values(CAMPSITES)) {
     await db.insert(localActivities).values([
       {
         Title: "La Cabane de l'Océan",
@@ -201,7 +188,7 @@ async function main() {
       Title: "Visite guidée du phare",
       infos_description:
         "Découvrez l'histoire fascinante du phare et profitez d'une vue panoramique exceptionnelle sur l'archipel de Bréhat et la côte.",
-      Campings: CAMPSITES.PLOUEZEC,
+      Campings: CAMPSITES.CAP_DE_BRÉHAT,
       Contenu_date: new Date("2024-07-15"),
       Contenu_time: "10:00",
       useful_duration: "1h30",
@@ -210,7 +197,7 @@ async function main() {
       Title: "Atelier de cuisine bretonne",
       infos_description:
         "Apprenez à préparer des spécialités bretonnes traditionnelles avec notre chef local.",
-      Campings: CAMPSITES.PLOUEZEC,
+      Campings: CAMPSITES.CAP_DE_BRÉHAT,
       Contenu_date: new Date("2024-07-16"),
       Contenu_time: "14:00",
       useful_duration: "2h",
@@ -221,7 +208,7 @@ async function main() {
       Title: "Soirée fruits de mer",
       infos_description:
         "Dégustation de fruits de mer frais de la région accompagnés de vins locaux.",
-      Campings: CAMPSITES.SARZEAU,
+      Campings: CAMPSITES.MANOIR_DE_KER_AN_POUL,
       Contenu_date: new Date("2024-07-20"),
       Contenu_time: "19:00",
       useful_duration: "3h",
@@ -230,7 +217,7 @@ async function main() {
       Title: "Excursion au Golfe du Morbihan",
       infos_description:
         "Découverte des îles du Golfe du Morbihan en bateau avec arrêt sur l'île aux Moines.",
-      Campings: CAMPSITES.SARZEAU,
+      Campings: CAMPSITES.MANOIR_DE_KER_AN_POUL,
       Contenu_date: new Date("2024-07-22"),
       Contenu_time: "09:00",
       useful_duration: "5h",
@@ -241,7 +228,7 @@ async function main() {
       Title: "Visite des marais salants",
       infos_description:
         "Découvrez le métier de paludier et l'histoire du sel de Guérande avec un guide expert.",
-      Campings: CAMPSITES.GUÉRANDE,
+      Campings: CAMPSITES.DOMAINE_DE_BRÉHADOUR,
       Contenu_date: new Date("2024-08-05"),
       Contenu_time: "10:00",
       useful_duration: "2h30",
@@ -250,7 +237,7 @@ async function main() {
       Title: "Balade à vélo dans les marais",
       infos_description:
         "Parcourez les marais salants à vélo sur un circuit balisé avec points de vue exceptionnels.",
-      Campings: CAMPSITES.GUÉRANDE,
+      Campings: CAMPSITES.DOMAINE_DE_BRÉHADOUR,
       Contenu_date: new Date("2024-08-08"),
       Contenu_time: "09:00",
       useful_duration: "3h",
@@ -261,7 +248,7 @@ async function main() {
       Title: "Initiation au surf",
       infos_description:
         "Cours d'initiation au surf pour tous niveaux avec instructeurs certifiés.",
-      Campings: CAMPSITES.PRÉFAILLES,
+      Campings: CAMPSITES.LA_POINTE_DE_SAINT_GILDAS,
       Contenu_date: new Date("2024-08-12"),
       Contenu_time: "11:00",
       useful_duration: "2h",
@@ -270,7 +257,7 @@ async function main() {
       Title: "Découverte de la pêche à pied",
       infos_description:
         "Apprenez à identifier et à récolter les coquillages et crustacés à marée basse.",
-      Campings: CAMPSITES.PRÉFAILLES,
+      Campings: CAMPSITES.LA_POINTE_DE_SAINT_GILDAS,
       Contenu_date: new Date("2024-08-14"),
       Contenu_time: "14:30",
       useful_duration: "1h30",
@@ -281,7 +268,7 @@ async function main() {
       Title: "Dégustation de vins locaux",
       infos_description:
         "Découverte des vins de l'île de Ré avec un sommelier expert.",
-      Campings: CAMPSITES.ILE_DE_RÉ,
+      Campings: CAMPSITES.L_OCÉAN_ET_SPA,
       Contenu_date: new Date("2024-07-10"),
       Contenu_time: "18:00",
       useful_duration: "2h",
@@ -290,7 +277,7 @@ async function main() {
       Title: "Balade à cheval",
       infos_description:
         "Découvrez les plages et forêts de l'île de Ré à cheval, idéal pour tous niveaux.",
-      Campings: CAMPSITES.ILE_DE_RÉ,
+      Campings: CAMPSITES.L_OCÉAN_ET_SPA,
       Contenu_date: new Date("2024-07-14"),
       Contenu_time: "10:00",
       useful_duration: "2h",
@@ -301,7 +288,7 @@ async function main() {
       Title: "Animation pour enfants",
       infos_description:
         "Chasse au trésor thématique dans le camping pour les enfants de 5 à 12 ans.",
-      Campings: CAMPSITES.LA_PALMYRE,
+      Campings: CAMPSITES.PALMYRE_LOISIRS,
       Contenu_date: new Date("2024-08-20"),
       Contenu_time: "15:00",
       useful_duration: "2h",
@@ -310,7 +297,7 @@ async function main() {
       Title: "Tournoi de beach-volley",
       infos_description:
         "Compétition amicale de beach-volley ouverte à tous les campeurs.",
-      Campings: CAMPSITES.LA_PALMYRE,
+      Campings: CAMPSITES.PALMYRE_LOISIRS,
       Contenu_date: new Date("2024-08-22"),
       Contenu_time: "16:00",
       useful_duration: "3h",
@@ -321,7 +308,7 @@ async function main() {
       Title: "Cours de surf avancé",
       infos_description:
         "Perfectionnez votre technique de surf avec nos moniteurs professionnels.",
-      Campings: CAMPSITES.ANGLET,
+      Campings: CAMPSITES.BELA_BASQUE,
       Contenu_date: new Date("2024-07-25"),
       Contenu_time: "09:00",
       useful_duration: "2h",
@@ -330,7 +317,7 @@ async function main() {
       Title: "Chasse aux truffes",
       infos_description:
         "Partez à la recherche de truffes avec un chien truffier et son maître expérimenté.",
-      Campings: CAMPSITES.ST_GENIÈS,
+      Campings: CAMPSITES.LES_TRUFFIERES_DE_DORDOGNE,
       Contenu_date: new Date("2024-08-01"),
       Contenu_time: "10:00",
       useful_duration: "2h",
@@ -339,7 +326,7 @@ async function main() {
       Title: "Tournoi de pétanque",
       infos_description:
         "Compétition amicale de pétanque ouverte à tous les résidents du camping.",
-      Campings: CAMPSITES.SÉRIGNAN_PLAGE,
+      Campings: CAMPSITES.L_ÉTOILE_DE_MER,
       Contenu_date: new Date("2024-07-18"),
       Contenu_time: "17:00",
       useful_duration: "2h",
