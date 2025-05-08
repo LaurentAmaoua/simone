@@ -64,7 +64,6 @@
   padding: 0 0 0 var(--p-s);
   font-size: var(--fs-l);
   color: var(--c-orange-wheel);
-  margin-bottom: var(--m-s);
 }
 
 .dayGroup {
@@ -77,14 +76,13 @@
   top: 62px;
   background-color: var(--c-white);
   z-index: 1;
-  padding: var(--p-xs) 0;
-  margin-top: var(--m-s);
 }
 
 .dayActivities {
   display: flex;
   flex-direction: column;
   gap: var(--g-s);
+  margin: var(--m-xs) 0 0 0;
 }
 
 .activityCard {
@@ -138,7 +136,6 @@
   transform: scale(1.05);
 }
 
-/* Content shared between activity types */
 .content {
   padding: var(--p-m);
   display: flex;
@@ -158,6 +155,10 @@
   font-size: var(--fs-l);
   color: var(--c-lapis-lazuli);
   margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--g-s);
 }
 
 .category {
@@ -214,28 +215,56 @@
 
 .details {
   display: flex;
-  gap: var(--g-s);
+  gap: var(--g-xs);
   color: var(--c-slate-gray);
   font-size: var(--fs-s);
-  margin-bottom: var(--m-s);
-  align-items: center;
+  margin: 0;
 }
 
 .distance,
 .duration {
-  display: inline-flex;
-  align-items: center;
+  display: inline-block;
 }
 
 .activityFooter {
   margin-top: auto;
-  display: flex;
-  justify-content: flex-end;
+  padding-top: var(--p-s);
 }
 
 .link {
-  padding: var(--p-s);
-  display: inline-block;
   color: inherit;
   text-decoration: none;
+}
+
+.center {
+  text-align: center;
+  padding: var(--p-m);
+  color: var(--c-slate-gray);
+}
+
+.pickButton {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--c-lapis-lazuli);
+  background-color: var(--c-white);
+  color: var(--c-lapis-lazuli);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.pickButton:hover {
+  background-color: var(--c-mint-green);
+  transform: scale(1.1);
+}
+
+.picked {
+  background-color: var(--c-mint-green);
+  border-color: var(--c-mint-green);
 }

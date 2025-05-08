@@ -36,7 +36,7 @@
   gap: var(--g-m);
   flex: 1;
   overflow: scroll;
-  padding: var(--p-xs) var(--p-s);
+  padding: var(--p-xs);
   margin: var(--app-header-height) 0 0;
 }
 
@@ -62,6 +62,12 @@
   flex: 1;
   position: relative;
   overflow: hidden;
+  padding-bottom: 33px;
+}
+
+.sectionTitle {
+  font-size: var(--fs-l);
+  margin: 0;
 }
 
 @media (min-width: 688px) {

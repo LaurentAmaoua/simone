@@ -31,10 +31,11 @@
   position: relative;
   overflow-x: auto;
   display: flex;
+  gap: var(--g-xs);
 }
 
 .tab {
-  border: var(--b-m);
+  border: var(--b-s);
   background: var(--c-white);
   border-radius: var(--br-m) var(--br-m) 0 0;
   padding: var(--p-xs);
@@ -46,14 +47,11 @@
   font-size: var(--fs-s);
 }
 
-.tab:not(:first-child) {
-  margin-left: var(--g-s);
-}
-
 .tab.active {
   position: relative;
   background: var(--c-mint-green);
   z-index: 1;
+  border: var(--b-m);
 }
 
 .borderBottom {
@@ -69,15 +67,16 @@
   background: linear-gradient(180deg, transparent, var(--c-white));
   bottom: 100%;
   content: "";
-  height: var(--footer-height);
+  height: var(--footer-gradient-height);
   pointer-events: none;
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
+  bottom: 18px;
 }
 
-@container (min-width: 436px) {
+@container (min-width: 374px) {
   .scrollGradient {
     display: none;
   }

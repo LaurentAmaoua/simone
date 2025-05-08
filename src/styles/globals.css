@@ -6,9 +6,11 @@
   :root {
     /** Colors */
     --c-mint-green: #27c6a0;
+    --c-mint-green-light: #e6f7f3;
     --c-lapis-lazuli: #005587;
     --c-white: #ffffff;
     --c-orange-wheel: #ff8100;
+    --c-slate-gray: #708090;
 
     /** Borders */
 
@@ -29,10 +31,13 @@
     /* Margin */
     --m-xl: 16px;
     --m-l: 12px;
+    --m-s: 8px;
+    --m-xs: 4px;
 
     /* Gap */
     --g-m: 16px;
     --g-s: 8px;
+    --g-xs: 4px;
 
     /** Fonts  */
 
@@ -52,7 +57,8 @@
     --app-height: 700px;
     --app-header-height: 62px;
     --calendar-min-width: 288px;
-    --footer-height: 100px;
+    --footer-height: 40px;
+    --footer-gradient-height: 50px;
     --button-height: 64px;
     --categories-height: 40px;
   }

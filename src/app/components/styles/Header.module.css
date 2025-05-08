@@ -1,6 +1,6 @@
 .container {
   background: var(--c-mint-green);
-  padding: var(--p-m) var(--p-s);
+  padding: var(--p-m) var(--p-xs);
   width: 100%;
   z-index: 2;
   position: fixed;

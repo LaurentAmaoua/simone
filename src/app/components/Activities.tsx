@@ -11,16 +11,25 @@ import {
   type LocalActivity,
   type Activity,
 } from "~/server/db/schema";
+import { type PickedActivity } from "./PickedActivities";
 
 import styles from "./styles/Activities.module.css";
 
-interface ActivitiesProps {
+export interface ActivitiesProps {
   site: CAMPSITES | undefined;
   dateRange: DateRange | undefined;
   activeTab: TABS;
+  onPickActivity: (activity: PickedActivity) => void;
+  pickedActivities: PickedActivity[];
 }
 
-export const Activities = ({ site, dateRange, activeTab }: ActivitiesProps) => {
+export const Activities = ({
+  site,
+  dateRange,
+  activeTab,
+  onPickActivity,
+  pickedActivities,
+}: ActivitiesProps) => {
   const [localCategory, setLocalCategory] = useState<string | undefined>(
     undefined,
   );
@@ -44,23 +53,44 @@ export const Activities = ({ site, dateRange, activeTab }: ActivitiesProps) => {
 
   return (
     <div className={styles.container}>
-      {activeTab === TABS.MUST_SEE && <MustSeeActivitiesTab site={site} />}
+      {activeTab === TABS.MUST_SEE && (
+        <MustSeeActivitiesTab
+          site={site}
+          onPickActivity={onPickActivity}
+          pickedActivities={pickedActivities}
+        />
+      )}
       {activeTab === TABS.LOCAL && (
         <LocalActivitiesTab
           site={site}
           categories={localCategories ?? []}
           activeCategory={localCategory}
           onCategoryChange={setLocalCategory}
+          onPickActivity={onPickActivity}
+          pickedActivities={pickedActivities}
         />
       )}
       {activeTab === TABS.CAMPSITE && (
-        <CampsiteActivitiesTab site={site} dateRange={dateRange} />
+        <CampsiteActivitiesTab
+          site={site}
+          dateRange={dateRange}
+          onPickActivity={onPickActivity}
+          pickedActivities={pickedActivities}
+        />
       )}
     </div>
   );
 };
 
-const MustSeeActivitiesTab = ({ site }: { site: string }) => {
+const MustSeeActivitiesTab = ({
+  site,
+  onPickActivity,
+  pickedActivities,
+}: {
+  site: string;
+  onPickActivity: (activity: PickedActivity) => void;
+  pickedActivities: PickedActivity[];
+}) => {
   const {
     data: activities,
     isLoading,
@@ -97,7 +127,14 @@ const MustSeeActivitiesTab = ({ site }: { site: string }) => {
   return (
     <div className={styles.activities}>
       {activities.map((activity) => (
-        <MustSeeActivityCard key={activity.ID} activity={activity} />
+        <MustSeeActivityCard
+          key={activity.ID}
+          activity={activity}
+          onPickActivity={onPickActivity}
+          isPicked={pickedActivities.some(
+            (a) => a.ID === activity.ID && a.type === "must-see",
+          )}
+        />
       ))}
     </div>
   );
@@ -108,11 +145,15 @@ const LocalActivitiesTab = ({
   categories,
   activeCategory,
   onCategoryChange,
+  onPickActivity,
+  pickedActivities,
 }: {
   site: string;
   categories: string[];
   activeCategory?: string;
   onCategoryChange: (category: string | undefined) => void;
+  onPickActivity: (activity: PickedActivity) => void;
+  pickedActivities: PickedActivity[];
 }) => {
   const {
     data: activities,
@@ -173,7 +214,14 @@ const LocalActivitiesTab = ({
       </div>
       <div className={styles.activities}>
         {activities.map((activity) => (
-          <LocalActivityCard key={activity.ID} activity={activity} />
+          <LocalActivityCard
+            key={activity.ID}
+            activity={activity}
+            onPickActivity={onPickActivity}
+            isPicked={pickedActivities.some(
+              (a) => a.ID === activity.ID && a.type === "local",
+            )}
+          />
         ))}
       </div>
     </>
@@ -183,9 +231,13 @@ const LocalActivitiesTab = ({
 const CampsiteActivitiesTab = ({
   site,
   dateRange,
+  onPickActivity,
+  pickedActivities,
 }: {
   site: string;
   dateRange: DateRange | undefined;
+  onPickActivity: (activity: PickedActivity) => void;
+  pickedActivities: PickedActivity[];
 }) => {
   // If only the "from" date is selected, use it for both from and to
   const effectiveDateRange = dateRange?.from
@@ -283,7 +335,12 @@ const CampsiteActivitiesTab = ({
             <h2 className={styles.day}>{formatToFrenchDate(day, false)}</h2>
           </div>
           <div className={styles.dayActivities}>
-            <CampsiteDayActivities site={site} day={day} />
+            <CampsiteDayActivities
+              site={site}
+              day={day}
+              onPickActivity={onPickActivity}
+              pickedActivities={pickedActivities}
+            />
           </div>
         </div>
       ))}
@@ -291,11 +348,20 @@ const CampsiteActivitiesTab = ({
   );
 };
 
-const CampsiteDayActivities = ({ site, day }: { site: string; day: Date }) => {
-  const isDayValid = !!day && day instanceof Date && !isNaN(day.getTime());
-  const areInputsValid = !!site && isDayValid;
+const CampsiteDayActivities = ({
+  site,
+  day,
+  onPickActivity,
+  pickedActivities,
+}: {
+  site: string;
+  day: Date;
+  onPickActivity: (activity: PickedActivity) => void;
+  pickedActivities: PickedActivity[];
+}) => {
+  const areInputsValid = !!site && !!day;
 
-  // Normalize the day to start-of-day for the range query
+  // Set date range for the specific day
   const normalizedFrom = new Date(
     day.getFullYear(),
     day.getMonth(),
@@ -317,8 +383,6 @@ const CampsiteDayActivities = ({ site, day }: { site: string; day: Date }) => {
       : skipToken,
     { enabled: areInputsValid },
   );
-
-  console.log("activities", activities);
 
   if (!areInputsValid) {
     return (
@@ -362,13 +426,28 @@ const CampsiteDayActivities = ({ site, day }: { site: string; day: Date }) => {
   return (
     <div className={styles.activitiesList}>
       {sortedActivities.map((activity) => (
-        <CampsiteActivityCard key={activity.ID} activity={activity} />
+        <CampsiteActivityCard
+          key={activity.ID}
+          activity={activity}
+          onPickActivity={onPickActivity}
+          isPicked={pickedActivities.some(
+            (a) => a.ID === activity.ID && a.type === "campsite",
+          )}
+        />
       ))}
     </div>
   );
 };
 
-const CampsiteActivityCard = ({ activity }: { activity: Activity }) => {
+const CampsiteActivityCard = ({
+  activity,
+  onPickActivity,
+  isPicked,
+}: {
+  activity: Activity;
+  onPickActivity: (activity: PickedActivity) => void;
+  isPicked: boolean;
+}) => {
   const [expanded, setExpanded] = useState(false);
   const maxCharacters = 250;
 
@@ -380,10 +459,24 @@ const CampsiteActivityCard = ({ activity }: { activity: Activity }) => {
     setExpanded(!expanded);
   };
 
+  const handlePickActivity = () => {
+    onPickActivity({
+      ...activity,
+      type: "campsite",
+    });
+  };
+
   return (
     <div className={styles.activityCard}>
       <div className={styles.header}>
         <h3 className={styles.activityTitle}>{activity.Title}</h3>
+        <button
+          className={`${styles.pickButton} ${isPicked ? styles.picked : ""}`}
+          onClick={handlePickActivity}
+          aria-label={isPicked ? "Activité ajoutée" : "Ajouter à mon planning"}
+        >
+          {isPicked ? "✓" : "+"}
+        </button>
       </div>
       <p className={styles.times}>
         {activity.Contenu_time ?? formatActivityTime(activity.Contenu_date)}
@@ -411,7 +504,22 @@ const CampsiteActivityCard = ({ activity }: { activity: Activity }) => {
   );
 };
 
-const MustSeeActivityCard = ({ activity }: { activity: MustSeeActivity }) => {
+const MustSeeActivityCard = ({
+  activity,
+  onPickActivity,
+  isPicked,
+}: {
+  activity: MustSeeActivity;
+  onPickActivity: (activity: PickedActivity) => void;
+  isPicked: boolean;
+}) => {
+  const handlePickActivity = () => {
+    onPickActivity({
+      ...activity,
+      type: "must-see",
+    });
+  };
+
   return (
     <div className={styles.card}>
       {activity.Image && (
@@ -420,7 +528,18 @@ const MustSeeActivityCard = ({ activity }: { activity: MustSeeActivity }) => {
         </div>
       )}
       <div className={styles.content}>
-        <h3 className={styles.activityTitle}>{activity.Title}</h3>
+        <h3 className={styles.activityTitle}>
+          {activity.Title}
+          <button
+            className={`${styles.pickButton} ${isPicked ? styles.picked : ""}`}
+            onClick={handlePickActivity}
+            aria-label={
+              isPicked ? "Activité ajoutée" : "Ajouter à mon planning"
+            }
+          >
+            {isPicked ? "✓" : "+"}
+          </button>
+        </h3>
         <p className={styles.location}>{activity.Location}</p>
         {activity.Distance && activity.Duration && (
           <p className={styles.details}>
@@ -450,7 +569,22 @@ const MustSeeActivityCard = ({ activity }: { activity: MustSeeActivity }) => {
   );
 };
 
-const LocalActivityCard = ({ activity }: { activity: LocalActivity }) => {
+const LocalActivityCard = ({
+  activity,
+  onPickActivity,
+  isPicked,
+}: {
+  activity: LocalActivity;
+  onPickActivity: (activity: PickedActivity) => void;
+  isPicked: boolean;
+}) => {
+  const handlePickActivity = () => {
+    onPickActivity({
+      ...activity,
+      type: "local",
+    });
+  };
+
   return (
     <div className={styles.card}>
       {activity.Image && (
@@ -460,7 +594,18 @@ const LocalActivityCard = ({ activity }: { activity: LocalActivity }) => {
       )}
       <div className={styles.content}>
         <div className={styles.category}>{activity.Category}</div>
-        <h3 className={styles.activityTitle}>{activity.Title}</h3>
+        <h3 className={styles.activityTitle}>
+          {activity.Title}
+          <button
+            className={`${styles.pickButton} ${isPicked ? styles.picked : ""}`}
+            onClick={handlePickActivity}
+            aria-label={
+              isPicked ? "Activité ajoutée" : "Ajouter à mon planning"
+            }
+          >
+            {isPicked ? "✓" : "+"}
+          </button>
+        </h3>
         <p className={styles.location}>{activity.Location}</p>
         {activity.Distance && activity.Duration && (
           <p className={styles.details}>
