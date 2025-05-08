@@ -525,6 +525,9 @@ export const CampsiteActivityCard = ({
         {activity.Contenu_time ?? formatActivityTime(activity.Contenu_date)}
         {activity.Contenu_duration && ` - Durée: ${activity.Contenu_duration}`}
       </p>
+      {activity.Contenu_place && (
+        <p className={styles.location}>📍 {activity.Contenu_place}</p>
+      )}
       {activity.infos_description && (
         <div className={styles.descriptionContainer}>
           <p
