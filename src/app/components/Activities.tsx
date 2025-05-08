@@ -367,6 +367,17 @@ const CampsiteDayActivities = ({ site, day }: { site: string; day: Date }) => {
 };
 
 const CampsiteActivityCard = ({ activity }: { activity: Activity }) => {
+  const [expanded, setExpanded] = useState(false);
+  const maxCharacters = 250;
+
+  const hasLongDescription =
+    activity.infos_description &&
+    activity.infos_description.length > maxCharacters;
+
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
   return (
     <div className={styles.activityCard}>
       <div className={styles.header}>
@@ -377,10 +388,22 @@ const CampsiteActivityCard = ({ activity }: { activity: Activity }) => {
         {activity.Contenu_duration && ` - Durée: ${activity.Contenu_duration}`}
       </p>
       {activity.infos_description && (
-        <p
-          className={styles.description}
-          dangerouslySetInnerHTML={{ __html: activity.infos_description }}
-        ></p>
+        <div className={styles.descriptionContainer}>
+          <p
+            className={styles.description}
+            dangerouslySetInnerHTML={{
+              __html:
+                hasLongDescription && !expanded
+                  ? `${activity.infos_description.substring(0, maxCharacters)}...`
+                  : activity.infos_description,
+            }}
+          ></p>
+          {hasLongDescription && (
+            <button className={styles.readMoreButton} onClick={toggleExpand}>
+              {expanded ? "Voir moins" : "Voir plus"}
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

@@ -176,6 +176,28 @@
   color: var(--c-slate-gray);
 }
 
+.descriptionContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.readMoreButton {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  color: var(--c-lapis-lazuli);
+  font-size: var(--fs-s);
+  font-weight: var(--fw-500);
+  padding: var(--p-xs);
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: calc(-1 * var(--m-s));
+}
+
+.readMoreButton:hover {
+  color: var(--c-orange-wheel);
+}
+
 .location {
   color: var(--c-slate-gray);
   font-size: var(--fs-m);
