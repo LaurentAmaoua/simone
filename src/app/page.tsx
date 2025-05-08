@@ -39,6 +39,16 @@ export default function Home() {
     [],
   );
 
+  // Force layout recalculation when view index changes
+  useEffect(() => {
+    // Small timeout to ensure the DOM has updated
+    const timeout = setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 50);
+
+    return () => clearTimeout(timeout);
+  }, [viewIndex]);
+
   // Load picked activities from localStorage on mount
   useEffect(() => {
     const savedActivities = localStorage.getItem(PICKED_ACTIVITIES_STORAGE_KEY);
@@ -115,47 +125,55 @@ export default function Home() {
       <div className={styles.inner}>
         <Header />
         <div className={styles.flex}>
-          <div className={styles.right}>
+          <div className={styles.swipeableViewsWrapper}>
             <SwipeableViews
               initialIndex={viewIndex}
               onChangeIndex={setViewIndex}
             >
               <div className={styles.tabContainer}>
-                <div className={styles.selectionControls}>
-                  <div className={styles.attrContainer}>
-                    <h2 className={styles.sectionTitle}>Camping</h2>
-                    <Suspense fallback={<span>Chargement...</span>}>
-                      <Select onSelect={setSelectedSite} />
-                    </Suspense>
+                <div className={styles.contentLayout}>
+                  <div className={styles.left}>
+                    <div className={styles.leftInner}>
+                      <div className={styles.attrContainer}>
+                        <h2 className={styles.sectionTitle}>Camping</h2>
+                        <Suspense fallback={<span>Chargement...</span>}>
+                          <Select onSelect={setSelectedSite} />
+                        </Suspense>
+                      </div>
+                      <div className={styles.attrContainer}>
+                        <h2 className={styles.sectionTitle}>Date</h2>
+                        <Calendar
+                          site={selectedSite}
+                          disabled={!selectedSite}
+                          date={selectedDateRange}
+                          onSelect={setSelectedDateRange}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className={styles.attrContainer}>
-                    <h2 className={styles.sectionTitle}>Date</h2>
-                    <Calendar
+                  <div className={styles.right}>
+                    <Tabs
                       site={selectedSite}
-                      disabled={!selectedSite}
-                      date={selectedDateRange}
-                      onSelect={setSelectedDateRange}
+                      dateRange={selectedDateRange}
+                      onPickActivity={handlePickActivity}
+                      pickedActivities={pickedActivities}
                     />
                   </div>
                 </div>
-                <Tabs
-                  site={selectedSite}
-                  dateRange={selectedDateRange}
-                  onPickActivity={handlePickActivity}
+              </div>
+              <div className={styles.pickedActivitiesContainer}>
+                <PickedActivities
                   pickedActivities={pickedActivities}
+                  onRemoveActivity={handleRemoveActivity}
                 />
               </div>
-              <PickedActivities
-                pickedActivities={pickedActivities}
-                onRemoveActivity={handleRemoveActivity}
-              />
             </SwipeableViews>
-            <SwipeableViewsFooter
-              labels={["Activités", "Mon Planning"]}
-              activeIndex={viewIndex}
-              onChangeIndex={setViewIndex}
-            />
           </div>
+          <SwipeableViewsFooter
+            labels={["Activités", "Mon Planning"]}
+            activeIndex={viewIndex}
+            onChangeIndex={setViewIndex}
+          />
         </div>
       </div>
     </main>

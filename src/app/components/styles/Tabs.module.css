@@ -1,10 +1,10 @@
 .activitiesContainer {
-  overflow: scroll;
+  overflow: auto;
   width: 100%;
   display: flex;
   flex-direction: column;
   height: 100%;
-  margin-top: var(--m-m);
+  padding: 0 var(--p-s);
 }
 
 .header {
@@ -16,6 +16,7 @@
   white-space: nowrap;
   flex-shrink: 0;
   container-type: inline-size;
+  margin: var(--m-m) 0 0;
 }
 
 .scrollGradient {
@@ -81,5 +82,11 @@
 @container (min-width: 374px) {
   .scrollGradient {
     display: none;
+  }
+}
+
+@media (min-width: 688px) {
+  .header {
+    margin: 0;
   }
 }
