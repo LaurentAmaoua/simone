@@ -16,6 +16,7 @@ import { api } from "~/trpc/react";
 
 import styles from "./styles/Select.module.css";
 
+// DO NOT EDIT APOSTROPHES INTO SINGLE QUOTES
 export enum CAMPSITES {
   BELA_BASQUE = "Bela Basque",
   CAP_DE_BRÉHAT = "Cap de Bréhat",
@@ -71,6 +72,13 @@ const stringToCampsite = (campsite: string): CAMPSITES => {
   }
 
   return entry[1] as CAMPSITES;
+};
+
+// Function to decode HTML entities
+const decodeHtmlEntities = (text: string): string => {
+  const textarea = document.createElement("textarea");
+  textarea.innerHTML = text;
+  return textarea.value;
 };
 
 type SelectProps = {
@@ -142,7 +150,7 @@ export const Select = ({ onSelect }: SelectProps) => {
                 <SelectLabel>{region}</SelectLabel>
                 {campsitesByRegion[region as Region].map((site) => (
                   <SelectItem key={site} value={site} className={styles.item}>
-                    {site}
+                    {decodeHtmlEntities(site)}
                   </SelectItem>
                 ))}
               </SelectGroup>
