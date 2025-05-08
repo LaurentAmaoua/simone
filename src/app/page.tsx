@@ -17,6 +17,20 @@ import {
 
 import styles from "./styles/Home.module.css";
 
+// Local storage key
+const PICKED_ACTIVITIES_STORAGE_KEY = "planicamping_picked_activities";
+
+// Type for serialized activities from localStorage
+type SerializedPickedActivity = Omit<
+  PickedActivity,
+  "Contenu_date" | "createdAt" | "updatedAt" | "useful_date"
+> & {
+  Contenu_date?: string;
+  createdAt: string;
+  updatedAt: string | null;
+  useful_date?: string | null;
+};
+
 export default function Home() {
   const [selectedSite, setSelectedSite] = useState<CAMPSITES>();
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange>();
@@ -24,6 +38,50 @@ export default function Home() {
   const [pickedActivities, setPickedActivities] = useState<PickedActivity[]>(
     [],
   );
+
+  // Load picked activities from localStorage on mount
+  useEffect(() => {
+    const savedActivities = localStorage.getItem(PICKED_ACTIVITIES_STORAGE_KEY);
+    if (savedActivities) {
+      try {
+        const parsed = JSON.parse(
+          savedActivities,
+        ) as SerializedPickedActivity[];
+        // Transform date strings back into Date objects
+        const activitiesWithDates = parsed.map((activity) => {
+          if (activity.type === "campsite" && activity.Contenu_date) {
+            return {
+              ...activity,
+              Contenu_date: new Date(activity.Contenu_date),
+              createdAt: new Date(activity.createdAt),
+              updatedAt: activity.updatedAt
+                ? new Date(activity.updatedAt)
+                : null,
+              useful_date: activity.useful_date
+                ? new Date(activity.useful_date)
+                : null,
+            } as PickedActivity;
+          }
+          return {
+            ...activity,
+            createdAt: new Date(activity.createdAt),
+            updatedAt: activity.updatedAt ? new Date(activity.updatedAt) : null,
+          } as PickedActivity;
+        });
+        setPickedActivities(activitiesWithDates);
+      } catch (error) {
+        console.error("Failed to parse saved activities:", error);
+      }
+    }
+  }, []);
+
+  // Save to localStorage whenever pickedActivities changes
+  useEffect(() => {
+    localStorage.setItem(
+      PICKED_ACTIVITIES_STORAGE_KEY,
+      JSON.stringify(pickedActivities),
+    );
+  }, [pickedActivities]);
 
   // Function to handle picking an activity
   const handlePickActivity = (activity: PickedActivity) => {
@@ -34,7 +92,11 @@ export default function Home() {
         pickedActivity.type === activity.type,
     );
 
-    if (!isAlreadyPicked) {
+    if (isAlreadyPicked) {
+      // If already picked, remove it
+      handleRemoveActivity(activity.ID, activity.type);
+    } else {
+      // Otherwise add it
       setPickedActivities([...pickedActivities, activity]);
     }
   };

@@ -40,6 +40,14 @@
   padding: 0 0 0 var(--p-s);
 }
 
+.dayTitle {
+  font-size: var(--fs-m);
+  color: var(--c-orange-wheel);
+  margin: var(--m-s) 0 var(--m-xs);
+  padding: 0 0 0 var(--p-s);
+  border-left: 3px solid var(--c-orange-wheel);
+}
+
 .activities {
   display: flex;
   flex-direction: column;

@@ -4,6 +4,7 @@ import {
   type Activity,
 } from "~/server/db/schema";
 import { useEffect, useState } from "react";
+import { sortByChronologicalOrder, formatToFrenchDate } from "~/lib/datetime";
 import styles from "./styles/PickedActivities.module.css";
 
 export type PickedActivity = (MustSeeActivity | LocalActivity | Activity) & {
@@ -23,10 +24,12 @@ export const PickedActivities = ({
     mustSee: PickedActivity[];
     local: PickedActivity[];
     campsite: PickedActivity[];
+    campsiteByDay: Map<string, PickedActivity[]>;
   }>({
     mustSee: [],
     local: [],
     campsite: [],
+    campsiteByDay: new Map(),
   });
 
   useEffect(() => {
@@ -34,10 +37,44 @@ export const PickedActivities = ({
     const local = pickedActivities.filter((a) => a.type === "local");
     const campsite = pickedActivities.filter((a) => a.type === "campsite");
 
+    const campsiteByDay = new Map<string, PickedActivity[]>();
+
+    campsite.forEach((activity) => {
+      if ("Contenu_date" in activity && activity.Contenu_date) {
+        const date = new Date(activity.Contenu_date);
+        const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+
+        if (!campsiteByDay.has(dateKey)) {
+          campsiteByDay.set(dateKey, []);
+        }
+
+        const activitiesForDay = campsiteByDay.get(dateKey) ?? [];
+        activitiesForDay.push(activity);
+        campsiteByDay.set(dateKey, activitiesForDay);
+      }
+    });
+
+    campsiteByDay.forEach((activities, dateKey) => {
+      const sorted = [...activities].sort((a, b) => {
+        if (!("Contenu_date" in a) || !("Contenu_date" in b)) return 0;
+
+        if (a.Contenu_time && b.Contenu_time) {
+          return a.Contenu_time.localeCompare(b.Contenu_time);
+        }
+
+        return (
+          new Date(a.Contenu_date).getTime() -
+          new Date(b.Contenu_date).getTime()
+        );
+      });
+      campsiteByDay.set(dateKey, sorted);
+    });
+
     setGroupedActivities({
       mustSee,
       local,
       campsite,
+      campsiteByDay,
     });
   }, [pickedActivities]);
 
@@ -54,6 +91,16 @@ export const PickedActivities = ({
       </div>
     );
   }
+
+  const sortedDates = Array.from(groupedActivities.campsiteByDay.keys())
+    .map((dateKey) => {
+      const parts = dateKey.split("-");
+      const year = parseInt(parts[0] ?? "0", 10);
+      const month = parseInt(parts[1] ?? "0", 10);
+      const day = parseInt(parts[2] ?? "1", 10);
+      return new Date(year, month, day);
+    })
+    .sort(sortByChronologicalOrder);
 
   return (
     <div className={styles.container}>
@@ -90,14 +137,29 @@ export const PickedActivities = ({
       {groupedActivities.campsite.length > 0 && (
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Animations de camping</h2>
-          <div className={styles.activities}>
-            {groupedActivities.campsite.map((activity) => (
-              <PickedActivityCard
-                key={`campsite-${activity.ID}`}
-                activity={activity}
-                onRemove={onRemoveActivity}
-              />
-            ))}
+          <div>
+            {sortedDates.map((date) => {
+              const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+              const activitiesForDay =
+                groupedActivities.campsiteByDay.get(dateKey) ?? [];
+
+              return (
+                <div key={dateKey} className={styles.section}>
+                  <h3 className={styles.dayTitle}>
+                    {formatToFrenchDate(date, false)}
+                  </h3>
+                  <div className={styles.activities}>
+                    {activitiesForDay.map((activity) => (
+                      <PickedActivityCard
+                        key={`campsite-${activity.ID}`}
+                        activity={activity}
+                        onRemove={onRemoveActivity}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
