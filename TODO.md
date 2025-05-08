@@ -1,2 +1,0 @@
-- Strip html from "info_description"
-- Address "L'Océan &amp; spa" issue
