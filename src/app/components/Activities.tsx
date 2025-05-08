@@ -377,7 +377,10 @@ const CampsiteActivityCard = ({ activity }: { activity: Activity }) => {
         {activity.Contenu_duration && ` - Durée: ${activity.Contenu_duration}`}
       </p>
       {activity.infos_description && (
-        <p className={styles.description}>{activity.infos_description}</p>
+        <p
+          className={styles.description}
+          dangerouslySetInnerHTML={{ __html: activity.infos_description }}
+        ></p>
       )}
     </div>
   );
