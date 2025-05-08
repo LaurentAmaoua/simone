@@ -279,7 +279,9 @@ const CampsiteActivitiesTab = ({
           key={`day-${day.getFullYear()}-${day.getMonth()}-${day.getDate()}-${index}`}
           className={styles.dayGroup}
         >
-          <h2 className={styles.day}>{formatToFrenchDate(day)}</h2>
+          <div className={styles.stickyDayHeader}>
+            <h2 className={styles.day}>{formatToFrenchDate(day, false)}</h2>
+          </div>
           <div className={styles.dayActivities}>
             <CampsiteDayActivities site={site} day={day} />
           </div>

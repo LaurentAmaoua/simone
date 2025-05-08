@@ -1,8 +1,8 @@
-export const formatToFrenchDate = (date: Date) => {
+export const formatToFrenchDate = (date: Date, withYear = true) => {
   const formattedDate = Intl.DateTimeFormat("fr-FR", {
     day: "numeric",
     month: "short",
-    year: "2-digit",
+    year: withYear ? "2-digit" : undefined,
   }).format(date);
 
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);

@@ -61,19 +61,27 @@
 }
 
 .day {
-  font-weight: var(--fw-500);
+  padding: 0 0 0 var(--p-s);
+  font-size: var(--fs-l);
   color: var(--c-orange-wheel);
   margin-bottom: var(--m-s);
 }
 
 .dayGroup {
   margin-bottom: var(--m-xl);
+  position: relative;
+}
+
+.stickyDayHeader {
+  position: sticky;
+  top: 62px;
+  background-color: var(--c-white);
+  z-index: 1;
+  padding: var(--p-xs) 0;
+  margin-top: var(--m-s);
 }
 
 .dayActivities {
-  border: var(--b-s);
-  border-radius: var(--br-m);
-  padding: var(--p-m);
   display: flex;
   flex-direction: column;
   gap: var(--g-s);

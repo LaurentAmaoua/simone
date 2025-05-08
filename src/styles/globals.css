@@ -50,6 +50,7 @@
     /* Constants */
     --app-width: 900px;
     --app-height: 700px;
+    --app-header-height: 62px;
     --calendar-min-width: 288px;
     --footer-height: 100px;
     --button-height: 64px;

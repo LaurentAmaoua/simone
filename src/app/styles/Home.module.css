@@ -1,5 +1,4 @@
 .container {
-  padding: 0 var(--p-m);
   margin: auto;
   width: 100%;
   height: 100vh;
@@ -14,7 +13,6 @@
   height: 100%;
   margin: auto;
   border: var(--b-s);
-  border-radius: var(--br-m);
 }
 
 .attrContainer {
@@ -38,8 +36,8 @@
   gap: var(--g-m);
   flex: 1;
   overflow: scroll;
-  padding: var(--p-m);
-  margin: 85px 0 0;
+  padding: var(--p-xs) var(--p-s);
+  margin: var(--app-header-height) 0 0;
 }
 
 .left {
