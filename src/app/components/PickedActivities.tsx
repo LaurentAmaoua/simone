@@ -11,6 +11,7 @@ import {
   MustSeeActivityCard,
   LocalActivityCard,
 } from "./Activities";
+import { CAMPSITES } from "./Select";
 
 export type PickedActivity = (MustSeeActivity | LocalActivity | Activity) & {
   type: "must-see" | "local" | "campsite";
@@ -30,11 +31,13 @@ export const PickedActivities = ({
     local: PickedActivity[];
     campsite: PickedActivity[];
     campsiteByDay: Map<string, PickedActivity[]>;
+    campingGroups: Map<string, PickedActivity[]>;
   }>({
     mustSee: [],
     local: [],
     campsite: [],
     campsiteByDay: new Map(),
+    campingGroups: new Map(),
   });
 
   useEffect(() => {
@@ -43,6 +46,20 @@ export const PickedActivities = ({
     const campsite = pickedActivities.filter((a) => a.type === "campsite");
 
     const campsiteByDay = new Map<string, PickedActivity[]>();
+    const campingGroups = new Map<string, PickedActivity[]>();
+
+    // Group all activities by camping
+    pickedActivities.forEach((activity) => {
+      if (activity.Campings) {
+        const campingName = activity.Campings as string;
+        if (!campingGroups.has(campingName)) {
+          campingGroups.set(campingName, []);
+        }
+        const activitiesForCamping = campingGroups.get(campingName) ?? [];
+        activitiesForCamping.push(activity);
+        campingGroups.set(campingName, activitiesForCamping);
+      }
+    });
 
     campsite.forEach((activity) => {
       if ("Contenu_date" in activity && activity.Contenu_date) {
@@ -80,6 +97,7 @@ export const PickedActivities = ({
       local,
       campsite,
       campsiteByDay,
+      campingGroups,
     });
   }, [pickedActivities]);
 
@@ -107,75 +125,118 @@ export const PickedActivities = ({
     })
     .sort(sortByChronologicalOrder);
 
+  // Get sorted camping names
+  const sortedCampings = Array.from(
+    groupedActivities.campingGroups.keys(),
+  ).sort();
+
   // Handler for when an activity card's button is clicked (will remove the activity)
   const handlePickActivity = (activity: PickedActivity) => {
     onRemoveActivity(activity.ID, activity.type);
   };
 
+  // Helper function to safely compare campsite names
+  const isSameCampsite = (
+    activity: PickedActivity,
+    campingName: string,
+  ): boolean => {
+    return (activity.Campings as string) === campingName;
+  };
+
   return (
     <div className={styles.container}>
-      {groupedActivities.mustSee.length > 0 && (
-        <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Incontournables de la région</h2>
-          <div className={styles.activities}>
-            {groupedActivities.mustSee.map((activity) => (
-              <MustSeeActivityCard
-                key={`must-see-${activity.ID}`}
-                activity={activity as MustSeeActivity}
-                onPickActivity={handlePickActivity}
-                isPicked={true}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {sortedCampings.map((camping) => (
+        <div key={camping} className={styles.campingSection}>
+          <h2 className={styles.campingTitle}>{camping}</h2>
 
-      {groupedActivities.local.length > 0 && (
-        <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>À faire dans le coin</h2>
-          <div className={styles.activities}>
-            {groupedActivities.local.map((activity) => (
-              <LocalActivityCard
-                key={`local-${activity.ID}`}
-                activity={activity as LocalActivity}
-                onPickActivity={handlePickActivity}
-                isPicked={true}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+          {/* Must-see activities for this camping */}
+          {groupedActivities.mustSee.filter((activity) =>
+            isSameCampsite(activity, camping),
+          ).length > 0 && (
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>
+                Incontournables de la région
+              </h3>
+              <div className={styles.activities}>
+                {groupedActivities.mustSee
+                  .filter((activity) => isSameCampsite(activity, camping))
+                  .map((activity) => (
+                    <MustSeeActivityCard
+                      key={`must-see-${activity.ID}`}
+                      activity={activity as MustSeeActivity}
+                      onPickActivity={handlePickActivity}
+                      isPicked={true}
+                    />
+                  ))}
+              </div>
+            </div>
+          )}
 
-      {groupedActivities.campsite.length > 0 && (
-        <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Animations de camping</h2>
-          <div>
-            {sortedDates.map((date) => {
-              const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-              const activitiesForDay =
-                groupedActivities.campsiteByDay.get(dateKey) ?? [];
+          {/* Local activities for this camping */}
+          {groupedActivities.local.filter((activity) =>
+            isSameCampsite(activity, camping),
+          ).length > 0 && (
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>À faire dans le coin</h3>
+              <div className={styles.activities}>
+                {groupedActivities.local
+                  .filter((activity) => isSameCampsite(activity, camping))
+                  .map((activity) => (
+                    <LocalActivityCard
+                      key={`local-${activity.ID}`}
+                      activity={activity as LocalActivity}
+                      onPickActivity={handlePickActivity}
+                      isPicked={true}
+                    />
+                  ))}
+              </div>
+            </div>
+          )}
 
-              return (
-                <div key={dateKey} className={styles.section}>
-                  <h3 className={styles.dayTitle}>
-                    {formatToFrenchDate(date, false)}
-                  </h3>
-                  <div className={styles.activities}>
-                    {activitiesForDay.map((activity) => (
-                      <CampsiteActivityCard
-                        key={`campsite-${activity.ID}`}
-                        activity={activity as Activity}
-                        onPickActivity={handlePickActivity}
-                        isPicked={true}
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          {/* Campsite activities for this camping */}
+          {groupedActivities.campsite.filter((activity) =>
+            isSameCampsite(activity, camping),
+          ).length > 0 && (
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>Animations de camping</h3>
+              <div>
+                {sortedDates.map((date) => {
+                  const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+                  const activitiesForDay =
+                    groupedActivities.campsiteByDay
+                      .get(dateKey)
+                      ?.filter((activity) =>
+                        isSameCampsite(activity, camping),
+                      ) ?? [];
+
+                  if (activitiesForDay.length === 0) return null;
+
+                  return (
+                    <div
+                      key={`${camping}-${dateKey}`}
+                      className={styles.section}
+                    >
+                      <h4 className={styles.dayTitle}>
+                        {formatToFrenchDate(date, false)}
+                      </h4>
+                      <div className={styles.activities}>
+                        {activitiesForDay.map((activity) => (
+                          <CampsiteActivityCard
+                            key={`campsite-${activity.ID}`}
+                            activity={activity as Activity}
+                            onPickActivity={handlePickActivity}
+                            isPicked={true}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      ))}
     </div>
   );
 };
