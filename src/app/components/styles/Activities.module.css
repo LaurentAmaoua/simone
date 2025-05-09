@@ -200,6 +200,7 @@
 .descriptionContainer {
   display: flex;
   flex-direction: column;
+  font-size: var(--fs-s);
 }
 
 .readMoreButton {
@@ -213,6 +214,7 @@
   cursor: pointer;
   text-decoration: underline;
   margin-top: calc(-1 * var(--m-s));
+  flex-shrink: 0;
 }
 
 .readMoreButton:hover {
@@ -224,6 +226,22 @@
   font-size: var(--fs-m);
   margin: var(--m-xs) 0;
   font-weight: var(--fw-500);
+}
+
+.activityFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--g-s);
+}
+
+.targetAudience {
+  color: var(--c-slate-gray);
+  font-size: var(--fs-m);
+  margin: var(--m-xs) 0;
+}
+
+.targetAudienceLabel {
+  font-size: var(--fs-s);
 }
 
 .details {

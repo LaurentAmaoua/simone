@@ -14,6 +14,7 @@ import {
 import { type PickedActivity } from "./PickedActivities";
 
 import styles from "./styles/Activities.module.css";
+import { FamilyIcon } from "~/assets/family-icon";
 
 export interface ActivitiesProps {
   site: CAMPSITES | undefined;
@@ -482,6 +483,10 @@ const CampsiteDayActivities = ({
   );
 };
 
+const parseCibles = (cibles: string | null | undefined): string => {
+  return cibles?.replace(/[|>]/g, ", ") ?? "";
+};
+
 export const CampsiteActivityCard = ({
   activity,
   onPickActivity,
@@ -528,8 +533,8 @@ export const CampsiteActivityCard = ({
       {activity.Contenu_place && (
         <p className={styles.location}>📍 {activity.Contenu_place}</p>
       )}
-      {activity.infos_description && (
-        <div className={styles.descriptionContainer}>
+      <div className={styles.descriptionContainer}>
+        {activity.infos_description && (
           <p
             className={styles.description}
             dangerouslySetInnerHTML={{
@@ -539,13 +544,23 @@ export const CampsiteActivityCard = ({
                   : activity.infos_description,
             }}
           ></p>
+        )}
+        <div className={styles.activityFooter}>
+          {activity.Cibles && (
+            <p className={styles.targetAudience}>
+              <FamilyIcon />{" "}
+              <span className={styles.targetAudienceLabel}>
+                {parseCibles(activity.Cibles)}
+              </span>
+            </p>
+          )}
           {hasLongDescription && (
             <button className={styles.readMoreButton} onClick={toggleExpand}>
               {expanded ? "Voir moins" : "Voir plus"}
             </button>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
