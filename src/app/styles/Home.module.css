@@ -69,6 +69,7 @@
   flex: 1;
   position: relative;
   overflow: hidden;
+  padding: var(--p-s);
 }
 
 .pickedActivitiesContainer {
@@ -119,6 +120,7 @@
 
   .right {
     overflow-y: auto;
+    padding: var(--p-s);
   }
 
   .leftInner {
