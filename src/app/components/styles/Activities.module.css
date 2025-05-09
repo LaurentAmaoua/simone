@@ -92,21 +92,6 @@
   margin: var(--m-xs) 0 0 0;
 }
 
-.activityCard {
-  border: var(--b-s);
-  border-radius: var(--br-m);
-  padding: var(--p-s);
-  background-color: var(--c-white);
-  transition:
-    transform 0.2s ease-in-out,
-    box-shadow 0.2s ease-in-out;
-}
-
-.activityCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
 .card {
   border-radius: var(--br-m);
   overflow: hidden;
@@ -151,13 +136,6 @@
   flex: 1;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--m-xs);
-}
-
 .activityTitle {
   font-size: var(--fs-l);
   color: var(--c-lapis-lazuli);
@@ -179,6 +157,13 @@
   align-self: flex-start;
 }
 
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--g-s);
+  margin-bottom: var(--m-xs);
+}
+
 .times {
   color: var(--c-orange-wheel);
   font-size: var(--fs-m);
@@ -195,12 +180,6 @@
 /* Because we inject html in the description, we need to be more specific */
 .description > * {
   color: var(--c-slate-gray);
-}
-
-.descriptionContainer {
-  display: flex;
-  flex-direction: column;
-  font-size: var(--fs-s);
 }
 
 .readMoreButton {
@@ -265,6 +244,7 @@
 .link {
   color: inherit;
   text-decoration: none;
+  padding: var(--p-s);
 }
 
 .emptyMessage {

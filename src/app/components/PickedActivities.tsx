@@ -6,11 +6,7 @@ import {
 import { useEffect, useState } from "react";
 import { sortByChronologicalOrder, formatToFrenchDate } from "~/lib/datetime";
 import styles from "./styles/PickedActivities.module.css";
-import {
-  CampsiteActivityCard,
-  MustSeeActivityCard,
-  LocalActivityCard,
-} from "./Activities";
+import { ActivityCard } from "./Activities";
 import { CAMPSITES } from "./Select";
 
 export type PickedActivity = (MustSeeActivity | LocalActivity | Activity) & {
@@ -149,50 +145,6 @@ export const PickedActivities = ({
         <div key={camping} className={styles.campingSection}>
           <h2 className={styles.campingTitle}>{camping}</h2>
 
-          {/* Must-see activities for this camping */}
-          {groupedActivities.mustSee.filter((activity) =>
-            isSameCampsite(activity, camping),
-          ).length > 0 && (
-            <div className={styles.section}>
-              <h3 className={styles.sectionTitle}>
-                Incontournables de la région
-              </h3>
-              <div className={styles.activities}>
-                {groupedActivities.mustSee
-                  .filter((activity) => isSameCampsite(activity, camping))
-                  .map((activity) => (
-                    <MustSeeActivityCard
-                      key={`must-see-${activity.ID}`}
-                      activity={activity as MustSeeActivity}
-                      onPickActivity={handlePickActivity}
-                      isPicked={true}
-                    />
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* Local activities for this camping */}
-          {groupedActivities.local.filter((activity) =>
-            isSameCampsite(activity, camping),
-          ).length > 0 && (
-            <div className={styles.section}>
-              <h3 className={styles.sectionTitle}>À faire dans le coin</h3>
-              <div className={styles.activities}>
-                {groupedActivities.local
-                  .filter((activity) => isSameCampsite(activity, camping))
-                  .map((activity) => (
-                    <LocalActivityCard
-                      key={`local-${activity.ID}`}
-                      activity={activity as LocalActivity}
-                      onPickActivity={handlePickActivity}
-                      isPicked={true}
-                    />
-                  ))}
-              </div>
-            </div>
-          )}
-
           {/* Campsite activities for this camping */}
           {groupedActivities.campsite.filter((activity) =>
             isSameCampsite(activity, camping),
@@ -221,9 +173,10 @@ export const PickedActivities = ({
                       </h4>
                       <div className={styles.activities}>
                         {activitiesForDay.map((activity) => (
-                          <CampsiteActivityCard
+                          <ActivityCard
                             key={`campsite-${activity.ID}`}
                             activity={activity as Activity}
+                            activityType="campsite"
                             onPickActivity={handlePickActivity}
                             isPicked={true}
                           />
@@ -232,6 +185,52 @@ export const PickedActivities = ({
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {/* Must-see activities for this camping */}
+          {groupedActivities.mustSee.filter((activity) =>
+            isSameCampsite(activity, camping),
+          ).length > 0 && (
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>
+                Incontournables de la région
+              </h3>
+              <div className={styles.activities}>
+                {groupedActivities.mustSee
+                  .filter((activity) => isSameCampsite(activity, camping))
+                  .map((activity) => (
+                    <ActivityCard
+                      key={`must-see-${activity.ID}`}
+                      activity={activity as MustSeeActivity}
+                      activityType="must-see"
+                      onPickActivity={handlePickActivity}
+                      isPicked={true}
+                    />
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* Local activities for this camping */}
+          {groupedActivities.local.filter((activity) =>
+            isSameCampsite(activity, camping),
+          ).length > 0 && (
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>À faire dans le coin</h3>
+              <div className={styles.activities}>
+                {groupedActivities.local
+                  .filter((activity) => isSameCampsite(activity, camping))
+                  .map((activity) => (
+                    <ActivityCard
+                      key={`local-${activity.ID}`}
+                      activity={activity as LocalActivity}
+                      activityType="local"
+                      onPickActivity={handlePickActivity}
+                      isPicked={true}
+                    />
+                  ))}
               </div>
             </div>
           )}
