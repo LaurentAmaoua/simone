@@ -84,7 +84,7 @@ type ScheduleActivity =
   | (CampsiteActivity & { type: "campsite" });
 
 // Type for a day's schedule
-interface DaySchedule {
+export interface DaySchedule {
   date: Date;
   morning: ScheduleActivity | null;
   afternoon: ScheduleActivity | null;

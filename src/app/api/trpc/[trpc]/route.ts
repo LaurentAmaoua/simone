@@ -29,6 +29,14 @@ const handler = (req: NextRequest) =>
             );
           }
         : undefined,
+    // Disable response batching to fix the JSON parsing issue
+    responseMeta() {
+      return {
+        headers: {
+          "content-type": "application/json",
+        },
+      };
+    },
   });
 
 export { handler as GET, handler as POST };

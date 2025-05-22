@@ -213,12 +213,9 @@ export const PickedActivities = ({
   // Get sorted camping names
   const sortedCampings = Array.from(
     new Set(pickedActivities.map((activity) => activity.Campings)),
-  ).sort();
-
-  // Handler for when an activity card's button is clicked (will remove the activity)
-  const handlePickActivity = (activity: PickedActivity) => {
-    onRemoveActivity(activity.ID, activity.type);
-  };
+  )
+    .filter((camping): camping is string => camping !== undefined)
+    .sort();
 
   return (
     <div className={styles.container}>
@@ -235,44 +232,38 @@ export const PickedActivities = ({
                   </h3>
 
                   <div className={styles.timeSlots}>
-                    {Object.entries(TIME_SLOTS).map(([slotKey, slotInfo]) => (
-                      <div key={slotKey} className={styles.timeSlot}>
-                        <div className={styles.timeSlotHeader}>
-                          <span className={styles.timeSlotLabel}>
-                            {slotInfo.label}
-                          </span>
-                          <span className={styles.timeSlotHours}>
-                            {slotInfo.hours}
-                          </span>
-                        </div>
+                    {Object.entries(TIME_SLOTS).map(([slotKey, slotInfo]) => {
+                      const activity =
+                        daySchedule.activities[
+                          slotKey as keyof typeof daySchedule.activities
+                        ];
+                      return (
+                        <div key={slotKey} className={styles.timeSlot}>
+                          <div className={styles.timeSlotHeader}>
+                            <span className={styles.timeSlotLabel}>
+                              {slotInfo.label}
+                            </span>
+                            <span className={styles.timeSlotHours}>
+                              {slotInfo.hours}
+                            </span>
+                          </div>
 
-                        <div className={styles.timeSlotContent}>
-                          {daySchedule.activities[
-                            slotKey as keyof typeof daySchedule.activities
-                          ] ? (
-                            <ActivityCard
-                              key={`${slotKey}-${daySchedule.activities[slotKey as keyof typeof daySchedule.activities]?.ID}`}
-                              activity={
-                                daySchedule.activities[
-                                  slotKey as keyof typeof daySchedule.activities
-                                ] as any
-                              }
-                              activityType={
-                                daySchedule.activities[
-                                  slotKey as keyof typeof daySchedule.activities
-                                ]?.type as any
-                              }
-                              onPickActivity={handlePickActivity}
-                              isPicked={true}
-                            />
-                          ) : (
-                            <div className={styles.emptySlot}>
-                              <p>Aucune activité programmée</p>
-                            </div>
-                          )}
+                          <div className={styles.timeSlotContent}>
+                            {activity ? (
+                              <ActivityCard
+                                key={`${slotKey}-${activity.ID}`}
+                                activity={activity}
+                                activityType={activity.type}
+                              />
+                            ) : (
+                              <div className={styles.emptySlot}>
+                                <p>Aucune activité programmée</p>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}
@@ -280,8 +271,8 @@ export const PickedActivities = ({
           ) : (
             <div className={styles.section}>
               <p className={styles.emptyMessage}>
-                Aucune activité planifiée. Cliquez sur "Générer mon planning"
-                pour créer un planning automatiquement.
+                Aucune activité planifiée. Cliquez sur &quot;Générer mon
+                planning&quot; pour créer un planning automatiquement.
               </p>
             </div>
           )}

@@ -248,40 +248,17 @@
 }
 
 .emptyMessage {
-  font-size: var(--fs-m);
-  color: var(--c-lapis-lazuli);
-  margin-bottom: var(--m-l);
+  font-size: var(--fs-l);
+  color: var(--c-slate-gray);
   text-align: center;
-  padding: var(--p-m);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  margin: var(--m-m) 0;
+  max-width: 360px;
 }
 
-.pickButton {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 2px solid var(--c-lapis-lazuli);
-  background-color: var(--c-white);
-  color: var(--c-lapis-lazuli);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.pickButton:hover {
-  background-color: var(--c-mint-green);
-  transform: scale(1.1);
-}
-
-.picked {
-  background-color: var(--c-mint-green);
-  border-color: var(--c-mint-green);
+@media (max-width: 768px) {
+  .activities {
+    grid-template-columns: 1fr;
+    padding: var(--p-m) var(--p-s);
+    margin-bottom: calc(var(--footer-height) + var(--g-m));
+  }
 }

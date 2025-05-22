@@ -2,17 +2,14 @@ import { useState } from "react";
 import { type DateRange } from "react-day-picker";
 import { api } from "~/trpc/react";
 import { type CAMPSITES } from "./Select";
-import { type PickedActivity } from "./PickedActivities";
+import { GeneratedSchedule } from "./GeneratedSchedule";
+import { type DaySchedule } from "~/server/api/routers/activity";
 
 import styles from "./styles/GenerateScheduleButton.module.css";
 
 export interface GenerateScheduleButtonProps {
   site: CAMPSITES | undefined;
   dateRange: DateRange | undefined;
-  onPickActivity: (activity: PickedActivity) => void;
-  pickedActivities: PickedActivity[];
-  clearAllActivities: () => void;
-  onScheduleGenerated?: () => void;
 }
 
 // Create a custom button component
@@ -41,35 +38,14 @@ const ActionButton = ({
 export const GenerateScheduleButton = ({
   site,
   dateRange,
-  onPickActivity,
-  pickedActivities,
-  clearAllActivities,
-  onScheduleGenerated,
 }: GenerateScheduleButtonProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [schedule, setSchedule] = useState<DaySchedule[] | null>(null);
 
   // Get the mutation to generate a schedule
   const generateScheduleMutation = api.activity.generateSchedule.useMutation({
     onSuccess: (generatedSchedule) => {
-      // Clear all existing activities first
-      clearAllActivities();
-
-      // Add all the activities from the generated schedule
-      for (const day of generatedSchedule) {
-        // Add all scheduled activities to the picked activities
-        ["morning", "afternoon", "evening"].forEach((slot) => {
-          const activity = day[slot as keyof typeof day];
-          if (activity && slot !== "date") {
-            onPickActivity(activity as PickedActivity);
-          }
-        });
-      }
-
-      // After scheduling is done, navigate to the "Mon Planning" view
-      if (onScheduleGenerated) {
-        onScheduleGenerated();
-      }
-
+      setSchedule(generatedSchedule);
       setIsGenerating(false);
     },
     onError: (error) => {
@@ -111,6 +87,11 @@ export const GenerateScheduleButton = ({
           planning
         </p>
       )}
+      <div className={styles.generatedScheduleContainer}>
+        {schedule && (
+          <GeneratedSchedule schedule={schedule} isLoading={isGenerating} />
+        )}
+      </div>
     </div>
   );
 };

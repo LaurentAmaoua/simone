@@ -37,7 +37,6 @@
   flex: 1;
   overflow: hidden;
   padding: var(--p-xs);
-  padding-bottom: calc(var(--footer-height) + var(--p-xs));
   margin: var(--app-header-height) 0 0;
 }
 
@@ -69,7 +68,7 @@
   flex: 1;
   position: relative;
   overflow: hidden;
-  padding: var(--p-s);
+  overflow-y: auto;
 }
 
 .pickedActivitiesContainer {
@@ -116,11 +115,6 @@
     border-right: 1px solid lightgray;
     padding: 0 var(--p-s);
     overflow-y: auto;
-  }
-
-  .right {
-    overflow-y: auto;
-    padding: var(--p-s);
   }
 
   .leftInner {
