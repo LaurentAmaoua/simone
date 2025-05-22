@@ -228,7 +228,7 @@ export const PickedActivities = ({
               {dailySchedules.map((daySchedule, index) => (
                 <div key={`day-${index}`} className={styles.daySchedule}>
                   <h3 className={styles.dateHeader}>
-                    {formatToFrenchDate(daySchedule.date, false)}
+                    {formatToFrenchDate(daySchedule.date, false, true)}
                   </h3>
 
                   <div className={styles.timeSlots}>

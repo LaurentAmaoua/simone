@@ -311,12 +311,24 @@ export const activityRouter = createTRPCRouter({
       }
     }),
   getMustSeeActivities: publicProcedure
-    .input(z.object({ site: z.string() }))
+    .input(
+      z.object({
+        site: z.string(),
+        scheduledActivityIds: z.array(z.number()).optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       try {
+        const { site, scheduledActivityIds = [] } = input;
+
         const activities = await ctx.db.query.mustSeeActivities.findMany({
-          where: (activity, { eq }) =>
-            eq(activity.Campings, input.site as CAMPSITES),
+          where: (activity, { eq, and, notInArray }) =>
+            scheduledActivityIds.length
+              ? and(
+                  eq(activity.Campings, site as CAMPSITES),
+                  notInArray(activity.ID, scheduledActivityIds),
+                )
+              : eq(activity.Campings, site as CAMPSITES),
         });
 
         return activities;
@@ -333,20 +345,29 @@ export const activityRouter = createTRPCRouter({
       z.object({
         site: z.string(),
         category: z.string().optional(),
+        scheduledActivityIds: z.array(z.number()).optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       try {
-        const { site, category } = input;
+        const { site, category, scheduledActivityIds = [] } = input;
 
         const activities = await ctx.db.query.localActivities.findMany({
-          where: (activity, { and, eq }) =>
-            category
-              ? and(
-                  eq(activity.Campings, site as CAMPSITES),
-                  eq(activity.Category, category),
-                )
-              : eq(activity.Campings, site as CAMPSITES),
+          where: (activity, { and, eq, notInArray }) => {
+            const conditions = [];
+
+            conditions.push(eq(activity.Campings, site as CAMPSITES));
+
+            if (category) {
+              conditions.push(eq(activity.Category, category));
+            }
+
+            if (scheduledActivityIds.length > 0) {
+              conditions.push(notInArray(activity.ID, scheduledActivityIds));
+            }
+
+            return and(...conditions);
+          },
         });
 
         return activities;
@@ -444,6 +465,9 @@ export const activityRouter = createTRPCRouter({
 
         // Store the generated schedule
         const generatedSchedule: DaySchedule[] = [];
+        // Keep track of used activity IDs to avoid duplication
+        const usedMustSeeIds = new Set<number>();
+        const usedLocalIds = new Set<number>();
 
         // For each day in the range, schedule activities
         for (const day of dates) {
@@ -464,28 +488,38 @@ export const activityRouter = createTRPCRouter({
             );
           });
 
+          // Filter must-see activities to exclude those already used
+          const availableMustSeeActivities = mustSeeActivities.filter(
+            (activity) => !usedMustSeeIds.has(activity.ID),
+          );
+
+          // Filter local activities to exclude those already used
+          const availableLocalActivities = localActivities.filter(
+            (activity) => !usedLocalIds.has(activity.ID),
+          );
+
           // Group must-see activities by time slot suitability
           const mustSeeByTimeSlot = {
-            morning: mustSeeActivities.filter((act) =>
+            morning: availableMustSeeActivities.filter((act) =>
               activityFitsTimeSlot(act, "morning"),
             ),
-            afternoon: mustSeeActivities.filter((act) =>
+            afternoon: availableMustSeeActivities.filter((act) =>
               activityFitsTimeSlot(act, "afternoon"),
             ),
-            evening: mustSeeActivities.filter((act) =>
+            evening: availableMustSeeActivities.filter((act) =>
               activityFitsTimeSlot(act, "evening"),
             ),
           };
 
           // Group local activities by time slot suitability
           const localByTimeSlot = {
-            morning: localActivities.filter((act) =>
+            morning: availableLocalActivities.filter((act) =>
               activityFitsTimeSlot(act, "morning"),
             ),
-            afternoon: localActivities.filter((act) =>
+            afternoon: availableLocalActivities.filter((act) =>
               activityFitsTimeSlot(act, "afternoon"),
             ),
-            evening: localActivities.filter((act) =>
+            evening: availableLocalActivities.filter((act) =>
               activityFitsTimeSlot(act, "evening"),
             ),
           };
@@ -527,6 +561,9 @@ export const activityRouter = createTRPCRouter({
                   opening_time: activity.opening_time,
                   closing_time: activity.closing_time,
                 };
+
+                // Mark this activity as used
+                usedMustSeeIds.add(activity.ID);
               }
             }
           });
@@ -561,6 +598,9 @@ export const activityRouter = createTRPCRouter({
                   opening_time: activity.opening_time,
                   closing_time: activity.closing_time,
                 };
+
+                // Mark this activity as used
+                usedLocalIds.add(activity.ID);
               }
             }
           });

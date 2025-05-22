@@ -61,7 +61,7 @@ export const GeneratedSchedule = ({
       {sortedSchedule.map((day, dayIndex) => (
         <div key={`day-${dayIndex}`} className={styles.daySchedule}>
           <h3 className={styles.dateHeader}>
-            {formatToFrenchDate(day.date, false)}
+            {formatToFrenchDate(day.date, false, true)}
           </h3>
 
           <div className={styles.timeSlots}>

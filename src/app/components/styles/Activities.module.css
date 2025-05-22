@@ -223,6 +223,15 @@
   font-size: var(--fs-s);
 }
 
+.openDays {
+  color: var(--c-slate-gray);
+  font-size: var(--fs-s);
+  margin: var(--m-xs) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--g-xs);
+}
+
 .details {
   display: flex;
   gap: var(--g-xs);

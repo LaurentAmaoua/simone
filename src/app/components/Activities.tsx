@@ -11,6 +11,7 @@ import {
   type LocalActivity,
   type CampsiteActivity,
 } from "~/server/db/schema";
+import { type PickedActivity } from "./PickedActivities";
 
 import styles from "./styles/Activities.module.css";
 import { FamilyIcon } from "~/assets/family-icon";
@@ -19,9 +20,15 @@ export interface ActivitiesProps {
   site: CAMPSITES | undefined;
   dateRange: DateRange | undefined;
   activeTab: TABS;
+  pickedActivities?: PickedActivity[];
 }
 
-export const Activities = ({ site, dateRange, activeTab }: ActivitiesProps) => {
+export const Activities = ({
+  site,
+  dateRange,
+  activeTab,
+  pickedActivities = [],
+}: ActivitiesProps) => {
   const [localCategory, setLocalCategory] = useState<string | undefined>(
     undefined,
   );
@@ -43,15 +50,30 @@ export const Activities = ({ site, dateRange, activeTab }: ActivitiesProps) => {
     );
   }
 
+  // Extract IDs of must-see and local activities that are already in the schedule
+  const scheduledMustSeeIds = pickedActivities
+    .filter((activity) => activity.type === "must-see")
+    .map((activity) => activity.ID);
+
+  const scheduledLocalIds = pickedActivities
+    .filter((activity) => activity.type === "local")
+    .map((activity) => activity.ID);
+
   return (
     <div className={styles.container}>
-      {activeTab === TABS.MUST_SEE && <MustSeeActivitiesTab site={site} />}
+      {activeTab === TABS.MUST_SEE && (
+        <MustSeeActivitiesTab
+          site={site}
+          scheduledActivityIds={scheduledMustSeeIds}
+        />
+      )}
       {activeTab === TABS.LOCAL && (
         <LocalActivitiesTab
           site={site}
           categories={localCategories ?? []}
           activeCategory={localCategory}
           onCategoryChange={setLocalCategory}
+          scheduledActivityIds={scheduledLocalIds}
         />
       )}
       {activeTab === TABS.CAMPSITE && (
@@ -61,13 +83,24 @@ export const Activities = ({ site, dateRange, activeTab }: ActivitiesProps) => {
   );
 };
 
-const MustSeeActivitiesTab = ({ site }: { site: string }) => {
+const MustSeeActivitiesTab = ({
+  site,
+  scheduledActivityIds = [],
+}: {
+  site: string;
+  scheduledActivityIds?: number[];
+}) => {
   const {
     data: activities,
     isLoading,
     error,
   } = api.activity.getMustSeeActivities.useQuery(
-    site ? { site } : skipToken, // Use skipToken to completely skip the query
+    site
+      ? {
+          site,
+          scheduledActivityIds,
+        }
+      : skipToken, // Use skipToken to completely skip the query
     { enabled: !!site },
   );
 
@@ -120,11 +153,13 @@ const LocalActivitiesTab = ({
   categories,
   activeCategory,
   onCategoryChange,
+  scheduledActivityIds = [],
 }: {
   site: string;
   categories: string[];
   activeCategory?: string;
   onCategoryChange: (category: string | undefined) => void;
+  scheduledActivityIds?: number[];
 }) => {
   const {
     data: activities,
@@ -135,6 +170,7 @@ const LocalActivitiesTab = ({
       ? {
           site,
           category: activeCategory,
+          scheduledActivityIds,
         }
       : skipToken, // Use skipToken to completely skip the query
     { enabled: !!site },
@@ -433,6 +469,17 @@ const formatActivityTime = (date: Date) => {
   });
 };
 
+// Helper to format open days display
+const formatOpenDays = (openDays: string[] | null | undefined): string => {
+  if (!openDays || openDays.length === 0) return "Tous les jours";
+
+  // If all 7 days are present, return "Tous les jours"
+  if (openDays.length === 7) return "Tous les jours";
+
+  // Get shortened weekday names
+  return openDays.map((day) => day.substring(0, 3)).join(", ");
+};
+
 // Unified Activity Card Component
 type ActivityCardProps<T extends "must-see" | "local" | "campsite"> = {
   activity: T extends "must-see"
@@ -558,6 +605,13 @@ export const ActivityCard = <T extends "must-see" | "local" | "campsite">({
                 ` - ${localActivity.closing_time.split(":")[0]}:${localActivity.closing_time.split(":")[1]}`}
             </p>
           )}
+          {/* Display open days */}
+          <p className={styles.openDays}>
+            <span role="img" aria-label="calendar">
+              📅
+            </span>{" "}
+            {formatOpenDays(localActivity.open_days)}
+          </p>
           {localActivity.Distance && localActivity.Duration && (
             <p className={styles.details}>
               <span className={styles.distance}>{localActivity.Distance}</span>{" "}
@@ -606,6 +660,13 @@ export const ActivityCard = <T extends "must-see" | "local" | "campsite">({
                 ` - ${mustSeeActivity.closing_time.split(":")[0]}:${mustSeeActivity.closing_time.split(":")[1]}`}
             </p>
           )}
+          {/* Display open days */}
+          <p className={styles.openDays}>
+            <span role="img" aria-label="calendar">
+              📅
+            </span>{" "}
+            {formatOpenDays(mustSeeActivity.open_days)}
+          </p>
           {mustSeeActivity.Distance && mustSeeActivity.Duration && (
             <p className={styles.details}>
               <span className={styles.distance}>
