@@ -6,7 +6,7 @@ import type {
   CampsiteActivity,
 } from "~/server/db/schema";
 import { type DaySchedule } from "~/server/api/routers/activity";
-import { ActivityCard } from "./Activities";
+import { ActivityCard } from "./ActivityCard";
 
 // Define ScheduleActivity type
 type ScheduleActivity =
@@ -39,17 +39,6 @@ export const GeneratedSchedule = ({
       </div>
     );
   }
-
-  // if (!schedule || schedule.length === 0) {
-  //   return (
-  //     <div className={styles.emptyContainer}>
-  //       <p className={styles.emptyMessage}>
-  //         Aucun planning généré. Cliquez sur &quot;Générer mon planning&quot;
-  //         pour créer un planning automatiquement.
-  //       </p>
-  //     </div>
-  //   );
-  // }
 
   // Sort the schedule by date
   const sortedSchedule = [...schedule].sort((a, b) =>

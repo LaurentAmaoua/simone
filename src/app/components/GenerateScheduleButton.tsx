@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { type DateRange } from "react-day-picker";
 import { api } from "~/trpc/react";
 import { type CAMPSITES } from "./Select";
@@ -42,6 +42,11 @@ export const GenerateScheduleButton = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [schedule, setSchedule] = useState<DaySchedule[] | null>(null);
 
+  // Clear schedule when site or dateRange changes
+  useEffect(() => {
+    setSchedule(null);
+  }, [site, dateRange]);
+
   // Get the mutation to generate a schedule
   const generateScheduleMutation = api.activity.generateSchedule.useMutation({
     onSuccess: (generatedSchedule) => {
@@ -55,7 +60,7 @@ export const GenerateScheduleButton = ({
   });
 
   const generateSchedule = () => {
-    if (!site || !dateRange?.from || !dateRange?.to) {
+    if (!site || !dateRange?.from) {
       return;
     }
 
@@ -66,12 +71,13 @@ export const GenerateScheduleButton = ({
       site,
       dateRange: {
         from: dateRange.from,
-        to: dateRange.to,
+        to: dateRange.to ?? dateRange.from, // Use from date as to date if to is not defined
       },
     });
   };
 
-  const isDisabled = !site || !dateRange?.from || !dateRange?.to;
+  // Only require site and from date to be selected
+  const isDisabled = !site || !dateRange?.from;
 
   return (
     <div className={styles.container}>
@@ -83,7 +89,7 @@ export const GenerateScheduleButton = ({
       </ActionButton>
       {isDisabled && (
         <p className={styles.helperText}>
-          Veuillez sélectionner un camping et une période pour générer votre
+          Veuillez sélectionner un camping et une date pour générer votre
           planning
         </p>
       )}
