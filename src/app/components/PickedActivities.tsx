@@ -22,33 +22,38 @@ interface PickedActivitiesProps {
   pickedActivities: PickedActivity[];
 }
 
+// Interface for a day's schedule
+interface DaySchedule {
+  date: Date;
+  activities: {
+    morning: PickedActivity | null;
+    afternoon: PickedActivity | null;
+    evening: PickedActivity | null;
+  };
+}
+
+// Constants for time slots
+const TIME_SLOTS = {
+  morning: { label: "Matin", hours: "6h - 12h" },
+  afternoon: { label: "Après-midi", hours: "12h - 18h" },
+  evening: { label: "Soirée", hours: "18h - 6h" },
+};
+
 export const PickedActivities = ({
   onRemoveActivity,
   pickedActivities,
 }: PickedActivitiesProps) => {
-  const [groupedActivities, setGroupedActivities] = useState<{
-    mustSee: PickedActivity[];
-    local: PickedActivity[];
-    campsite: PickedActivity[];
-    campsiteByDay: Map<string, PickedActivity[]>;
-    campingGroups: Map<string, PickedActivity[]>;
-  }>({
-    mustSee: [],
-    local: [],
-    campsite: [],
-    campsiteByDay: new Map(),
-    campingGroups: new Map(),
-  });
+  const [dailySchedules, setDailySchedules] = useState<DaySchedule[]>([]);
 
   useEffect(() => {
-    const mustSee = pickedActivities.filter((a) => a.type === "must-see");
-    const local = pickedActivities.filter((a) => a.type === "local");
-    const campsite = pickedActivities.filter((a) => a.type === "campsite");
+    if (pickedActivities.length === 0) {
+      setDailySchedules([]);
+      return;
+    }
 
-    const campsiteByDay = new Map<string, PickedActivity[]>();
+    // Group activities by camping first
     const campingGroups = new Map<string, PickedActivity[]>();
 
-    // Group all activities by camping
     pickedActivities.forEach((activity) => {
       if (activity.Campings) {
         const campingName = activity.Campings as string;
@@ -61,44 +66,134 @@ export const PickedActivities = ({
       }
     });
 
-    campsite.forEach((activity) => {
-      if ("Contenu_date" in activity && activity.Contenu_date) {
+    // For each camping, organize activities by day and timeslot
+    const allDailySchedules: DaySchedule[] = [];
+
+    // Extract all dates from campsite activities
+    const dateSet = new Set<string>();
+    pickedActivities.forEach((activity) => {
+      if (
+        activity.type === "campsite" &&
+        "Contenu_date" in activity &&
+        activity.Contenu_date
+      ) {
         const date = new Date(activity.Contenu_date);
         const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-
-        if (!campsiteByDay.has(dateKey)) {
-          campsiteByDay.set(dateKey, []);
-        }
-
-        const activitiesForDay = campsiteByDay.get(dateKey) ?? [];
-        activitiesForDay.push(activity);
-        campsiteByDay.set(dateKey, activitiesForDay);
+        dateSet.add(dateKey);
       }
     });
 
-    campsiteByDay.forEach((activities, dateKey) => {
-      const sorted = [...activities].sort((a, b) => {
-        if (!("Contenu_date" in a) || !("Contenu_date" in b)) return 0;
+    // Sort dates
+    const sortedDates = Array.from(dateSet)
+      .map((dateKey) => {
+        const parts = dateKey.split("-");
+        const year = parseInt(parts[0] ?? "0", 10);
+        const month = parseInt(parts[1] ?? "0", 10);
+        const day = parseInt(parts[2] ?? "1", 10);
+        return new Date(year, month, day);
+      })
+      .sort(sortByChronologicalOrder);
 
-        if (a.Contenu_time && b.Contenu_time) {
-          return a.Contenu_time.localeCompare(b.Contenu_time);
-        }
+    // Helper function to determine time slot for an activity
+    const getTimeSlot = (
+      activity: PickedActivity,
+    ): "morning" | "afternoon" | "evening" | null => {
+      // For campsite activities, use Contenu_time
+      if (
+        activity.type === "campsite" &&
+        "Contenu_time" in activity &&
+        activity.Contenu_time
+      ) {
+        const timeStr = activity.Contenu_time;
+        const hour = parseInt(timeStr.split(":")[0], 10);
 
-        return (
-          new Date(a.Contenu_date).getTime() -
-          new Date(b.Contenu_date).getTime()
+        if (hour >= 6 && hour < 12) return "morning";
+        if (hour >= 12 && hour < 18) return "afternoon";
+        return "evening";
+      }
+
+      // For must-see and local activities, use opening_time
+      if (
+        (activity.type === "must-see" || activity.type === "local") &&
+        "opening_time" in activity &&
+        activity.opening_time
+      ) {
+        const timeStr = activity.opening_time;
+        const hour = parseInt(timeStr.split(":")[0], 10);
+
+        if (hour >= 6 && hour < 12) return "morning";
+        if (hour >= 12 && hour < 18) return "afternoon";
+        return "evening";
+      }
+
+      return null; // Can't determine time slot
+    };
+
+    // For each camping
+    campingGroups.forEach((activities, campingName) => {
+      // For each date
+      sortedDates.forEach((date) => {
+        const dailySchedule: DaySchedule = {
+          date,
+          activities: {
+            morning: null,
+            afternoon: null,
+            evening: null,
+          },
+        };
+
+        // Filter activities for this date and camping
+        const activitiesForDay = activities.filter((activity) => {
+          if (
+            activity.type === "campsite" &&
+            "Contenu_date" in activity &&
+            activity.Contenu_date
+          ) {
+            const activityDate = new Date(activity.Contenu_date);
+            return (
+              activityDate.getDate() === date.getDate() &&
+              activityDate.getMonth() === date.getMonth() &&
+              activityDate.getFullYear() === date.getFullYear()
+            );
+          }
+          return false; // Only campsite activities have dates
+        });
+
+        // Add must-see and local activities
+        const otherActivities = activities.filter(
+          (activity) =>
+            activity.type === "must-see" || activity.type === "local",
         );
+
+        // Organize activities by time slot
+        activitiesForDay.forEach((activity) => {
+          const slot = getTimeSlot(activity);
+          if (slot && !dailySchedule.activities[slot]) {
+            dailySchedule.activities[slot] = activity;
+          }
+        });
+
+        // Fill in remaining slots with other activities
+        otherActivities.forEach((activity) => {
+          const slot = getTimeSlot(activity);
+          if (slot && !dailySchedule.activities[slot]) {
+            dailySchedule.activities[slot] = activity;
+          }
+        });
+
+        // Only add days that have at least one activity
+        if (
+          Object.values(dailySchedule.activities).some((act) => act !== null)
+        ) {
+          allDailySchedules.push(dailySchedule);
+        }
       });
-      campsiteByDay.set(dateKey, sorted);
     });
 
-    setGroupedActivities({
-      mustSee,
-      local,
-      campsite,
-      campsiteByDay,
-      campingGroups,
-    });
+    // Sort the daily schedules by date
+    allDailySchedules.sort((a, b) => sortByChronologicalOrder(a.date, b.date));
+
+    setDailySchedules(allDailySchedules);
   }, [pickedActivities]);
 
   if (pickedActivities.length === 0) {
@@ -115,32 +210,14 @@ export const PickedActivities = ({
     );
   }
 
-  const sortedDates = Array.from(groupedActivities.campsiteByDay.keys())
-    .map((dateKey) => {
-      const parts = dateKey.split("-");
-      const year = parseInt(parts[0] ?? "0", 10);
-      const month = parseInt(parts[1] ?? "0", 10);
-      const day = parseInt(parts[2] ?? "1", 10);
-      return new Date(year, month, day);
-    })
-    .sort(sortByChronologicalOrder);
-
   // Get sorted camping names
   const sortedCampings = Array.from(
-    groupedActivities.campingGroups.keys(),
+    new Set(pickedActivities.map((activity) => activity.Campings)),
   ).sort();
 
   // Handler for when an activity card's button is clicked (will remove the activity)
   const handlePickActivity = (activity: PickedActivity) => {
     onRemoveActivity(activity.ID, activity.type);
-  };
-
-  // Helper function to safely compare campsite names
-  const isSameCampsite = (
-    activity: PickedActivity,
-    campingName: string,
-  ): boolean => {
-    return (activity.Campings as string) === campingName;
   };
 
   return (
@@ -149,93 +226,63 @@ export const PickedActivities = ({
         <div key={camping} className={styles.campingSection}>
           <h2 className={styles.campingTitle}>{camping}</h2>
 
-          {/* Campsite activities for this camping */}
-          {groupedActivities.campsite.filter((activity) =>
-            isSameCampsite(activity, camping),
-          ).length > 0 && (
-            <div className={styles.section}>
-              <h3 className={styles.sectionTitle}>Animations de camping</h3>
-              <div>
-                {sortedDates.map((date) => {
-                  const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-                  const activitiesForDay =
-                    groupedActivities.campsiteByDay
-                      .get(dateKey)
-                      ?.filter((activity) =>
-                        isSameCampsite(activity, camping),
-                      ) ?? [];
+          {dailySchedules.length > 0 ? (
+            <div className={styles.scheduleContainer}>
+              {dailySchedules.map((daySchedule, index) => (
+                <div key={`day-${index}`} className={styles.daySchedule}>
+                  <h3 className={styles.dateHeader}>
+                    {formatToFrenchDate(daySchedule.date, false)}
+                  </h3>
 
-                  if (activitiesForDay.length === 0) return null;
+                  <div className={styles.timeSlots}>
+                    {Object.entries(TIME_SLOTS).map(([slotKey, slotInfo]) => (
+                      <div key={slotKey} className={styles.timeSlot}>
+                        <div className={styles.timeSlotHeader}>
+                          <span className={styles.timeSlotLabel}>
+                            {slotInfo.label}
+                          </span>
+                          <span className={styles.timeSlotHours}>
+                            {slotInfo.hours}
+                          </span>
+                        </div>
 
-                  return (
-                    <div
-                      key={`${camping}-${dateKey}`}
-                      className={styles.section}
-                    >
-                      <h4 className={styles.dayTitle}>
-                        {formatToFrenchDate(date, false)}
-                      </h4>
-                      <div className={styles.activities}>
-                        {activitiesForDay.map((activity) => (
-                          <ActivityCard
-                            key={`campsite-${activity.ID}`}
-                            activity={activity as CampsiteActivity}
-                            activityType="campsite"
-                            onPickActivity={handlePickActivity}
-                            isPicked={true}
-                          />
-                        ))}
+                        <div className={styles.timeSlotContent}>
+                          {daySchedule.activities[
+                            slotKey as keyof typeof daySchedule.activities
+                          ] ? (
+                            <ActivityCard
+                              key={`${slotKey}-${daySchedule.activities[slotKey as keyof typeof daySchedule.activities]?.ID}`}
+                              activity={
+                                daySchedule.activities[
+                                  slotKey as keyof typeof daySchedule.activities
+                                ] as any
+                              }
+                              activityType={
+                                daySchedule.activities[
+                                  slotKey as keyof typeof daySchedule.activities
+                                ]?.type as any
+                              }
+                              onPickActivity={handlePickActivity}
+                              isPicked={true}
+                            />
+                          ) : (
+                            <div className={styles.emptySlot}>
+                              <p>Aucune activité programmée</p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
-
-          {/* Must-see activities for this camping */}
-          {groupedActivities.mustSee.filter((activity) =>
-            isSameCampsite(activity, camping),
-          ).length > 0 && (
+          ) : (
             <div className={styles.section}>
-              <h3 className={styles.sectionTitle}>
-                Incontournables de la région
-              </h3>
-              <div className={styles.activities}>
-                {groupedActivities.mustSee
-                  .filter((activity) => isSameCampsite(activity, camping))
-                  .map((activity) => (
-                    <ActivityCard
-                      key={`must-see-${activity.ID}`}
-                      activity={activity as MustSeeActivity}
-                      activityType="must-see"
-                      onPickActivity={handlePickActivity}
-                      isPicked={true}
-                    />
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* Local activities for this camping */}
-          {groupedActivities.local.filter((activity) =>
-            isSameCampsite(activity, camping),
-          ).length > 0 && (
-            <div className={styles.section}>
-              <h3 className={styles.sectionTitle}>À faire dans le coin</h3>
-              <div className={styles.activities}>
-                {groupedActivities.local
-                  .filter((activity) => isSameCampsite(activity, camping))
-                  .map((activity) => (
-                    <ActivityCard
-                      key={`local-${activity.ID}`}
-                      activity={activity as LocalActivity}
-                      activityType="local"
-                      onPickActivity={handlePickActivity}
-                      isPicked={true}
-                    />
-                  ))}
-              </div>
+              <p className={styles.emptyMessage}>
+                Aucune activité planifiée. Cliquez sur "Générer mon planning"
+                pour créer un planning automatiquement.
+              </p>
             </div>
           )}
         </div>

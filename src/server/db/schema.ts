@@ -10,6 +10,8 @@ import {
   index,
   text,
   boolean,
+  time,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -19,6 +21,17 @@ import {
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
 export const createTable = pgTableCreator((name) => `planicamping_${name}`);
+
+// French weekdays enum for open days
+export const weekdaysEnum = pgEnum("weekday", [
+  "Lundi",
+  "Mardi",
+  "Mercredi",
+  "Jeudi",
+  "Vendredi",
+  "Samedi",
+  "Dimanche",
+]);
 
 export type CampsiteActivity = InferSelectModel<typeof campsiteActivities>;
 
@@ -65,6 +78,19 @@ export const mustSeeActivities = createTable(
     Distance: varchar("Distance", { length: 50 }),
     Duration: varchar("Duration", { length: 50 }),
     ExternalUrl: varchar("ExternalUrl", { length: 512 }),
+    opening_time: time("opening_time"),
+    closing_time: time("closing_time"),
+    open_days: varchar("open_days", { length: 255 })
+      .array()
+      .default([
+        "Lundi",
+        "Mardi",
+        "Mercredi",
+        "Jeudi",
+        "Vendredi",
+        "Samedi",
+        "Dimanche",
+      ]), // Include weekend days too
     Campings: varchar("Campings", { length: 255 }).$type<CAMPSITES>().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
@@ -94,6 +120,19 @@ export const localActivities = createTable(
     Distance: varchar("Distance", { length: 50 }),
     Duration: varchar("Duration", { length: 50 }),
     ExternalUrl: varchar("ExternalUrl", { length: 512 }),
+    opening_time: time("opening_time"),
+    closing_time: time("closing_time"),
+    open_days: varchar("open_days", { length: 255 })
+      .array()
+      .default([
+        "Lundi",
+        "Mardi",
+        "Mercredi",
+        "Jeudi",
+        "Vendredi",
+        "Samedi",
+        "Dimanche",
+      ]), // Default to all days
     Campings: varchar("Campings", { length: 255 }).$type<CAMPSITES>().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()

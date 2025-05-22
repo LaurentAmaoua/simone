@@ -15,6 +15,13 @@ const addOneDay = (date: Date) => {
   return result;
 };
 
+// Define time ranges for different parts of the day
+const TIME_SLOTS = {
+  morning: { start: "06:00:00", end: "11:59:59" },
+  afternoon: { start: "12:00:00", end: "17:59:59" },
+  evening: { start: "18:00:00", end: "05:59:59" }, // Evening wraps to early morning
+};
+
 // Helper function to determine time slot for an activity
 const getTimeSlot = (activity: { Contenu_time?: string | null }) => {
   // Ensure Contenu_time is string before splitting
@@ -24,6 +31,50 @@ const getTimeSlot = (activity: { Contenu_time?: string | null }) => {
   if (hour >= 6 && hour < 12) return "morning";
   if (hour >= 12 && hour < 18) return "afternoon";
   return "evening";
+};
+
+// Helper function to parse hour safely
+const safeParseInt = (
+  value: string | undefined | null,
+  defaultValue = 0,
+): number => {
+  if (!value) return defaultValue;
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? defaultValue : parsed;
+};
+
+// Helper function to check if an activity fits within a time slot based on opening/closing times
+const activityFitsTimeSlot = (
+  activity: { opening_time?: string | null; closing_time?: string | null },
+  slot: keyof typeof TIME_SLOTS,
+) => {
+  if (!activity.opening_time || !activity.closing_time) {
+    return true; // If no opening/closing times specified, assume it fits
+  }
+
+  const slotTime = TIME_SLOTS[slot];
+
+  // Convert times to comparable format (hours as numbers)
+  const opening = activity.opening_time.split(":")[0] ?? "9"; // Default to 9am if parsing fails
+  const closing = activity.closing_time.split(":")[0] ?? "17"; // Default to 5pm if parsing fails
+  const slotStart = slotTime.start.split(":")[0];
+  const slotEnd = slotTime.end.split(":")[0];
+
+  // Parse hours safely
+  const openingHour = safeParseInt(opening, 9);
+  const closingHour = safeParseInt(closing, 17);
+  const slotStartHour = safeParseInt(slotStart, 6);
+  const slotEndHour = safeParseInt(slotEnd, 18);
+
+  // Handle evening case which crosses midnight
+  if (slot === "evening") {
+    // Either: opens before midnight and is still open in evening time slot
+    // Or: opens after midnight but before end of evening slot
+    return openingHour >= 18 || (openingHour < 6 && closingHour > openingHour);
+  }
+
+  // For morning and afternoon, simply check if the opening time falls within the slot
+  return openingHour >= slotStartHour && openingHour < slotEndHour;
 };
 
 // Type for activities with their specific type
@@ -413,60 +464,108 @@ export const activityRouter = createTRPCRouter({
             );
           });
 
-          // Step 1: Try to fill with must-see activities first
-          if (mustSeeActivities.length > 0) {
-            // Randomly select up to 3 must-see activities
-            const shuffledMustSee = [...mustSeeActivities].sort(
-              () => 0.5 - Math.random(),
-            );
+          // Group must-see activities by time slot suitability
+          const mustSeeByTimeSlot = {
+            morning: mustSeeActivities.filter((act) =>
+              activityFitsTimeSlot(act, "morning"),
+            ),
+            afternoon: mustSeeActivities.filter((act) =>
+              activityFitsTimeSlot(act, "afternoon"),
+            ),
+            evening: mustSeeActivities.filter((act) =>
+              activityFitsTimeSlot(act, "evening"),
+            ),
+          };
 
-            // Try to assign one to each time slot
-            const timeSlots: (keyof Omit<DaySchedule, "date">)[] = [
-              "morning",
-              "afternoon",
-              "evening",
-            ];
-            timeSlots.forEach((slot, index) => {
-              if (shuffledMustSee[index]) {
-                daySchedule[slot] = {
-                  ...shuffledMustSee[index],
-                  type: "must-see" as const,
-                };
-              }
-            });
-          }
+          // Group local activities by time slot suitability
+          const localByTimeSlot = {
+            morning: localActivities.filter((act) =>
+              activityFitsTimeSlot(act, "morning"),
+            ),
+            afternoon: localActivities.filter((act) =>
+              activityFitsTimeSlot(act, "afternoon"),
+            ),
+            evening: localActivities.filter((act) =>
+              activityFitsTimeSlot(act, "evening"),
+            ),
+          };
 
-          // Step 2: For any empty slots, try to fill with local activities
-          if (localActivities.length > 0) {
-            const shuffledLocal = [...localActivities].sort(
-              () => 0.5 - Math.random(),
-            );
-
-            const timeSlots: (keyof Omit<DaySchedule, "date">)[] = [
-              "morning",
-              "afternoon",
-              "evening",
-            ];
-            timeSlots.forEach((slot) => {
-              if (!daySchedule[slot] && shuffledLocal.length > 0) {
-                // Pick the first available local activity
-                const localActivity = shuffledLocal.shift();
-                if (localActivity) {
-                  daySchedule[slot] = {
-                    ...localActivity,
-                    type: "local" as const,
-                  };
-                }
-              }
-            });
-          }
-
-          // Step 3: Fill any remaining slots with campsite activities
+          // Define time slots
           const timeSlots: (keyof Omit<DaySchedule, "date">)[] = [
             "morning",
             "afternoon",
             "evening",
           ];
+
+          // Step 1: Try to fill each time slot with a must-see activity first
+          timeSlots.forEach((slot) => {
+            // Check if we have must-see activities for this time slot
+            if (mustSeeByTimeSlot[slot].length > 0) {
+              // Randomly select a must-see activity for this slot
+              const shuffledMustSee = [...mustSeeByTimeSlot[slot]].sort(
+                () => 0.5 - Math.random(),
+              );
+
+              if (shuffledMustSee[0]) {
+                // Ensure we have a valid activity before assignment
+                const activity = shuffledMustSee[0];
+                daySchedule[slot] = {
+                  ...activity,
+                  type: "must-see" as const,
+                  // Ensure required fields are present
+                  ID: activity.ID,
+                  Title: activity.Title,
+                  Campings: activity.Campings,
+                  createdAt: activity.createdAt,
+                  updatedAt: activity.updatedAt,
+                  Description: activity.Description,
+                  Location: activity.Location,
+                  Image: activity.Image,
+                  Distance: activity.Distance,
+                  Duration: activity.Duration,
+                  ExternalUrl: activity.ExternalUrl,
+                  opening_time: activity.opening_time,
+                  closing_time: activity.closing_time,
+                };
+              }
+            }
+          });
+
+          // Step 2: For any empty slots, try to fill with local activities
+          timeSlots.forEach((slot) => {
+            if (!daySchedule[slot] && localByTimeSlot[slot].length > 0) {
+              // Randomly select a local activity for this slot
+              const shuffledLocal = [...localByTimeSlot[slot]].sort(
+                () => 0.5 - Math.random(),
+              );
+
+              if (shuffledLocal[0]) {
+                // Ensure we have a valid activity before assignment
+                const activity = shuffledLocal[0];
+                daySchedule[slot] = {
+                  ...activity,
+                  type: "local" as const,
+                  // Ensure required fields are present
+                  ID: activity.ID,
+                  Title: activity.Title,
+                  Campings: activity.Campings,
+                  createdAt: activity.createdAt,
+                  updatedAt: activity.updatedAt,
+                  Description: activity.Description,
+                  Location: activity.Location,
+                  Category: activity.Category,
+                  Image: activity.Image,
+                  Distance: activity.Distance,
+                  Duration: activity.Duration,
+                  ExternalUrl: activity.ExternalUrl,
+                  opening_time: activity.opening_time,
+                  closing_time: activity.closing_time,
+                };
+              }
+            }
+          });
+
+          // Step 3: Fill any remaining slots with campsite activities
           timeSlots.forEach((slot) => {
             if (!daySchedule[slot]) {
               // Find a campsite activity for this time slot
