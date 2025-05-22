@@ -1,7 +1,7 @@
 import {
   type MustSeeActivity,
   type LocalActivity,
-  type Activity,
+  type CampsiteActivity,
 } from "~/server/db/schema";
 import { useEffect, useState } from "react";
 import { sortByChronologicalOrder, formatToFrenchDate } from "~/lib/datetime";
@@ -9,7 +9,11 @@ import styles from "./styles/PickedActivities.module.css";
 import { ActivityCard } from "./Activities";
 import { CAMPSITES } from "./Select";
 
-export type PickedActivity = (MustSeeActivity | LocalActivity | Activity) & {
+export type PickedActivity = (
+  | MustSeeActivity
+  | LocalActivity
+  | CampsiteActivity
+) & {
   type: "must-see" | "local" | "campsite";
 };
 
@@ -175,7 +179,7 @@ export const PickedActivities = ({
                         {activitiesForDay.map((activity) => (
                           <ActivityCard
                             key={`campsite-${activity.ID}`}
-                            activity={activity as Activity}
+                            activity={activity as CampsiteActivity}
                             activityType="campsite"
                             onPickActivity={handlePickActivity}
                             isPicked={true}

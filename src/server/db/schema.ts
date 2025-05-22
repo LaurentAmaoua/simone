@@ -20,7 +20,7 @@ import {
  */
 export const createTable = pgTableCreator((name) => `planicamping_${name}`);
 
-export type Activity = InferSelectModel<typeof campsiteActivities>;
+export type CampsiteActivity = InferSelectModel<typeof campsiteActivities>;
 
 export const campsiteActivities = createTable(
   "campsite_activity",

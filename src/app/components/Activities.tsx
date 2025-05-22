@@ -9,7 +9,7 @@ import { useState } from "react";
 import {
   type MustSeeActivity,
   type LocalActivity,
-  type Activity,
+  type CampsiteActivity,
 } from "~/server/db/schema";
 import { type PickedActivity } from "./PickedActivities";
 
@@ -504,7 +504,7 @@ type ActivityCardProps<T extends "must-see" | "local" | "campsite"> = {
     ? MustSeeActivity
     : T extends "local"
       ? LocalActivity
-      : Activity;
+      : CampsiteActivity;
   activityType: T;
   onPickActivity: (activity: PickedActivity) => void;
   isPicked: boolean;
@@ -554,7 +554,7 @@ export const ActivityCard = <T extends "must-see" | "local" | "campsite">({
   );
 
   if (activityType === "campsite") {
-    const campsiteActivity = activity as Activity;
+    const campsiteActivity = activity as CampsiteActivity;
     const hasLongDescription =
       campsiteActivity.infos_description &&
       campsiteActivity.infos_description.length > maxCharacters;

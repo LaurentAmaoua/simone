@@ -5,7 +5,7 @@ import { type DateRange } from "react-day-picker";
 import { Calendar } from "./components/Calendar";
 import { Header } from "./components/Header";
 import { Suspense, useState, useEffect } from "react";
-import { Tabs } from "./components/Tabs";
+import { GenerateScheduleButton } from "./components/GenerateScheduleButton";
 import {
   SwipeableViews,
   SwipeableViewsFooter,
@@ -120,6 +120,16 @@ export default function Home() {
     );
   };
 
+  // Function to clear all picked activities
+  const clearAllActivities = () => {
+    setPickedActivities([]);
+  };
+
+  // Function to navigate to the planning view
+  const navigateToPlanningView = () => {
+    setViewIndex(1); // Index 1 is the "Mon Planning" view
+  };
+
   return (
     <main className={styles.container}>
       <div className={styles.inner}>
@@ -152,11 +162,13 @@ export default function Home() {
                     </div>
                   </div>
                   <div className={styles.right}>
-                    <Tabs
+                    <GenerateScheduleButton
                       site={selectedSite}
                       dateRange={selectedDateRange}
                       onPickActivity={handlePickActivity}
                       pickedActivities={pickedActivities}
+                      clearAllActivities={clearAllActivities}
+                      onScheduleGenerated={navigateToPlanningView}
                     />
                   </div>
                 </div>
