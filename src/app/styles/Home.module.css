@@ -69,35 +69,12 @@
   position: relative;
   overflow: hidden;
   overflow-y: auto;
-}
-
-.pickedActivitiesContainer {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  margin: 1rem 0 0;
 }
 
 .sectionTitle {
   font-size: var(--fs-l);
   margin: 0;
-}
-
-.tabContainer {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.swipeableViewsWrapper {
-  flex: 1;
-  display: flex;
-  width: 100%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
 }
 
 @media (min-width: 688px) {
@@ -123,6 +100,10 @@
 
   .attrContainer {
     width: 100%;
+  }
+
+  .right {
+    margin: 0;
   }
 
   .sectionTitle {

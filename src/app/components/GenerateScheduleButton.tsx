@@ -81,12 +81,14 @@ export const GenerateScheduleButton = ({
 
   return (
     <div className={styles.container}>
-      <ActionButton
-        onClick={generateSchedule}
-        disabled={isDisabled || isGenerating}
-      >
-        {isGenerating ? "Génération en cours..." : "Générer mon planning"}
-      </ActionButton>
+      {!schedule && (
+        <ActionButton
+          onClick={generateSchedule}
+          disabled={isDisabled || isGenerating}
+        >
+          {isGenerating ? "Génération en cours..." : "Générer mon planning"}
+        </ActionButton>
+      )}
       {isDisabled && (
         <p className={styles.helperText}>
           Veuillez sélectionner un camping et une date pour générer votre
