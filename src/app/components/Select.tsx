@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { api } from "~/trpc/react";
 
 import styles from "./styles/Select.module.css";
 
@@ -60,9 +59,7 @@ const RegionToCampsiteMapping: Record<Region, CAMPSITES[]> = {
   ],
 } as const;
 
-// Helper function to convert string to CAMPSITES enum
 const stringToCampsite = (campsite: string): CAMPSITES => {
-  // Find matching enum value by comparing strings
   const entry = Object.entries(CAMPSITES).find(
     ([_, value]) => String(value) === campsite,
   );
@@ -74,7 +71,13 @@ const stringToCampsite = (campsite: string): CAMPSITES => {
   return entry[1] as CAMPSITES;
 };
 
-// Function to decode HTML entities
+const keyToCampsite = (key: string): CAMPSITES | null => {
+  if (key in CAMPSITES) {
+    return CAMPSITES[key as keyof typeof CAMPSITES];
+  }
+  return null;
+};
+
 const decodeHtmlEntities = (text: string): string => {
   const textarea = document.createElement("textarea");
   textarea.innerHTML = text;
@@ -87,9 +90,13 @@ type SelectProps = {
 
 export const Select = ({ onSelect }: SelectProps) => {
   const searchParams = useSearchParams();
-  const defaultSelection = searchParams.get("site") ?? undefined;
+  const siteParam = searchParams.get("site");
 
-  // Group campsites by region
+  const defaultSite = siteParam ? keyToCampsite(siteParam) : null;
+
+  console.log("siteParam", siteParam);
+  console.log("defaultSite", defaultSite);
+
   const [campsitesByRegion, setCampsitesByRegion] = useState<
     Record<Region, string[]>
   >({} as Record<Region, string[]>);
@@ -118,24 +125,18 @@ export const Select = ({ onSelect }: SelectProps) => {
 
     setCampsitesByRegion(groupedCampsites);
 
-    // Only select from URL if explicitly provided
-    if (
-      defaultSelection &&
-      Object.values(CAMPSITES).includes(defaultSelection as CAMPSITES)
-    ) {
-      // Convert string to CAMPSITES enum value safely
-      onSelect(stringToCampsite(defaultSelection));
+    if (defaultSite) {
+      onSelect(defaultSite);
     }
-  }, [defaultSelection, onSelect]);
+  }, [siteParam, defaultSite, onSelect]);
 
   const handleValueChange = (value: string) => {
-    // Convert string to CAMPSITES enum value safely
     onSelect(stringToCampsite(value));
   };
 
   return (
     <SelectContainer
-      defaultValue={defaultSelection ?? ""}
+      value={defaultSite ?? ""}
       onValueChange={handleValueChange}
     >
       <SelectTrigger className={styles.trigger}>
