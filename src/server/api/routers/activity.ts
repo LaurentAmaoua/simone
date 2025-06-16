@@ -524,111 +524,137 @@ export const activityRouter = createTRPCRouter({
             ),
           };
 
-          // Define time slots
-          const timeSlots: (keyof Omit<DaySchedule, "date">)[] = [
-            "morning",
-            "afternoon",
-            "evening",
-          ];
+          // Helper function to assign an activity to a slot
+          const assignMustSeeActivity = (
+            slot: keyof Omit<DaySchedule, "date">,
+            activity: MustSeeActivity,
+          ) => {
+            daySchedule[slot] = {
+              ...activity,
+              type: "must-see" as const,
+            };
+            usedMustSeeIds.add(activity.ID);
+          };
 
-          // Step 1: Try to fill each time slot with a must-see activity first
-          timeSlots.forEach((slot) => {
-            // Check if we have must-see activities for this time slot
-            if (mustSeeByTimeSlot[slot].length > 0) {
-              // Randomly select a must-see activity for this slot
-              const shuffledMustSee = [...mustSeeByTimeSlot[slot]].sort(
-                () => 0.5 - Math.random(),
+          const assignLocalActivity = (
+            slot: keyof Omit<DaySchedule, "date">,
+            activity: LocalActivity,
+          ) => {
+            daySchedule[slot] = {
+              ...activity,
+              type: "local" as const,
+            };
+            usedLocalIds.add(activity.ID);
+          };
+
+          const assignCampsiteActivity = (
+            slot: keyof Omit<DaySchedule, "date">,
+            activity: CampsiteActivity,
+          ) => {
+            daySchedule[slot] = {
+              ...activity,
+              type: "campsite" as const,
+            };
+          };
+
+          // Helper function to get random activity from array
+          const getRandomLocalActivity = (activities: LocalActivity[]) => {
+            if (activities.length === 0) return null;
+            const randomIndex = Math.floor(Math.random() * activities.length);
+            return activities[randomIndex] ?? null;
+          };
+
+          const getRandomMustSeeActivity = (activities: MustSeeActivity[]) => {
+            if (activities.length === 0) return null;
+            const randomIndex = Math.floor(Math.random() * activities.length);
+            return activities[randomIndex] ?? null;
+          };
+
+          const getRandomCampsiteActivity = (
+            activities: CampsiteActivity[],
+          ) => {
+            if (activities.length === 0) return null;
+            const randomIndex = Math.floor(Math.random() * activities.length);
+            return activities[randomIndex] ?? null;
+          };
+
+          // Morning scheduling: Priority 1: local, Priority 2: campsite, Priority 3: must-see
+          if (!daySchedule.morning) {
+            const localActivity = getRandomLocalActivity(
+              localByTimeSlot.morning,
+            );
+            if (localActivity) {
+              assignLocalActivity("morning", localActivity);
+            } else {
+              const campsiteActivities = dayActivities.filter(
+                (activity) => getTimeSlot(activity) === "morning",
               );
-
-              if (shuffledMustSee[0]) {
-                // Ensure we have a valid activity before assignment
-                const activity = shuffledMustSee[0];
-                daySchedule[slot] = {
-                  ...activity,
-                  type: "must-see" as const,
-                  // Ensure required fields are present
-                  ID: activity.ID,
-                  Title: activity.Title,
-                  Campings: activity.Campings,
-                  createdAt: activity.createdAt,
-                  updatedAt: activity.updatedAt,
-                  Description: activity.Description,
-                  Location: activity.Location,
-                  Image: activity.Image,
-                  Distance: activity.Distance,
-                  Duration: activity.Duration,
-                  ExternalUrl: activity.ExternalUrl,
-                  opening_time: activity.opening_time,
-                  closing_time: activity.closing_time,
-                };
-
-                // Mark this activity as used
-                usedMustSeeIds.add(activity.ID);
-              }
-            }
-          });
-
-          // Step 2: For any empty slots, try to fill with local activities
-          timeSlots.forEach((slot) => {
-            if (!daySchedule[slot] && localByTimeSlot[slot].length > 0) {
-              // Randomly select a local activity for this slot
-              const shuffledLocal = [...localByTimeSlot[slot]].sort(
-                () => 0.5 - Math.random(),
-              );
-
-              if (shuffledLocal[0]) {
-                // Ensure we have a valid activity before assignment
-                const activity = shuffledLocal[0];
-                daySchedule[slot] = {
-                  ...activity,
-                  type: "local" as const,
-                  // Ensure required fields are present
-                  ID: activity.ID,
-                  Title: activity.Title,
-                  Campings: activity.Campings,
-                  createdAt: activity.createdAt,
-                  updatedAt: activity.updatedAt,
-                  Description: activity.Description,
-                  Location: activity.Location,
-                  Category: activity.Category,
-                  Image: activity.Image,
-                  Distance: activity.Distance,
-                  Duration: activity.Duration,
-                  ExternalUrl: activity.ExternalUrl,
-                  opening_time: activity.opening_time,
-                  closing_time: activity.closing_time,
-                };
-
-                // Mark this activity as used
-                usedLocalIds.add(activity.ID);
-              }
-            }
-          });
-
-          // Step 3: Fill any remaining slots with campsite activities
-          timeSlots.forEach((slot) => {
-            if (!daySchedule[slot]) {
-              // Find a campsite activity for this time slot
-              const availableActivities = dayActivities.filter(
-                (activity) => getTimeSlot(activity) === slot,
-              );
-
-              if (availableActivities.length > 0) {
-                // Pick a random activity for this slot
-                const randomIndex = Math.floor(
-                  Math.random() * availableActivities.length,
+              const campsiteActivity =
+                getRandomCampsiteActivity(campsiteActivities);
+              if (campsiteActivity) {
+                assignCampsiteActivity("morning", campsiteActivity);
+              } else {
+                const mustSeeActivity = getRandomMustSeeActivity(
+                  mustSeeByTimeSlot.morning,
                 );
-                const selectedActivity = availableActivities[randomIndex];
-
-                if (selectedActivity) {
-                  daySchedule[slot] = {
-                    ...selectedActivity,
-                    type: "campsite" as const,
-                  };
+                if (mustSeeActivity) {
+                  assignMustSeeActivity("morning", mustSeeActivity);
                 }
               }
             }
-          });
+          }
+
+          // Afternoon scheduling: Priority 1: local, Priority 2: must-see, Priority 3: campsite
+          if (!daySchedule.afternoon) {
+            const localActivity = getRandomLocalActivity(
+              localByTimeSlot.afternoon,
+            );
+            if (localActivity) {
+              assignLocalActivity("afternoon", localActivity);
+            } else {
+              const mustSeeActivity = getRandomMustSeeActivity(
+                mustSeeByTimeSlot.afternoon,
+              );
+              if (mustSeeActivity) {
+                assignMustSeeActivity("afternoon", mustSeeActivity);
+              } else {
+                const campsiteActivities = dayActivities.filter(
+                  (activity) => getTimeSlot(activity) === "afternoon",
+                );
+                const campsiteActivity =
+                  getRandomCampsiteActivity(campsiteActivities);
+                if (campsiteActivity) {
+                  assignCampsiteActivity("afternoon", campsiteActivity);
+                }
+              }
+            }
+          }
+
+          // Evening scheduling: Priority 1: campsite, Priority 2: local, Priority 3: must-see
+          if (!daySchedule.evening) {
+            const campsiteActivities = dayActivities.filter(
+              (activity) => getTimeSlot(activity) === "evening",
+            );
+            const campsiteActivity =
+              getRandomCampsiteActivity(campsiteActivities);
+            if (campsiteActivity) {
+              assignCampsiteActivity("evening", campsiteActivity);
+            } else {
+              const localActivity = getRandomLocalActivity(
+                localByTimeSlot.evening,
+              );
+              if (localActivity) {
+                assignLocalActivity("evening", localActivity);
+              } else {
+                const mustSeeActivity = getRandomMustSeeActivity(
+                  mustSeeByTimeSlot.evening,
+                );
+                if (mustSeeActivity) {
+                  assignMustSeeActivity("evening", mustSeeActivity);
+                }
+              }
+            }
+          }
 
           // Add this day's schedule to the overall schedule
           generatedSchedule.push(daySchedule);
