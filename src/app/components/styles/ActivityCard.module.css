@@ -131,28 +131,6 @@
   font-size: var(--fs-s);
 }
 
-.openDays {
-  color: var(--c-slate-gray);
-  font-size: var(--fs-s);
-  margin: var(--m-xs) 0;
-  display: flex;
-  align-items: center;
-  gap: var(--g-xs);
-}
-
-.details {
-  display: flex;
-  gap: var(--g-xs);
-  color: var(--c-slate-gray);
-  font-size: var(--fs-s);
-  margin: 0;
-}
-
-.distance,
-.duration {
-  display: inline-block;
-}
-
 .link {
   color: inherit;
   text-decoration: none;

@@ -21,17 +21,6 @@ const formatActivityTime = (date: Date) => {
   });
 };
 
-// Helper to format open days display
-const formatOpenDays = (openDays: string[] | null | undefined): string => {
-  if (!openDays || openDays.length === 0) return "Tous les jours";
-
-  // If all 7 days are present, return "Tous les jours"
-  if (openDays.length === 7) return "Tous les jours";
-
-  // Get shortened weekday names
-  return openDays.map((day) => day.substring(0, 3)).join(", ");
-};
-
 // Unified Activity Card Component
 type ActivityCardProps<T extends "must-see" | "local" | "campsite"> = {
   activity: T extends "must-see"
@@ -157,19 +146,6 @@ export const ActivityCard = <T extends "must-see" | "local" | "campsite">({
                 ` - ${localActivity.closing_time.split(":")[0]}:${localActivity.closing_time.split(":")[1]}`}
             </p>
           )}
-          {/* Display open days */}
-          <p className={styles.openDays}>
-            <span role="img" aria-label="calendar">
-              📅
-            </span>{" "}
-            {formatOpenDays(localActivity.open_days)}
-          </p>
-          {localActivity.Distance && localActivity.Duration && (
-            <p className={styles.details}>
-              <span className={styles.distance}>{localActivity.Distance}</span>{" "}
-              •<span className={styles.duration}>{localActivity.Duration}</span>
-            </p>
-          )}
           {localActivity.Description && (
             <p className={styles.description}>{localActivity.Description}</p>
           )}
@@ -210,24 +186,6 @@ export const ActivityCard = <T extends "must-see" | "local" | "campsite">({
               {mustSeeActivity.opening_time.split(":")[1]}
               {mustSeeActivity.closing_time &&
                 ` - ${mustSeeActivity.closing_time.split(":")[0]}:${mustSeeActivity.closing_time.split(":")[1]}`}
-            </p>
-          )}
-          {/* Display open days */}
-          <p className={styles.openDays}>
-            <span role="img" aria-label="calendar">
-              📅
-            </span>{" "}
-            {formatOpenDays(mustSeeActivity.open_days)}
-          </p>
-          {mustSeeActivity.Distance && mustSeeActivity.Duration && (
-            <p className={styles.details}>
-              <span className={styles.distance}>
-                {mustSeeActivity.Distance}
-              </span>{" "}
-              •
-              <span className={styles.duration}>
-                {mustSeeActivity.Duration}
-              </span>
             </p>
           )}
           {mustSeeActivity.Description && (
