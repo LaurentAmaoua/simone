@@ -136,7 +136,7 @@ export const Select = ({ onSelect }: SelectProps) => {
 
   return (
     <SelectContainer
-      value={defaultSite ?? ""}
+      defaultValue={defaultSite ?? ""}
       onValueChange={handleValueChange}
     >
       <SelectTrigger className={styles.trigger}>
