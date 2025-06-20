@@ -6,6 +6,7 @@ import { GeneratedSchedule } from "./GeneratedSchedule";
 import { type DaySchedule } from "~/server/api/routers/activity";
 
 import styles from "./styles/GenerateScheduleButton.module.css";
+import { Button } from "./Button";
 
 export interface GenerateScheduleButtonProps {
   site: CAMPSITES | undefined;
@@ -25,13 +26,13 @@ const ActionButton = ({
   className?: string;
 }) => {
   return (
-    <button
+    <Button
       className={`${styles.generateButton} ${className ?? ""}`}
       onClick={onClick}
       disabled={disabled}
     >
       {children}
-    </button>
+    </Button>
   );
 };
 

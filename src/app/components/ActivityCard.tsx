@@ -6,6 +6,7 @@ import {
   type CampsiteActivity,
 } from "~/server/db/schema";
 import { FamilyIcon } from "~/assets/family-icon";
+import { useActivityImage } from "../hooks/useActivityImage";
 
 import styles from "./styles/ActivityCard.module.css";
 
@@ -53,6 +54,13 @@ export const ActivityCard = <T extends "must-see" | "local" | "campsite">({
 }: ActivityCardProps<T>) => {
   const [expanded, setExpanded] = useState(false);
   const maxCharacters = 250;
+
+  // For must-see and local activities, fetch images dynamically
+  const { imageUrl, isLoading: imageLoading } = useActivityImage(
+    activityType !== "campsite"
+      ? (activity as MustSeeActivity | LocalActivity).ExternalUrl
+      : null,
+  );
 
   if (activityType === "campsite") {
     const campsiteActivity = activity as CampsiteActivity;
@@ -124,9 +132,15 @@ export const ActivityCard = <T extends "must-see" | "local" | "campsite">({
 
     return (
       <div className={styles.card}>
-        {localActivity.Image && (
+        {(imageUrl ?? imageLoading) && (
           <div className={styles.activityImage}>
-            <img src={localActivity.Image} alt={localActivity.Title} />
+            {imageLoading ? (
+              <div className={styles.activityImage}>
+                Chargement de l&apos;image...
+              </div>
+            ) : (
+              imageUrl && <img src={imageUrl} alt={localActivity.Title} />
+            )}
           </div>
         )}
         <div className={styles.content}>
@@ -171,9 +185,15 @@ export const ActivityCard = <T extends "must-see" | "local" | "campsite">({
 
     return (
       <div className={styles.card}>
-        {mustSeeActivity.Image && (
+        {(imageUrl ?? imageLoading) && (
           <div className={styles.activityImage}>
-            <img src={mustSeeActivity.Image} alt={mustSeeActivity.Title} />
+            {imageLoading ? (
+              <div className={styles.activityImage}>
+                Chargement de l&apos;image...
+              </div>
+            ) : (
+              imageUrl && <img src={imageUrl} alt={mustSeeActivity.Title} />
+            )}
           </div>
         )}
         <div className={styles.content}>

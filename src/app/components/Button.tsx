@@ -6,11 +6,24 @@ interface ButtonProps {
   children: ReactNode;
   className?: string;
   style?: CSSProperties;
+  onClick?: () => void;
+  disabled?: boolean;
 }
 
-export const Button = ({ children, className, style }: ButtonProps) => {
+export const Button = ({
+  children,
+  className,
+  style,
+  onClick,
+  disabled = false,
+}: ButtonProps) => {
   return (
-    <button className={`${styles.container} ${className ?? ""}`} style={style}>
+    <button
+      className={`${styles.container} ${className ?? ""}`}
+      style={style}
+      onClick={onClick}
+      disabled={disabled}
+    >
       {children}
     </button>
   );

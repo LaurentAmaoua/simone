@@ -8,6 +8,7 @@ import {
   type LocalActivity,
   type CampsiteActivity,
 } from "~/server/db/schema";
+import { fetchSiteMetadata } from "~/lib/metadata";
 
 const addOneDay = (date: Date) => {
   const result = new Date(date);
@@ -666,6 +667,22 @@ export const activityRouter = createTRPCRouter({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to generate schedule",
+        });
+      }
+    }),
+  fetchSiteMetadata: publicProcedure
+    .input(z.object({ url: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { url } = input;
+
+      try {
+        const metadata = await fetchSiteMetadata(url);
+        return metadata;
+      } catch (err) {
+        console.error("Error fetching site metadata:", err);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch site metadata",
         });
       }
     }),

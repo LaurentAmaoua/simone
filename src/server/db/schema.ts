@@ -74,7 +74,6 @@ export const mustSeeActivities = createTable(
     Title: varchar("Title", { length: 256 }).notNull(),
     Description: text("Description"),
     Location: varchar("Location", { length: 255 }).notNull(),
-    Image: varchar("Image", { length: 512 }),
     Distance: varchar("Distance", { length: 50 }),
     Duration: varchar("Duration", { length: 50 }),
     ExternalUrl: varchar("ExternalUrl", { length: 512 }),
@@ -116,7 +115,6 @@ export const localActivities = createTable(
     Description: text("Description"),
     Location: varchar("Location", { length: 255 }).notNull(),
     Category: varchar("Category", { length: 100 }), // e.g. "Restaurant", "Hiking", etc.
-    Image: varchar("Image", { length: 512 }),
     Distance: varchar("Distance", { length: 50 }),
     Duration: varchar("Duration", { length: 50 }),
     ExternalUrl: varchar("ExternalUrl", { length: 512 }),
