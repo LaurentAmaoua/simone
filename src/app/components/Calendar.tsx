@@ -92,7 +92,6 @@ export const Calendar = ({
           mode="range"
           selected={dateRange ? dateRange : undefined}
           onSelect={(range) => {
-            console.log("range", range);
             handleSelect(range);
           }}
           today={new Date()}

@@ -94,9 +94,6 @@ export const Select = ({ onSelect }: SelectProps) => {
 
   const defaultSite = siteParam ? keyToCampsite(siteParam) : null;
 
-  console.log("siteParam", siteParam);
-  console.log("defaultSite", defaultSite);
-
   const [campsitesByRegion, setCampsitesByRegion] = useState<
     Record<Region, string[]>
   >({} as Record<Region, string[]>);
