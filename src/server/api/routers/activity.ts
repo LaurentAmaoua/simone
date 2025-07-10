@@ -420,8 +420,8 @@ export const activityRouter = createTRPCRouter({
       z.object({
         site: z.string(),
         dateRange: z.object({
-          from: z.date(),
-          to: z.date(),
+          fromDate: z.string(),
+          toDate: z.string(),
         }),
       }),
     )
@@ -429,6 +429,10 @@ export const activityRouter = createTRPCRouter({
       const { site, dateRange } = input;
 
       try {
+        // Convert date strings to clean UTC Date objects
+        const fromDate = new Date(dateRange.fromDate + "T00:00:00.000Z");
+        const toDate = new Date(dateRange.toDate + "T00:00:00.000Z");
+
         // Fetch all activity types we need
         const mustSeeActivities = await ctx.db.query.mustSeeActivities.findMany(
           {
@@ -446,18 +450,14 @@ export const activityRouter = createTRPCRouter({
             where: (activity, { eq, and, between }) =>
               and(
                 eq(activity.Campings, site as CAMPSITES),
-                between(
-                  activity.Contenu_date,
-                  dateRange.from,
-                  addOneDay(dateRange.to),
-                ),
+                between(activity.Contenu_date, fromDate, addOneDay(toDate)),
               ),
           });
 
         // Create a date range from start to end date
         const dates: Date[] = [];
-        const currentDate = new Date(dateRange.from);
-        const endDate = new Date(dateRange.to);
+        const currentDate = new Date(fromDate);
+        const endDate = new Date(toDate);
 
         while (currentDate <= endDate) {
           dates.push(new Date(currentDate));
@@ -480,13 +480,12 @@ export const activityRouter = createTRPCRouter({
           };
 
           // Filter campsite activities for this day
+          // Compare using simple date strings to avoid timezone issues
+          const dayDateString = day.toISOString().split("T")[0]; // YYYY-MM-DD
           const dayActivities = campsiteActivities.filter((activity) => {
-            const activityDate = new Date(activity.Contenu_date);
-            return (
-              activityDate.getDate() === day.getDate() &&
-              activityDate.getMonth() === day.getMonth() &&
-              activityDate.getFullYear() === day.getFullYear()
-            );
+            const activityDateString =
+              activity.Contenu_date.toISOString().split("T")[0]; // YYYY-MM-DD
+            return activityDateString === dayDateString;
           });
 
           // Filter must-see activities to exclude those already used

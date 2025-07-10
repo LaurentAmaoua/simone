@@ -67,12 +67,23 @@ export const GenerateScheduleButton = ({
 
     setIsGenerating(true);
 
+    // Convert dates to simple YYYY-MM-DD strings to avoid timezone issues
+    const formatDateString = (date: Date): string => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
+    const fromDateString = formatDateString(dateRange.from);
+    const toDateString = formatDateString(dateRange.to ?? dateRange.from);
+
     // Call the backend procedure to generate the schedule
     generateScheduleMutation.mutate({
       site,
       dateRange: {
-        from: dateRange.from,
-        to: dateRange.to ?? dateRange.from, // Use from date as to date if to is not defined
+        fromDate: fromDateString,
+        toDate: toDateString,
       },
     });
   };
