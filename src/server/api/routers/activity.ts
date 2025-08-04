@@ -495,7 +495,10 @@ export const activityRouter = createTRPCRouter({
           const availableMustSeeActivities = mustSeeActivities.filter(
             (activity) => {
               const lastUsedDay = recentlyUsedMustSeeIds.get(activity.ID);
-              return lastUsedDay === undefined || dayIndex - lastUsedDay >= cooldownDays;
+              return (
+                lastUsedDay === undefined ||
+                dayIndex - lastUsedDay >= cooldownDays
+              );
             },
           );
 
@@ -503,7 +506,10 @@ export const activityRouter = createTRPCRouter({
           const availableLocalActivities = localActivities.filter(
             (activity) => {
               const lastUsedDay = recentlyUsedLocalIds.get(activity.ID);
-              return lastUsedDay === undefined || dayIndex - lastUsedDay >= cooldownDays;
+              return (
+                lastUsedDay === undefined ||
+                dayIndex - lastUsedDay >= cooldownDays
+              );
             },
           );
 
@@ -569,32 +575,38 @@ export const activityRouter = createTRPCRouter({
           // Helper function to get random activity from array, prioritizing least recently used
           const getRandomLocalActivity = (activities: LocalActivity[]) => {
             if (activities.length === 0) return null;
-            
+
             // Sort by least recently used (undefined = never used = highest priority)
             const sortedActivities = activities.sort((a, b) => {
               const aLastUsed = recentlyUsedLocalIds.get(a.ID) ?? -1;
               const bLastUsed = recentlyUsedLocalIds.get(b.ID) ?? -1;
               return aLastUsed - bLastUsed;
             });
-            
+
             // Take from the least recently used third of activities to add some randomness
-            const topThird = Math.max(1, Math.ceil(sortedActivities.length / 3));
+            const topThird = Math.max(
+              1,
+              Math.ceil(sortedActivities.length / 3),
+            );
             const randomIndex = Math.floor(Math.random() * topThird);
             return sortedActivities[randomIndex] ?? null;
           };
 
           const getRandomMustSeeActivity = (activities: MustSeeActivity[]) => {
             if (activities.length === 0) return null;
-            
+
             // Sort by least recently used (undefined = never used = highest priority)
             const sortedActivities = activities.sort((a, b) => {
               const aLastUsed = recentlyUsedMustSeeIds.get(a.ID) ?? -1;
               const bLastUsed = recentlyUsedMustSeeIds.get(b.ID) ?? -1;
               return aLastUsed - bLastUsed;
             });
-            
+
             // Take from the least recently used third of activities to add some randomness
-            const topThird = Math.max(1, Math.ceil(sortedActivities.length / 3));
+            const topThird = Math.max(
+              1,
+              Math.ceil(sortedActivities.length / 3),
+            );
             const randomIndex = Math.floor(Math.random() * topThird);
             return sortedActivities[randomIndex] ?? null;
           };
