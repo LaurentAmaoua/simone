@@ -23,7 +23,10 @@ const Rubik = localFont({
 export const metadata: Metadata = {
   title: "Simone - Votre guide de vacances",
   description: "Découvrez les activités proposées aux campings d'Eden Villages",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [
+    { rel: "icon", url: "/favicon.svg", type: "image/svg+xml" },
+    { rel: "icon", url: "/favicon.ico" }, // Fallback for older browsers
+  ],
 };
 
 export default function RootLayout({
