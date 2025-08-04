@@ -2,7 +2,6 @@ import {
   useState,
   useRef,
   useEffect,
-  type ReactNode,
   type RefObject,
 } from "react";
 
@@ -138,7 +137,7 @@ export function useSwipeableViews({
       }
     };
 
-    const handleGlobalTouchEnd = (e: TouchEvent) => {
+    const handleGlobalTouchEnd = (_e: TouchEvent) => {
       // Process the end of the swipe if it was horizontal
       if (
         isHorizontalSwipingRef.current &&

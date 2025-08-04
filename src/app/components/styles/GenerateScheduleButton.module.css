@@ -29,13 +29,6 @@
   cursor: not-allowed;
 }
 
-.helperText {
-  margin-top: 1rem;
-  color: #666;
-  font-size: 0.9rem;
-  max-width: 300px;
-}
-
 .generatedScheduleContainer {
   margin-top: 1rem;
   width: 100%;

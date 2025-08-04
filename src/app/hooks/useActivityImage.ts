@@ -85,7 +85,8 @@ export function useActivityImage(
         },
       },
     );
-  }, [externalUrl]); // Removed fetchMetadataMutation from dependencies to prevent infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalUrl]); // fetchMetadataMutation intentionally omitted to prevent infinite loop
 
   return {
     imageUrl,

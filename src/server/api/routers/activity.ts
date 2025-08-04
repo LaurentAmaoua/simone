@@ -673,7 +673,7 @@ export const activityRouter = createTRPCRouter({
     }),
   fetchSiteMetadata: publicProcedure
     .input(z.object({ url: z.string() }))
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx: _ctx, input }) => {
       const { url } = input;
 
       try {
