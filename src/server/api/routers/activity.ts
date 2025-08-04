@@ -55,27 +55,29 @@ const activityFitsTimeSlot = (
 
   const slotTime = TIME_SLOTS[slot];
 
-  // Convert times to comparable format (hours as numbers)
-  const opening = activity.opening_time.split(":")[0] ?? "9"; // Default to 9am if parsing fails
-  const closing = activity.closing_time.split(":")[0] ?? "17"; // Default to 5pm if parsing fails
-  const slotStart = slotTime.start.split(":")[0];
-  const slotEnd = slotTime.end.split(":")[0];
+  // Parse times properly
+  const openingHour = safeParseInt(activity.opening_time.split(":")[0], 9);
+  const closingHour = safeParseInt(activity.closing_time.split(":")[0], 17);
+  const slotStartHour = safeParseInt(slotTime.start.split(":")[0], 6);
 
-  // Parse hours safely
-  const openingHour = safeParseInt(opening, 9);
-  const closingHour = safeParseInt(closing, 17);
-  const slotStartHour = safeParseInt(slotStart, 6);
-  const slotEndHour = safeParseInt(slotEnd, 18);
-
-  // Handle evening case which crosses midnight
-  if (slot === "evening") {
-    // Either: opens before midnight and is still open in evening time slot
-    // Or: opens after midnight but before end of evening slot
-    return openingHour >= 18 || (openingHour < 6 && closingHour > openingHour);
+  // For slot end, treat "17:59:59" as effective hour 18 for overlap calculations
+  let slotEndHour = safeParseInt(slotTime.end.split(":")[0], 18);
+  if (slotTime.end.includes("59:59")) {
+    slotEndHour += 1;
   }
 
-  // For morning and afternoon, simply check if the opening time falls within the slot
-  return openingHour >= slotStartHour && openingHour < slotEndHour;
+  // Handle evening case which crosses midnight (18:00-05:59)
+  if (slot === "evening") {
+    // Activity fits if it's open during evening hours (18:00-23:59) OR early morning hours (00:00-05:59)
+    const openDuringEvening = openingHour <= 23 && closingHour > 18;
+    const openDuringEarlyMorning =
+      openingHour <= 5 && closingHour > openingHour;
+    return openDuringEvening || openDuringEarlyMorning;
+  }
+
+  // For morning and afternoon, check for overlap: activity is available if it overlaps with the slot
+  // Overlap exists if: activity_start < slot_end AND activity_end > slot_start
+  return openingHour < slotEndHour && closingHour > slotStartHour;
 };
 
 // Type for activities with their specific type
