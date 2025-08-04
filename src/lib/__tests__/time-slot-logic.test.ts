@@ -28,35 +28,8 @@ const safeParseInt = (
   return isNaN(parsed) ? defaultValue : parsed;
 };
 
-// BROKEN LOGIC (preserved for regression testing)
-const activityFitsTimeSlot_BROKEN = (
-  activity: Activity,
-  slot: TimeSlotKey,
-): boolean => {
-  if (!activity.opening_time || !activity.closing_time) {
-    return true;
-  }
-
-  const slotTime = TIME_SLOTS[slot];
-  const opening = activity.opening_time.split(":")[0] ?? "9";
-  const closing = activity.closing_time.split(":")[0] ?? "17";
-  const slotStart = slotTime.start.split(":")[0];
-  const slotEnd = slotTime.end.split(":")[0];
-
-  const openingHour = safeParseInt(opening, 9);
-  const closingHour = safeParseInt(closing, 17);
-  const slotStartHour = safeParseInt(slotStart, 6);
-  const slotEndHour = safeParseInt(slotEnd, 18);
-
-  if (slot === "evening") {
-    return openingHour >= 18 || (openingHour < 6 && closingHour > openingHour);
-  }
-
-  return openingHour >= slotStartHour && openingHour < slotEndHour;
-};
-
-// CORRECT LOGIC (matches the fix applied to the actual code)
-const activityFitsTimeSlot_FIXED = (
+// Time slot logic function (matches the implementation in activity.ts)
+const activityFitsTimeSlot = (
   activity: Activity,
   slot: TimeSlotKey,
 ): boolean => {
@@ -92,52 +65,38 @@ const activityFitsTimeSlot_FIXED = (
 };
 
 describe("Time Slot Logic", () => {
-  describe("Bug Regression Tests", () => {
-    it("should demonstrate the original bug with activity open 08:00-18:00", () => {
+  describe("Activity scheduling in time slots", () => {
+    it("should correctly place activity open 08:00-18:00 in morning and afternoon", () => {
       const activity: Activity = {
         opening_time: "08:00",
         closing_time: "18:00",
       };
 
-      // The broken logic only allows morning
-      expect(activityFitsTimeSlot_BROKEN(activity, "morning")).toBe(true);
-      expect(activityFitsTimeSlot_BROKEN(activity, "afternoon")).toBe(false); // BUG: Should be true
-      expect(activityFitsTimeSlot_BROKEN(activity, "evening")).toBe(false);
-
-      // The fixed logic correctly allows morning AND afternoon
-      expect(activityFitsTimeSlot_FIXED(activity, "morning")).toBe(true);
-      expect(activityFitsTimeSlot_FIXED(activity, "afternoon")).toBe(true); // FIXED
-      expect(activityFitsTimeSlot_FIXED(activity, "evening")).toBe(false); // Correctly excludes evening
+      expect(activityFitsTimeSlot(activity, "morning")).toBe(true);
+      expect(activityFitsTimeSlot(activity, "afternoon")).toBe(true);
+      expect(activityFitsTimeSlot(activity, "evening")).toBe(false); // Closes exactly when evening starts
     });
 
-    it("should demonstrate the original bug with activity open 14:00-20:00", () => {
+    it("should correctly place activity open 14:00-20:00 in afternoon and evening", () => {
       const activity: Activity = {
         opening_time: "14:00",
         closing_time: "20:00",
       };
 
-      // The broken logic only allows afternoon
-      expect(activityFitsTimeSlot_BROKEN(activity, "morning")).toBe(false);
-      expect(activityFitsTimeSlot_BROKEN(activity, "afternoon")).toBe(true);
-      expect(activityFitsTimeSlot_BROKEN(activity, "evening")).toBe(false); // BUG: Should be true
-
-      // The fixed logic correctly allows afternoon AND evening
-      expect(activityFitsTimeSlot_FIXED(activity, "morning")).toBe(false);
-      expect(activityFitsTimeSlot_FIXED(activity, "afternoon")).toBe(true);
-      expect(activityFitsTimeSlot_FIXED(activity, "evening")).toBe(true); // FIXED
+      expect(activityFitsTimeSlot(activity, "morning")).toBe(false);
+      expect(activityFitsTimeSlot(activity, "afternoon")).toBe(true);
+      expect(activityFitsTimeSlot(activity, "evening")).toBe(true);
     });
-  });
 
-  describe("Correct Time Slot Logic", () => {
     it("should correctly handle activities that span multiple time slots", () => {
       const allDayActivity: Activity = {
         opening_time: "08:00",
         closing_time: "22:00",
       };
 
-      expect(activityFitsTimeSlot_FIXED(allDayActivity, "morning")).toBe(true);
-      expect(activityFitsTimeSlot_FIXED(allDayActivity, "afternoon")).toBe(true);
-      expect(activityFitsTimeSlot_FIXED(allDayActivity, "evening")).toBe(true);
+      expect(activityFitsTimeSlot(allDayActivity, "morning")).toBe(true);
+      expect(activityFitsTimeSlot(allDayActivity, "afternoon")).toBe(true);
+      expect(activityFitsTimeSlot(allDayActivity, "evening")).toBe(true);
     });
 
     it("should correctly handle morning-only activities", () => {
@@ -146,9 +105,9 @@ describe("Time Slot Logic", () => {
         closing_time: "11:00",
       };
 
-      expect(activityFitsTimeSlot_FIXED(morningActivity, "morning")).toBe(true);
-      expect(activityFitsTimeSlot_FIXED(morningActivity, "afternoon")).toBe(false);
-      expect(activityFitsTimeSlot_FIXED(morningActivity, "evening")).toBe(false);
+      expect(activityFitsTimeSlot(morningActivity, "morning")).toBe(true);
+      expect(activityFitsTimeSlot(morningActivity, "afternoon")).toBe(false);
+      expect(activityFitsTimeSlot(morningActivity, "evening")).toBe(false);
     });
 
     it("should correctly handle afternoon-only activities", () => {
@@ -157,9 +116,9 @@ describe("Time Slot Logic", () => {
         closing_time: "16:00",
       };
 
-      expect(activityFitsTimeSlot_FIXED(afternoonActivity, "morning")).toBe(false);
-      expect(activityFitsTimeSlot_FIXED(afternoonActivity, "afternoon")).toBe(true);
-      expect(activityFitsTimeSlot_FIXED(afternoonActivity, "evening")).toBe(false);
+      expect(activityFitsTimeSlot(afternoonActivity, "morning")).toBe(false);
+      expect(activityFitsTimeSlot(afternoonActivity, "afternoon")).toBe(true);
+      expect(activityFitsTimeSlot(afternoonActivity, "evening")).toBe(false);
     });
 
     it("should correctly handle evening-only activities", () => {
@@ -168,9 +127,9 @@ describe("Time Slot Logic", () => {
         closing_time: "23:00",
       };
 
-      expect(activityFitsTimeSlot_FIXED(eveningActivity, "morning")).toBe(false);
-      expect(activityFitsTimeSlot_FIXED(eveningActivity, "afternoon")).toBe(false);
-      expect(activityFitsTimeSlot_FIXED(eveningActivity, "evening")).toBe(true);
+      expect(activityFitsTimeSlot(eveningActivity, "morning")).toBe(false);
+      expect(activityFitsTimeSlot(eveningActivity, "afternoon")).toBe(false);
+      expect(activityFitsTimeSlot(eveningActivity, "evening")).toBe(true);
     });
 
     it("should handle activities with no opening/closing times", () => {
@@ -180,31 +139,55 @@ describe("Time Slot Logic", () => {
       };
 
       // Should default to being available for all slots
-      expect(activityFitsTimeSlot_FIXED(noTimeActivity, "morning")).toBe(true);
-      expect(activityFitsTimeSlot_FIXED(noTimeActivity, "afternoon")).toBe(true);
-      expect(activityFitsTimeSlot_FIXED(noTimeActivity, "evening")).toBe(true);
+      expect(activityFitsTimeSlot(noTimeActivity, "morning")).toBe(true);
+      expect(activityFitsTimeSlot(noTimeActivity, "afternoon")).toBe(true);
+      expect(activityFitsTimeSlot(noTimeActivity, "evening")).toBe(true);
     });
+  });
 
-    it("should handle edge case: activity closes exactly when slot starts", () => {
+  describe("Edge cases", () => {
+    it("should handle activity that closes exactly when slot starts", () => {
       const edgeActivity: Activity = {
         opening_time: "10:00",
         closing_time: "12:00", // Closes exactly when afternoon starts
       };
 
-      expect(activityFitsTimeSlot_FIXED(edgeActivity, "morning")).toBe(true);
-      expect(activityFitsTimeSlot_FIXED(edgeActivity, "afternoon")).toBe(false); // No overlap
-      expect(activityFitsTimeSlot_FIXED(edgeActivity, "evening")).toBe(false);
+      expect(activityFitsTimeSlot(edgeActivity, "morning")).toBe(true);
+      expect(activityFitsTimeSlot(edgeActivity, "afternoon")).toBe(false); // No overlap
+      expect(activityFitsTimeSlot(edgeActivity, "evening")).toBe(false);
     });
 
-    it("should handle edge case: activity opens exactly when slot ends", () => {
+    it("should handle activity that opens exactly when slot starts", () => {
       const edgeActivity: Activity = {
         opening_time: "18:00", // Opens exactly when evening starts
         closing_time: "20:00",
       };
 
-      expect(activityFitsTimeSlot_FIXED(edgeActivity, "morning")).toBe(false);
-      expect(activityFitsTimeSlot_FIXED(edgeActivity, "afternoon")).toBe(false);
-      expect(activityFitsTimeSlot_FIXED(edgeActivity, "evening")).toBe(true);
+      expect(activityFitsTimeSlot(edgeActivity, "morning")).toBe(false);
+      expect(activityFitsTimeSlot(edgeActivity, "afternoon")).toBe(false);
+      expect(activityFitsTimeSlot(edgeActivity, "evening")).toBe(true);
+    });
+
+    it("should handle activity that spans morning-afternoon boundary", () => {
+      const spanActivity: Activity = {
+        opening_time: "11:00", // During morning
+        closing_time: "13:00", // During afternoon
+      };
+
+      expect(activityFitsTimeSlot(spanActivity, "morning")).toBe(true);
+      expect(activityFitsTimeSlot(spanActivity, "afternoon")).toBe(true);
+      expect(activityFitsTimeSlot(spanActivity, "evening")).toBe(false);
+    });
+
+    it("should handle activity that spans afternoon-evening boundary", () => {
+      const spanActivity: Activity = {
+        opening_time: "17:00", // During afternoon
+        closing_time: "19:00", // During evening
+      };
+
+      expect(activityFitsTimeSlot(spanActivity, "morning")).toBe(false);
+      expect(activityFitsTimeSlot(spanActivity, "afternoon")).toBe(true);
+      expect(activityFitsTimeSlot(spanActivity, "evening")).toBe(true);
     });
   });
 });
