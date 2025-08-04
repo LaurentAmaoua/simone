@@ -8,6 +8,7 @@ import { Suspense, useState } from "react";
 import { GenerateScheduleButton } from "./components/GenerateScheduleButton";
 
 import styles from "./styles/Home.module.css";
+import { Simone } from "../assets/Simone";
 
 export default function Home() {
   const [selectedSite, setSelectedSite] = useState<CAMPSITES>();
@@ -43,6 +44,7 @@ export default function Home() {
                 site={selectedSite}
                 dateRange={selectedDateRange}
               />
+              <Simone />
             </div>
           </div>
         </div>

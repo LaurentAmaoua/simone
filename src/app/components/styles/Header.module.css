@@ -1,6 +1,6 @@
 .container {
   background: var(--c-mint-green);
-  padding: var(--p-m) var(--p-xs);
+  padding: calc(var(--p-m) - 10px) var(--p-xs);
   width: 100%;
   z-index: 2;
   position: fixed;
@@ -9,6 +9,9 @@
 }
 
 .inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   max-width: var(--app-width);
   margin: auto;
 }

@@ -4,9 +4,9 @@ import { api } from "~/trpc/react";
 import { type CAMPSITES } from "./Select";
 import { GeneratedSchedule } from "./GeneratedSchedule";
 import { type DaySchedule } from "~/server/api/routers/activity";
+import { Button } from "./Button";
 
 import styles from "./styles/GenerateScheduleButton.module.css";
-import { Button } from "./Button";
 
 export interface GenerateScheduleButtonProps {
   site: CAMPSITES | undefined;
@@ -100,12 +100,6 @@ export const GenerateScheduleButton = ({
         >
           {isGenerating ? "Génération en cours..." : "Générer mon planning"}
         </ActionButton>
-      )}
-      {isDisabled && (
-        <p className={styles.helperText}>
-          Veuillez sélectionner un camping et une date pour générer votre
-          planning
-        </p>
       )}
       <div className={styles.generatedScheduleContainer}>
         {schedule && (
