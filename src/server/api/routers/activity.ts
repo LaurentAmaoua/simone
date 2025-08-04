@@ -468,12 +468,12 @@ export const activityRouter = createTRPCRouter({
 
         // Store the generated schedule
         const generatedSchedule: DaySchedule[] = [];
-        // Keep track of used activity IDs to avoid duplication
-        const usedMustSeeIds = new Set<number>();
-        const usedLocalIds = new Set<number>();
+        // Keep track of recently used activity IDs to avoid immediate repetition
+        const recentlyUsedMustSeeIds = new Map<number, number>(); // activityId -> dayIndex
+        const recentlyUsedLocalIds = new Map<number, number>(); // activityId -> dayIndex
 
         // For each day in the range, schedule activities
-        for (const day of dates) {
+        for (const [dayIndex, day] of dates.entries()) {
           const daySchedule: DaySchedule = {
             date: day,
             morning: null,
@@ -490,14 +490,21 @@ export const activityRouter = createTRPCRouter({
             return activityDateString === dayDateString;
           });
 
-          // Filter must-see activities to exclude those already used
+          // Filter must-see activities with cooldown (avoid using same activity within 2 days)
+          const cooldownDays = 2;
           const availableMustSeeActivities = mustSeeActivities.filter(
-            (activity) => !usedMustSeeIds.has(activity.ID),
+            (activity) => {
+              const lastUsedDay = recentlyUsedMustSeeIds.get(activity.ID);
+              return lastUsedDay === undefined || dayIndex - lastUsedDay >= cooldownDays;
+            },
           );
 
-          // Filter local activities to exclude those already used
+          // Filter local activities with cooldown (avoid using same activity within 2 days)
           const availableLocalActivities = localActivities.filter(
-            (activity) => !usedLocalIds.has(activity.ID),
+            (activity) => {
+              const lastUsedDay = recentlyUsedLocalIds.get(activity.ID);
+              return lastUsedDay === undefined || dayIndex - lastUsedDay >= cooldownDays;
+            },
           );
 
           // Group must-see activities by time slot suitability
@@ -535,7 +542,7 @@ export const activityRouter = createTRPCRouter({
               ...activity,
               type: "must-see" as const,
             };
-            usedMustSeeIds.add(activity.ID);
+            recentlyUsedMustSeeIds.set(activity.ID, dayIndex);
           };
 
           const assignLocalActivity = (
@@ -546,7 +553,7 @@ export const activityRouter = createTRPCRouter({
               ...activity,
               type: "local" as const,
             };
-            usedLocalIds.add(activity.ID);
+            recentlyUsedLocalIds.set(activity.ID, dayIndex);
           };
 
           const assignCampsiteActivity = (
@@ -559,17 +566,37 @@ export const activityRouter = createTRPCRouter({
             };
           };
 
-          // Helper function to get random activity from array
+          // Helper function to get random activity from array, prioritizing least recently used
           const getRandomLocalActivity = (activities: LocalActivity[]) => {
             if (activities.length === 0) return null;
-            const randomIndex = Math.floor(Math.random() * activities.length);
-            return activities[randomIndex] ?? null;
+            
+            // Sort by least recently used (undefined = never used = highest priority)
+            const sortedActivities = activities.sort((a, b) => {
+              const aLastUsed = recentlyUsedLocalIds.get(a.ID) ?? -1;
+              const bLastUsed = recentlyUsedLocalIds.get(b.ID) ?? -1;
+              return aLastUsed - bLastUsed;
+            });
+            
+            // Take from the least recently used third of activities to add some randomness
+            const topThird = Math.max(1, Math.ceil(sortedActivities.length / 3));
+            const randomIndex = Math.floor(Math.random() * topThird);
+            return sortedActivities[randomIndex] ?? null;
           };
 
           const getRandomMustSeeActivity = (activities: MustSeeActivity[]) => {
             if (activities.length === 0) return null;
-            const randomIndex = Math.floor(Math.random() * activities.length);
-            return activities[randomIndex] ?? null;
+            
+            // Sort by least recently used (undefined = never used = highest priority)
+            const sortedActivities = activities.sort((a, b) => {
+              const aLastUsed = recentlyUsedMustSeeIds.get(a.ID) ?? -1;
+              const bLastUsed = recentlyUsedMustSeeIds.get(b.ID) ?? -1;
+              return aLastUsed - bLastUsed;
+            });
+            
+            // Take from the least recently used third of activities to add some randomness
+            const topThird = Math.max(1, Math.ceil(sortedActivities.length / 3));
+            const randomIndex = Math.floor(Math.random() * topThird);
+            return sortedActivities[randomIndex] ?? null;
           };
 
           const getRandomCampsiteActivity = (
