@@ -71,11 +71,11 @@ const stringToCampsite = (campsite: string): CAMPSITES => {
   return entry[1] as CAMPSITES;
 };
 
-const keyToCampsite = (key: string): CAMPSITES | null => {
+const keyToCampsite = (key: string): CAMPSITES | undefined => {
   if (key in CAMPSITES) {
     return CAMPSITES[key as keyof typeof CAMPSITES];
   }
-  return null;
+  return undefined;
 };
 
 const decodeHtmlEntities = (text: string): string => {
@@ -86,14 +86,17 @@ const decodeHtmlEntities = (text: string): string => {
 
 type SelectProps = {
   onSelect: (site: CAMPSITES) => void;
+  selectedSite: CAMPSITES | undefined;
 };
 
-export const Select = ({ onSelect }: SelectProps) => {
+export const Select = ({
+  onSelect,
+  selectedSite: selectedSiteProp,
+}: SelectProps) => {
   const searchParams = useSearchParams();
   const siteParam = searchParams.get("site");
 
-  const defaultSite = siteParam ? keyToCampsite(siteParam) : null;
-
+  const defaultSite = siteParam ? keyToCampsite(siteParam) : undefined;
   const [campsitesByRegion, setCampsitesByRegion] = useState<
     Record<Region, string[]>
   >({} as Record<Region, string[]>);
@@ -135,6 +138,7 @@ export const Select = ({ onSelect }: SelectProps) => {
     <SelectContainer
       defaultValue={defaultSite ?? ""}
       onValueChange={handleValueChange}
+      value={selectedSiteProp ?? ""}
     >
       <SelectTrigger className={styles.trigger}>
         <MapPinnedIcon className={styles.mapIcon} />

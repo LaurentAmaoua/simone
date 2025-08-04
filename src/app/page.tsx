@@ -6,18 +6,23 @@ import { Calendar } from "./components/Calendar";
 import { Header } from "./components/Header";
 import { Suspense, useState } from "react";
 import { GenerateScheduleButton } from "./components/GenerateScheduleButton";
+import { Simone } from "../assets/Simone";
 
 import styles from "./styles/Home.module.css";
-import { Simone } from "../assets/Simone";
 
 export default function Home() {
   const [selectedSite, setSelectedSite] = useState<CAMPSITES>();
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange>();
 
+  const handleTitleClick = () => {
+    setSelectedDateRange(undefined);
+    setSelectedSite(undefined);
+  };
+
   return (
     <main className={styles.container}>
       <div className={styles.inner}>
-        <Header />
+        <Header onTitleClick={handleTitleClick} />
         <div className={styles.flex}>
           <div className={styles.contentLayout}>
             <div className={styles.left}>
@@ -25,7 +30,10 @@ export default function Home() {
                 <div className={styles.attrContainer}>
                   <h2 className={styles.sectionTitle}>Camping</h2>
                   <Suspense fallback={<span>Chargement...</span>}>
-                    <Select onSelect={setSelectedSite} />
+                    <Select
+                      onSelect={setSelectedSite}
+                      selectedSite={selectedSite}
+                    />
                   </Suspense>
                 </div>
                 <div className={styles.attrContainer}>
