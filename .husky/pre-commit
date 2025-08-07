@@ -1,5 +1,5 @@
 echo "🔨 Building project..."
 npm run build
 
-echo "🧪 Running time slot logic tests..."
-npm run test:time-slot
+echo "🧪 Running all tests..."
+npm run test:run
