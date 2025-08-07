@@ -102,9 +102,9 @@ function generateMockSchedule(
   const recentlyUsedMustSeeIds = new Map<number, number>();
   const recentlyUsedLocalIds = new Map<number, number>();
 
-  // Track used activities across entire schedule (limit 1 each)
-  let usedMustSeeActivity: MustSeeActivity | null = null;
-  let usedLocalActivity: LocalActivity | null = null;
+  // Track used activity IDs across entire schedule to prevent duplicates
+  const usedMustSeeIds = new Set<number>();
+  const usedLocalIds = new Set<number>();
 
   for (const [dayIndex, day] of dates.entries()) {
     const daySchedule: DaySchedule = {
@@ -114,26 +114,14 @@ function generateMockSchedule(
       evening: null,
     };
 
-    // Filter activities based on global limits (single use only)
-    const availableMustSeeActivities = usedMustSeeActivity
-      ? [] // If we've already used a must-see activity, don't allow any more
-      : mustSeeActivities.filter((activity) => {
-          const lastUsedDay = recentlyUsedMustSeeIds.get(activity.ID);
-          const cooldownDays = 2;
-          return (
-            lastUsedDay === undefined || dayIndex - lastUsedDay >= cooldownDays
-          );
-        });
+    // Filter activities to prevent reusing the same specific activity ID
+    const availableMustSeeActivities = mustSeeActivities.filter(
+      (activity) => !usedMustSeeIds.has(activity.ID),
+    );
 
-    const availableLocalActivities = usedLocalActivity
-      ? [] // If we've already used a local activity, don't allow any more
-      : localActivities.filter((activity) => {
-          const lastUsedDay = recentlyUsedLocalIds.get(activity.ID);
-          const cooldownDays = 2;
-          return (
-            lastUsedDay === undefined || dayIndex - lastUsedDay >= cooldownDays
-          );
-        });
+    const availableLocalActivities = localActivities.filter(
+      (activity) => !usedLocalIds.has(activity.ID),
+    );
 
     // Assignment functions
     const assignMustSeeActivity = (
@@ -145,9 +133,7 @@ function generateMockSchedule(
         type: "must-see" as const,
       };
       recentlyUsedMustSeeIds.set(activity.ID, dayIndex);
-      if (!usedMustSeeActivity) {
-        usedMustSeeActivity = activity;
-      }
+      usedMustSeeIds.add(activity.ID);
     };
 
     const assignLocalActivity = (
@@ -159,9 +145,7 @@ function generateMockSchedule(
         type: "local" as const,
       };
       recentlyUsedLocalIds.set(activity.ID, dayIndex);
-      if (!usedLocalActivity) {
-        usedLocalActivity = activity;
-      }
+      usedLocalIds.add(activity.ID);
     };
 
     const assignCampsiteActivity = (
@@ -253,33 +237,8 @@ describe("Schedule Generation Logic", () => {
     );
   });
 
-  describe("Must-see activity limits", () => {
-    it("should limit must-see activities to at most 1 occurrence across entire schedule", () => {
-      const schedule = generateMockSchedule(
-        dates,
-        mustSeeActivities,
-        [],
-        campsiteActivities,
-      );
-
-      // Count must-see activities
-      const mustSeeActivitiesInSchedule = schedule
-        .flatMap((day) => [day.morning, day.afternoon, day.evening])
-        .filter((activity) => activity?.type === "must-see");
-
-      // Should have at most one must-see activity in the entire schedule
-      expect(mustSeeActivitiesInSchedule.length).toBeLessThanOrEqual(1);
-
-      // If there are any must-see activities, they should all be the same activity (same ID)
-      if (mustSeeActivitiesInSchedule.length > 0) {
-        const uniqueMustSeeIds = new Set(
-          mustSeeActivitiesInSchedule.map((activity) => activity.ID),
-        );
-        expect(uniqueMustSeeIds.size).toBe(1);
-      }
-    });
-
-    it("should use a must-see activity at most once in the entire schedule", () => {
+  describe("Must-see activity uniqueness across schedule", () => {
+    it("allows multiple must-see activities but never repeats the same one", () => {
       const schedule = generateMockSchedule(
         dates,
         mustSeeActivities,
@@ -291,48 +250,19 @@ describe("Schedule Generation Logic", () => {
         .flatMap((day) => [day.morning, day.afternoon, day.evening])
         .filter((activity) => activity?.type === "must-see");
 
-      // Should have at most one must-see activity in the entire schedule
-      expect(mustSeeActivitiesInSchedule.length).toBeLessThanOrEqual(1);
+      const uniqueMustSeeIds = new Set(
+        mustSeeActivitiesInSchedule.map((activity) => activity.ID),
+      );
 
-      if (mustSeeActivitiesInSchedule.length === 1) {
-        // If there is one, it should be from the available activities
-        const usedActivity = mustSeeActivitiesInSchedule[0];
-        expect(
-          mustSeeActivities.some(
-            (activity) => activity.ID === usedActivity?.ID,
-          ),
-        ).toBe(true);
-      }
+      expect(uniqueMustSeeIds.size).toBe(mustSeeActivitiesInSchedule.length);
+      expect(mustSeeActivitiesInSchedule.length).toBeLessThanOrEqual(
+        mustSeeActivities.length,
+      );
     });
   });
 
-  describe("Local activity limits", () => {
-    it("should limit local activities to at most 1 occurrence across entire schedule", () => {
-      const schedule = generateMockSchedule(
-        dates,
-        [],
-        localActivities,
-        campsiteActivities,
-      );
-
-      // Count local activities
-      const localActivitiesInSchedule = schedule
-        .flatMap((day) => [day.morning, day.afternoon, day.evening])
-        .filter((activity) => activity?.type === "local");
-
-      // Should have at most one local activity in the entire schedule
-      expect(localActivitiesInSchedule.length).toBeLessThanOrEqual(1);
-
-      // If there are any local activities, they should all be the same activity (same ID)
-      if (localActivitiesInSchedule.length > 0) {
-        const uniqueLocalIds = new Set(
-          localActivitiesInSchedule.map((activity) => activity.ID),
-        );
-        expect(uniqueLocalIds.size).toBe(1);
-      }
-    });
-
-    it("should use a local activity at most once in the entire schedule", () => {
+  describe("Local activity uniqueness across schedule", () => {
+    it("allows multiple local activities but never repeats the same one", () => {
       const schedule = generateMockSchedule(
         dates,
         [],
@@ -344,21 +274,19 @@ describe("Schedule Generation Logic", () => {
         .flatMap((day) => [day.morning, day.afternoon, day.evening])
         .filter((activity) => activity?.type === "local");
 
-      // Should have at most one local activity in the entire schedule
-      expect(localActivitiesInSchedule.length).toBeLessThanOrEqual(1);
+      const uniqueLocalIds = new Set(
+        localActivitiesInSchedule.map((activity) => activity.ID),
+      );
 
-      if (localActivitiesInSchedule.length === 1) {
-        // If there is one, it should be from the available activities
-        const usedActivity = localActivitiesInSchedule[0];
-        expect(
-          localActivities.some((activity) => activity.ID === usedActivity?.ID),
-        ).toBe(true);
-      }
+      expect(uniqueLocalIds.size).toBe(localActivitiesInSchedule.length);
+      expect(localActivitiesInSchedule.length).toBeLessThanOrEqual(
+        localActivities.length,
+      );
     });
   });
 
-  describe("Combined limits", () => {
-    it("should respect both must-see and local activity limits simultaneously", () => {
+  describe("Combined uniqueness", () => {
+    it("should not repeat the same must-see or local activity IDs across the schedule", () => {
       const schedule = generateMockSchedule(
         dates,
         mustSeeActivities,
@@ -374,23 +302,15 @@ describe("Schedule Generation Logic", () => {
         .flatMap((day) => [day.morning, day.afternoon, day.evening])
         .filter((activity) => activity?.type === "local");
 
-      // Check must-see limit - at most 1 occurrence
-      expect(mustSeeActivitiesInSchedule.length).toBeLessThanOrEqual(1);
-      if (mustSeeActivitiesInSchedule.length > 0) {
-        const uniqueMustSeeIds = new Set(
-          mustSeeActivitiesInSchedule.map((activity) => activity.ID),
-        );
-        expect(uniqueMustSeeIds.size).toBe(1);
-      }
+      const uniqueMustSeeIds = new Set(
+        mustSeeActivitiesInSchedule.map((activity) => activity.ID),
+      );
+      const uniqueLocalIds = new Set(
+        localActivitiesInSchedule.map((activity) => activity.ID),
+      );
 
-      // Check local limit - at most 1 occurrence
-      expect(localActivitiesInSchedule.length).toBeLessThanOrEqual(1);
-      if (localActivitiesInSchedule.length > 0) {
-        const uniqueLocalIds = new Set(
-          localActivitiesInSchedule.map((activity) => activity.ID),
-        );
-        expect(uniqueLocalIds.size).toBe(1);
-      }
+      expect(uniqueMustSeeIds.size).toBe(mustSeeActivitiesInSchedule.length);
+      expect(uniqueLocalIds.size).toBe(localActivitiesInSchedule.length);
     });
 
     it("should not affect campsite activities (no limits)", () => {
@@ -439,22 +359,31 @@ describe("Schedule Generation Logic", () => {
 
       expect(schedule).toHaveLength(1);
 
-      // Should still respect limits even for single day
-      const allActivities = [
-        schedule[0]?.morning,
-        schedule[0]?.afternoon,
-        schedule[0]?.evening,
-      ].filter(Boolean);
+      const day = schedule[0]!;
+      const idsByType = {
+        mustSee: new Set<number>(),
+        local: new Set<number>(),
+      };
+      [day.morning, day.afternoon, day.evening]
+        .filter(Boolean)
+        .forEach((activity) => {
+          if (activity?.type === "must-see") idsByType.mustSee.add(activity.ID);
+          if (activity?.type === "local") idsByType.local.add(activity.ID);
+        });
+      // No duplicate IDs for must-see or local within the day
+      const mustSeeActivitiesInDay = [
+        day.morning,
+        day.afternoon,
+        day.evening,
+      ].filter((a) => a?.type === "must-see");
+      const localActivitiesInDay = [
+        day.morning,
+        day.afternoon,
+        day.evening,
+      ].filter((a) => a?.type === "local");
 
-      const mustSeeCount = allActivities.filter(
-        (a) => a?.type === "must-see",
-      ).length;
-      const localCount = allActivities.filter(
-        (a) => a?.type === "local",
-      ).length;
-
-      expect(mustSeeCount).toBeLessThanOrEqual(1);
-      expect(localCount).toBeLessThanOrEqual(1);
+      expect(idsByType.mustSee.size).toBe(mustSeeActivitiesInDay.length);
+      expect(idsByType.local.size).toBe(localActivitiesInDay.length);
     });
 
     it("should handle only one must-see and one local activity available", () => {
@@ -476,14 +405,15 @@ describe("Schedule Generation Logic", () => {
         .flatMap((day) => [day.morning, day.afternoon, day.evening])
         .filter((activity) => activity?.type === "local");
 
-      // All should be the same activity
-      mustSeeInSchedule.forEach((activity) => {
-        expect(activity.ID).toBe(singleMustSee[0]?.ID);
-      });
+      expect(mustSeeInSchedule.length).toBeLessThanOrEqual(1);
+      if (mustSeeInSchedule.length === 1) {
+        expect(mustSeeInSchedule[0]?.ID).toBe(singleMustSee[0]?.ID);
+      }
 
-      localInSchedule.forEach((activity) => {
-        expect(activity.ID).toBe(singleLocal[0]?.ID);
-      });
+      expect(localInSchedule.length).toBeLessThanOrEqual(1);
+      if (localInSchedule.length === 1) {
+        expect(localInSchedule[0]?.ID).toBe(singleLocal[0]?.ID);
+      }
     });
   });
 });
