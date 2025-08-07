@@ -472,6 +472,10 @@ export const activityRouter = createTRPCRouter({
         const recentlyUsedMustSeeIds = new Map<number, number>(); // activityId -> dayIndex
         const recentlyUsedLocalIds = new Map<number, number>(); // activityId -> dayIndex
 
+        // Track used activities across entire schedule (limit 1 each to appear only once)
+        let usedMustSeeActivity: MustSeeActivity | null = null;
+        let usedLocalActivity: LocalActivity | null = null;
+
         // For each day in the range, schedule activities
         for (const [dayIndex, day] of dates.entries()) {
           const daySchedule: DaySchedule = {
@@ -490,28 +494,29 @@ export const activityRouter = createTRPCRouter({
             return activityDateString === dayDateString;
           });
 
-          // Filter must-see activities with cooldown (avoid using same activity within 2 days)
-          const cooldownDays = 2;
-          const availableMustSeeActivities = mustSeeActivities.filter(
-            (activity) => {
-              const lastUsedDay = recentlyUsedMustSeeIds.get(activity.ID);
-              return (
-                lastUsedDay === undefined ||
-                dayIndex - lastUsedDay >= cooldownDays
-              );
-            },
-          );
+          // Filter must-see activities: if one is already used, don't allow any (single use only)
+          const availableMustSeeActivities = usedMustSeeActivity
+            ? [] // If we've already used a must-see activity, don't allow any more
+            : mustSeeActivities.filter((activity) => {
+                const lastUsedDay = recentlyUsedMustSeeIds.get(activity.ID);
+                const cooldownDays = 2;
+                return (
+                  lastUsedDay === undefined ||
+                  dayIndex - lastUsedDay >= cooldownDays
+                );
+              });
 
-          // Filter local activities with cooldown (avoid using same activity within 2 days)
-          const availableLocalActivities = localActivities.filter(
-            (activity) => {
-              const lastUsedDay = recentlyUsedLocalIds.get(activity.ID);
-              return (
-                lastUsedDay === undefined ||
-                dayIndex - lastUsedDay >= cooldownDays
-              );
-            },
-          );
+          // Filter local activities: if one is already used, don't allow any (single use only)
+          const availableLocalActivities = usedLocalActivity
+            ? [] // If we've already used a local activity, don't allow any more
+            : localActivities.filter((activity) => {
+                const lastUsedDay = recentlyUsedLocalIds.get(activity.ID);
+                const cooldownDays = 2;
+                return (
+                  lastUsedDay === undefined ||
+                  dayIndex - lastUsedDay >= cooldownDays
+                );
+              });
 
           // Group must-see activities by time slot suitability
           const mustSeeByTimeSlot = {
@@ -549,6 +554,10 @@ export const activityRouter = createTRPCRouter({
               type: "must-see" as const,
             };
             recentlyUsedMustSeeIds.set(activity.ID, dayIndex);
+            // Track the first must-see activity used in the entire schedule
+            if (!usedMustSeeActivity) {
+              usedMustSeeActivity = activity;
+            }
           };
 
           const assignLocalActivity = (
@@ -560,6 +569,10 @@ export const activityRouter = createTRPCRouter({
               type: "local" as const,
             };
             recentlyUsedLocalIds.set(activity.ID, dayIndex);
+            // Track the first local activity used in the entire schedule
+            if (!usedLocalActivity) {
+              usedLocalActivity = activity;
+            }
           };
 
           const assignCampsiteActivity = (
