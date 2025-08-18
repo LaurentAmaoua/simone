@@ -48,18 +48,18 @@ export const GeneratedSchedule = ({
   return (
     <div className={styles.container}>
       {sortedSchedule.map((day, dayIndex) => (
-        <div key={`day-${dayIndex}`} className={styles.daySchedule}>
+        <div key={`day-${dayIndex}`}>
           <h3 className={styles.dateHeader}>
             {formatToFrenchDate(day.date, false, true)}
           </h3>
 
-          <div className={styles.timeSlots}>
+          <div className={styles.daySchedule}>
             {Object.entries(TIME_SLOTS).map(([slotKey, slotInfo]) => {
               const slotActivity = day[
                 slotKey as keyof DaySchedule
               ] as ScheduleActivity | null;
               return (
-                <div key={slotKey} className={styles.timeSlot}>
+                <div key={slotKey}>
                   <div className={styles.timeSlotHeader}>
                     <span className={styles.timeSlotLabel}>
                       {slotInfo.label}
@@ -69,17 +69,19 @@ export const GeneratedSchedule = ({
                     </span>
                   </div>
 
-                  <div className={styles.timeSlotContent}>
-                    {slotActivity ? (
-                      <ActivityCard
-                        activity={slotActivity}
-                        activityType={slotActivity.type}
-                      />
-                    ) : (
-                      <div className={styles.emptySlot}>
-                        <p>Aucune activité programmée</p>
-                      </div>
-                    )}
+                  <div className={styles.timeSlot}>
+                    <div className={styles.timeSlotContent}>
+                      {slotActivity ? (
+                        <ActivityCard
+                          activity={slotActivity}
+                          activityType={slotActivity.type}
+                        />
+                      ) : (
+                        <div className={styles.emptySlot}>
+                          <p>Aucune activité programmée</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
