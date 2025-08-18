@@ -36,6 +36,7 @@
   gap: var(--g-m);
   flex: 1;
   overflow: hidden;
+  padding: var(--p-xs);
   margin: var(--app-header-height) 0 0;
 }
 
