@@ -44,6 +44,14 @@ const safeParseInt = (
   return isNaN(parsed) ? defaultValue : parsed;
 };
 
+// Helper function to convert Date to French day name (capitalized to match database format)
+const getFrenchDayName = (date: Date): string => {
+  const dayName = Intl.DateTimeFormat("fr-FR", { weekday: "long" }).format(
+    date,
+  );
+  return dayName.charAt(0).toUpperCase() + dayName.slice(1);
+};
+
 // Helper function to check if an activity fits within a time slot based on opening/closing times
 const activityFitsTimeSlot = (
   activity: { opening_time?: string | null; closing_time?: string | null },
@@ -78,6 +86,17 @@ const activityFitsTimeSlot = (
   // For morning and afternoon, check for overlap: activity is available if it overlaps with the slot
   // Overlap exists if: activity_start < slot_end AND activity_end > slot_start
   return openingHour < slotEndHour && closingHour > slotStartHour;
+};
+
+// Helper function to check if an activity is open on a specific day
+const activityIsOpenOnDay = (
+  activity: { open_days?: string[] | null },
+  dayName: string,
+): boolean => {
+  if (!activity.open_days || activity.open_days.length === 0) {
+    return true; // If no open_days specified, assume it's open every day
+  }
+  return activity.open_days.includes(dayName);
 };
 
 // Type for activities with their specific type
@@ -485,6 +504,9 @@ export const activityRouter = createTRPCRouter({
             evening: null,
           };
 
+          // Get the French day name for this day
+          const dayName = getFrenchDayName(day);
+
           // Filter campsite activities for this day
           // Compare using simple date strings to avoid timezone issues
           const dayDateString = day.toISOString().split("T")[0]; // YYYY-MM-DD
@@ -494,14 +516,18 @@ export const activityRouter = createTRPCRouter({
             return activityDateString === dayDateString;
           });
 
-          // Filter must-see activities to avoid reusing the same activity across the schedule
+          // Filter must-see activities to avoid reusing the same activity across the schedule AND check open_days
           const availableMustSeeActivities = mustSeeActivities.filter(
-            (activity) => !usedMustSeeIds.has(activity.ID),
+            (activity) =>
+              !usedMustSeeIds.has(activity.ID) &&
+              activityIsOpenOnDay(activity, dayName),
           );
 
-          // Filter local activities to avoid reusing the same activity across the schedule
+          // Filter local activities to avoid reusing the same activity across the schedule AND check open_days
           const availableLocalActivities = localActivities.filter(
-            (activity) => !usedLocalIds.has(activity.ID),
+            (activity) =>
+              !usedLocalIds.has(activity.ID) &&
+              activityIsOpenOnDay(activity, dayName),
           );
 
           // Group must-see activities by time slot suitability

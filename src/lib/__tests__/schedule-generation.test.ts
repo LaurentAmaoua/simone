@@ -91,6 +91,25 @@ const createMockCampsiteActivity = (
   updatedAt: null,
 });
 
+// Helper function to convert Date to French day name (capitalized to match database format)
+const getFrenchDayName = (date: Date): string => {
+  const dayName = Intl.DateTimeFormat("fr-FR", { weekday: "long" }).format(
+    date,
+  );
+  return dayName.charAt(0).toUpperCase() + dayName.slice(1);
+};
+
+// Helper function to check if an activity is open on a specific day
+const activityIsOpenOnDay = (
+  activity: { open_days?: string[] | null },
+  dayName: string,
+): boolean => {
+  if (!activity.open_days || activity.open_days.length === 0) {
+    return true; // If no open_days specified, assume it's open every day
+  }
+  return activity.open_days.includes(dayName);
+};
+
 // Mock schedule generation function (simplified version of the actual logic)
 function generateMockSchedule(
   dates: Date[],
@@ -114,13 +133,20 @@ function generateMockSchedule(
       evening: null,
     };
 
-    // Filter activities to prevent reusing the same specific activity ID
+    // Get the French day name for this day
+    const dayName = getFrenchDayName(day);
+
+    // Filter activities to prevent reusing the same specific activity ID AND check open_days
     const availableMustSeeActivities = mustSeeActivities.filter(
-      (activity) => !usedMustSeeIds.has(activity.ID),
+      (activity) =>
+        !usedMustSeeIds.has(activity.ID) &&
+        activityIsOpenOnDay(activity, dayName),
     );
 
     const availableLocalActivities = localActivities.filter(
-      (activity) => !usedLocalIds.has(activity.ID),
+      (activity) =>
+        !usedLocalIds.has(activity.ID) &&
+        activityIsOpenOnDay(activity, dayName),
     );
 
     // Assignment functions
@@ -414,6 +440,75 @@ describe("Schedule Generation Logic", () => {
       if (localInSchedule.length === 1) {
         expect(localInSchedule[0]?.ID).toBe(singleLocal[0]?.ID);
       }
+    });
+
+    it("should respect open_days and only schedule activities on their open days", () => {
+      // Create a local activity that's only open on Saturday
+      const saturdayOnlyActivity: LocalActivity = {
+        ID: 999,
+        Title: "Saturday Only Activity",
+        Description: "Only open on Saturdays",
+        Location: "Test Location",
+        Category: "Test",
+        Distance: "1km",
+        Duration: "2h",
+        ExternalUrl: null,
+        opening_time: "09:00",
+        closing_time: "18:00",
+        open_days: ["Samedi"], // Only Saturday
+        Campings: CAMPSITES.BELA_BASQUE,
+        createdAt: new Date(),
+        updatedAt: null,
+      };
+
+      // Create dates that include a Saturday and other days
+      const testDates = [
+        new Date("2025-01-13T00:00:00.000Z"), // Monday
+        new Date("2025-01-14T00:00:00.000Z"), // Tuesday
+        new Date("2025-01-18T00:00:00.000Z"), // Saturday
+      ];
+
+      const schedule = generateMockSchedule(
+        testDates,
+        [],
+        [saturdayOnlyActivity],
+        [],
+      );
+
+      // Check Monday (should not have the Saturday-only activity)
+      const mondayActivities = [
+        schedule[0]?.morning,
+        schedule[0]?.afternoon,
+        schedule[0]?.evening,
+      ].filter((a) => a?.ID === saturdayOnlyActivity.ID);
+      expect(mondayActivities).toHaveLength(0);
+
+      // Check Tuesday (should not have the Saturday-only activity)
+      const tuesdayActivities = [
+        schedule[1]?.morning,
+        schedule[1]?.afternoon,
+        schedule[1]?.evening,
+      ].filter((a) => a?.ID === saturdayOnlyActivity.ID);
+      expect(tuesdayActivities).toHaveLength(0);
+
+      // Check Saturday (should have the Saturday-only activity)
+      const saturdayActivities = [
+        schedule[2]?.morning,
+        schedule[2]?.afternoon,
+        schedule[2]?.evening,
+      ].filter((a) => a?.ID === saturdayOnlyActivity.ID);
+      expect(saturdayActivities.length).toBeGreaterThan(0);
+    });
+
+    it("should verify French day name conversion works correctly", () => {
+      // Test specific dates with known days
+      const monday = new Date("2025-01-13T00:00:00.000Z");
+      const tuesday = new Date("2025-01-14T00:00:00.000Z");
+      const saturday = new Date("2025-01-18T00:00:00.000Z");
+
+      expect(getFrenchDayName(monday)).toBe("Lundi");
+      expect(getFrenchDayName(tuesday)).toBe("Mardi");
+      expect(getFrenchDayName(saturday)).toBe("Samedi");
     });
   });
 });
